@@ -1,0 +1,418 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-05T15:09:26.031263+00:00",
+  "title": "Design System: Chauffeur",
+  "extensions": {
+    "colorMeta": {
+      "canvas": {
+        "role": "neutral",
+        "displayName": "Canvas",
+        "tonalRamp": [
+          "oklch(15% 0.00287 264.54)",
+          "oklch(26% 0.00287 264.54)",
+          "oklch(38% 0.00287 264.54)",
+          "oklch(49% 0.00287 264.54)",
+          "oklch(61% 0.00287 264.54)",
+          "oklch(72% 0.00287 264.54)",
+          "oklch(84% 0.00287 264.54)",
+          "oklch(95% 0.00287 264.54)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "tonalRamp": [
+          "oklch(15% 0.03694 283.65)",
+          "oklch(26% 0.03694 283.65)",
+          "oklch(38% 0.03694 283.65)",
+          "oklch(49% 0.03694 283.65)",
+          "oklch(61% 0.03694 283.65)",
+          "oklch(72% 0.03694 283.65)",
+          "oklch(84% 0.03694 283.65)",
+          "oklch(95% 0.03694 283.65)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Muted",
+        "tonalRamp": [
+          "oklch(15% 0.02676 282.74)",
+          "oklch(26% 0.02676 282.74)",
+          "oklch(38% 0.02676 282.74)",
+          "oklch(49% 0.02676 282.74)",
+          "oklch(61% 0.02676 282.74)",
+          "oklch(72% 0.02676 282.74)",
+          "oklch(84% 0.02676 282.74)",
+          "oklch(95% 0.02676 282.74)"
+        ]
+      },
+      "accent": {
+        "role": "primary",
+        "displayName": "Accent",
+        "tonalRamp": [
+          "oklch(15% 0.20281 273.41)",
+          "oklch(26% 0.20281 273.41)",
+          "oklch(38% 0.20281 273.41)",
+          "oklch(49% 0.20281 273.41)",
+          "oklch(61% 0.20281 273.41)",
+          "oklch(72% 0.20281 273.41)",
+          "oklch(84% 0.20281 273.41)",
+          "oklch(95% 0.20281 273.41)"
+        ]
+      },
+      "accent-hover": {
+        "role": "primary",
+        "displayName": "Accent Hover",
+        "tonalRamp": [
+          "oklch(15% 0.17612 272.97)",
+          "oklch(26% 0.17612 272.97)",
+          "oklch(38% 0.17612 272.97)",
+          "oklch(49% 0.17612 272.97)",
+          "oklch(61% 0.17612 272.97)",
+          "oklch(72% 0.17612 272.97)",
+          "oklch(84% 0.17612 272.97)",
+          "oklch(95% 0.17612 272.97)"
+        ]
+      },
+      "soft": {
+        "role": "secondary",
+        "displayName": "Soft",
+        "tonalRamp": [
+          "oklch(15% 0.01801 272.31)",
+          "oklch(26% 0.01801 272.31)",
+          "oklch(38% 0.01801 272.31)",
+          "oklch(49% 0.01801 272.31)",
+          "oklch(61% 0.01801 272.31)",
+          "oklch(72% 0.01801 272.31)",
+          "oklch(84% 0.01801 272.31)",
+          "oklch(95% 0.01801 272.31)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Line",
+        "tonalRamp": [
+          "oklch(15% 0.01263 271.28)",
+          "oklch(26% 0.01263 271.28)",
+          "oklch(38% 0.01263 271.28)",
+          "oklch(49% 0.01263 271.28)",
+          "oklch(61% 0.01263 271.28)",
+          "oklch(72% 0.01263 271.28)",
+          "oklch(84% 0.01263 271.28)",
+          "oklch(95% 0.01263 271.28)"
+        ]
+      },
+      "green": {
+        "role": "secondary",
+        "displayName": "Green",
+        "tonalRamp": [
+          "oklch(15% 0.07637 177.73)",
+          "oklch(26% 0.07637 177.73)",
+          "oklch(38% 0.07637 177.73)",
+          "oklch(49% 0.07637 177.73)",
+          "oklch(61% 0.07637 177.73)",
+          "oklch(72% 0.07637 177.73)",
+          "oklch(84% 0.07637 177.73)",
+          "oklch(95% 0.07637 177.73)"
+        ]
+      },
+      "white": {
+        "role": "neutral",
+        "displayName": "White",
+        "tonalRamp": [
+          "oklch(15% 0.00000 89.88)",
+          "oklch(26% 0.00000 89.88)",
+          "oklch(38% 0.00000 89.88)",
+          "oklch(49% 0.00000 89.88)",
+          "oklch(61% 0.00000 89.88)",
+          "oklch(72% 0.00000 89.88)",
+          "oklch(84% 0.00000 89.88)",
+          "oklch(95% 0.00000 89.88)"
+        ]
+      },
+      "focus-soft": {
+        "role": "secondary",
+        "displayName": "Focus Soft",
+        "tonalRamp": [
+          "oklch(15% 0.04628 275.94)",
+          "oklch(26% 0.04628 275.94)",
+          "oklch(38% 0.04628 275.94)",
+          "oklch(49% 0.04628 275.94)",
+          "oklch(61% 0.04628 275.94)",
+          "oklch(72% 0.04628 275.94)",
+          "oklch(84% 0.04628 275.94)",
+          "oklch(95% 0.04628 275.94)"
+        ]
+      },
+      "memory-band": {
+        "role": "secondary",
+        "displayName": "Memory band",
+        "scope": "Local planned-capability illustration"
+      },
+      "memory-profile": {
+        "role": "secondary",
+        "displayName": "Memory profile",
+        "scope": "Local planned-capability illustration"
+      },
+      "memory-text": {
+        "role": "secondary",
+        "displayName": "Memory text",
+        "scope": "Local planned-capability illustration"
+      },
+      "whatsapp-preview": {
+        "role": "secondary",
+        "displayName": "WhatsApp preview",
+        "scope": "Local planned-capability illustration"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Hero display",
+        "purpose": "Website hero only."
+      },
+      "wordmark": {
+        "displayName": "Serif brand",
+        "purpose": "Wordmark and brief brand accents."
+      }
+    },
+    "shadows": [
+      {
+        "name": "artwork",
+        "value": "0 14px 35px #30314a25",
+        "purpose": "Portrait fan"
+      },
+      {
+        "name": "note",
+        "value": "0 6px 24px #30314a12",
+        "purpose": "Floating notes"
+      },
+      {
+        "name": "action",
+        "value": "0 5px 15px #4149cf15",
+        "purpose": "Primary controls"
+      }
+    ],
+    "motion": [
+      {
+        "name": "fan-open",
+        "value": "1.1s cubic-bezier(.16,1,.3,1)",
+        "purpose": "One entrance; final pose under reduced motion"
+      },
+      {
+        "name": "button",
+        "value": ".18s",
+        "purpose": "Background, colour and 2px hover lift"
+      },
+      {
+        "name": "chat-arrive",
+        "value": "520ms cubic-bezier(.16,1,.3,1); delays 250ms, 650ms, 1050ms",
+        "purpose": "Replayable clipped chat entrance; disabled under reduced motion"
+      },
+      {
+        "name": "choice-change",
+        "value": "300ms cubic-bezier(.16,1,.3,1); translateY(5px) to 0",
+        "purpose": "Illustrative language, occasion, preference, price and tracking changes; disabled under reduced motion"
+      },
+      {
+        "name": "voice-pulse",
+        "value": "700ms ease-in-out alternate",
+        "purpose": "Explicitly activated visual waveform, maximum 8 seconds; stops offscreen/hidden and does not animate under reduced motion"
+      },
+      {
+        "name": "care-route",
+        "value": "600ms cubic-bezier(.16,1,.3,1)",
+        "purpose": "User-selected route position; instantaneous under reduced motion"
+      },
+      {
+        "name": "care-note",
+        "value": "420ms cubic-bezier(.16,1,.3,1)",
+        "purpose": "Clipped care-message reveal; static under reduced motion"
+      },
+      {
+        "name": "approval-handoff",
+        "value": "650ms ease-out; second line delay 250ms",
+        "purpose": "Example approval acknowledgement; static under reduced motion"
+      },
+      {
+        "name": "approval-seal",
+        "value": "350ms rotation; 250ms colour/background",
+        "purpose": "Example approval seal; no rotation under reduced motion"
+      },
+      {
+        "name": "voice-orbits",
+        "value": "4s linear; reverse 5s linear; core 1100ms ease-in-out alternate",
+        "purpose": "Bound to existing activated 8-second visual preview; static alternative under reduced motion"
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "wide",
+        "value": "1600px"
+      },
+      {
+        "name": "tablet",
+        "value": "1050px"
+      },
+      {
+        "name": "phone",
+        "value": "760px"
+      },
+      {
+        "name": "small-phone",
+        "value": "430px"
+      },
+      {
+        "name": "visual-story-tablet",
+        "value": "900px"
+      },
+      {
+        "name": "visual-story-stack",
+        "value": "650px"
+      }
+    ],
+    "surfaces": {
+      "website": "/",
+      "demo": "/demo/"
+    },
+    "reducedMotion": "Disable all animations and transitions; use final portrait pose and automatic review scrolling.",
+    "localTreatments": {
+      "memory": {
+        "band": "#303879",
+        "profile": "#384383",
+        "text": "#f6f7ff",
+        "scope": "Memory story only; deliberate exception to pale everyday panels."
+      },
+      "whatsapp": {
+        "surface": "#f0f5f1",
+        "scope": "Illustrative planned WhatsApp conversation only."
+      },
+      "voice": {
+        "bandToken": "soft",
+        "panel": "#f7f8ff",
+        "scope": "Illustrative planned voice experience only."
+      },
+      "care": {
+        "surface": "#ecf2ef",
+        "graphic": "#34755f",
+        "scope": "Problem-specific interactive care illustration only"
+      },
+      "approval": {
+        "band": "#e9ecfb",
+        "scope": "Fictional approval illustration; no payment or purchase",
+        "artworkLabel": "Brand artwork \u00b7 not a product photo; directly beneath the item, before totals"
+      }
+    },
+    "exampleInteractions": {
+      "scope": "Website illustrations only; independent of /demo/ shopping state",
+      "focus": "2px solid #7d88df; outline-offset:4px",
+      "feedback": "Selected fills and text remain under reduced motion; polite live preference reply and delivery feedback",
+      "controls": [
+        "chat replay",
+        "English/Hindi/Hinglish language tabs",
+        "occasion buttons",
+        "example size and fabric selectors",
+        "fictional item/delivery totals toggle",
+        "delivery timeline selection",
+        "care scenario buttons",
+        "fictional approval/replay button"
+      ]
+    }
+  },
+  "components": [
+    {
+      "id": "button-primary",
+      "name": "Primary button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Primary button as implemented in Chauffeur.",
+      "html": "<button class=\"ds-primary\">Try Chauffeur</button>",
+      "css": ".ds-primary{font-family:Manrope,sans-serif;color:#242438;background:#4149cf;color:white;border:1px solid transparent;border-radius:100px;padding:14px 22px;font-size:13px;font-weight:700;min-height:45px;cursor:pointer;transition:background .18s,color .18s,transform .18s}.ds-primary:hover{background:#3138a8;transform:translateY(-2px)}.ds-primary:focus-visible{outline:3px solid #4149cf;outline-offset:5px}"
+    },
+    {
+      "id": "button-secondary",
+      "name": "Secondary button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Secondary button as implemented in Chauffeur.",
+      "html": "<button class=\"ds-secondary\">Try Chauffeur</button>",
+      "css": ".ds-secondary{font-family:Manrope,sans-serif;color:#242438;background:white;border:1px solid #dfe2eb;border-radius:100px;padding:14px 22px;font-size:13px;font-weight:700;min-height:45px;cursor:pointer;transition:background .18s,color .18s,transform .18s}.ds-secondary:hover{background:#e9edfa}.ds-secondary:focus-visible{outline:3px solid #4149cf;outline-offset:5px}"
+    },
+    {
+      "id": "search",
+      "name": "Search field",
+      "kind": "input",
+      "refersTo": "",
+      "description": "Search field as implemented in Chauffeur.",
+      "html": "<label class=\"ds-search\">Shopping request<input placeholder=\"Blue cotton kurta under \u20b91,000\"></label>",
+      "css": ".ds-search{font-family:Manrope,sans-serif;color:#242438;display:block;font-size:11px}.ds-search input{display:block;margin-top:8px;border:1px solid #ced3e3;border-radius:100px;padding:12px 17px;background:white;color:#242438;font:11px Manrope,sans-serif}.ds-search input:hover{border-color:#4149cf}.ds-search input:focus-visible{outline:3px solid #4149cf;outline-offset:5px}"
+    },
+    {
+      "id": "navigation",
+      "name": "Active demo navigation",
+      "kind": "nav",
+      "refersTo": "active-navigation",
+      "description": "Active demo navigation as implemented in Chauffeur.",
+      "html": "<nav><button class=\"ds-nav\">Find something</button></nav>",
+      "css": ".ds-nav{font-family:Manrope,sans-serif;color:#242438;background:#e9edfa;color:#4149cf;border:0;border-radius:10px;padding:13px 12px;font-size:12px;font-weight:700;cursor:pointer}.ds-nav:hover{background:#edf0f8}.ds-nav:focus-visible{outline:3px solid #4149cf;outline-offset:5px}"
+    },
+    {
+      "id": "chip",
+      "name": "Suggestion chip",
+      "kind": "chip",
+      "refersTo": "",
+      "description": "Suggestion chip as implemented in Chauffeur.",
+      "html": "<button class=\"ds-chip\">Blue kurta under \u20b91,000</button>",
+      "css": ".ds-chip{font-family:Manrope,sans-serif;color:#242438;background:transparent;border:1px solid #dfe2eb;border-radius:100px;padding:8px 11px;font-size:9px;cursor:pointer}.ds-chip:hover{background:#e9edfa}.ds-chip:focus-visible{outline:3px solid #4149cf;outline-offset:5px}"
+    },
+    {
+      "id": "card",
+      "name": "Product card",
+      "kind": "card",
+      "refersTo": "product-card",
+      "description": "Product card as implemented in Chauffeur.",
+      "html": "<article class=\"ds-card\"><div class=\"ds-swatch\">Sample item \u00b7 colour illustration</div><div class=\"ds-content\"><h3>Blue cotton kurta</h3><p>Sample total</p><strong>\u20b9609</strong></div></article>",
+      "css": ".ds-card{font-family:Manrope,sans-serif;color:#242438;border:1px solid #dfe2eb;border-radius:14px;background:white;overflow:hidden;width:240px}.ds-swatch{height:165px;display:grid;place-items:center;background:#dce7f6;color:#456286;font-size:8px}.ds-content{padding:17px 16px}.ds-content h3{font-size:13px;line-height:1.5;margin:8px 0 7px}.ds-content p{font-size:9px;color:#646576}.ds-content strong{display:block;font-size:23px;letter-spacing:-.03em;font-variant-numeric:tabular-nums}"
+    },
+    {
+      "name": "Memory profile",
+      "kind": "card",
+      "refersTo": "memory-profile",
+      "description": "Local indigo profile illustration in the memory story.",
+      "html": "<section class=\"ds-memory\"><strong>Your shopping preferences</strong><dl><div><dt>Usual size</dt><dd>M</dd></div></dl><p>Illustrative example \u00b7 persistent memory is planned.</p></section>",
+      "css": ".ds-memory{font-family:Manrope,sans-serif;background:#384383;color:#f6f7ff;border:1px solid #636fa2;border-radius:16px;padding:29px 32px;max-width:380px}.ds-memory strong{font-size:12px}.ds-memory dl{margin:0}.ds-memory dl>div{display:grid;grid-template-columns:1fr 1.4fr;gap:14px;padding:22px 0;border-bottom:1px solid #59699a}.ds-memory dt{font-size:11px;color:#c5cfec}.ds-memory dd{margin:0;font-size:14px;font-weight:700;color:#fff}.ds-memory p{font-size:9px;color:#c5cfec;margin-top:22px;line-height:1.65}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Old-school charm. New-school shopping.",
+    "overview": "A spacious modern shopping identity with painterly Indian fashion and a Renaissance twist. Clean Manrope headlines and cobalt controls keep the interface contemporary; the Instrument Serif wordmark and classical bust supply the historical quirk. Art belongs to the brand, while shopping results use explicitly labelled colour illustrations.",
+    "keyCharacteristics": [
+      "Pale canvas and cobalt actions.",
+      "Oversized sans-serif headlines with a restrained serif brand voice.",
+      "Painterly portrait fan and a shawled classical bust.",
+      "Softly bordered panels, pill controls and honest sample labels."
+    ],
+    "rules": [
+      {
+        "name": "The Action Rule",
+        "body": "Reserve solid cobalt fills for actions; keep everyday content panels pale or white. The memory story is a local exception: its indigo band and lighter profile panel form one deliberate contrast section, not a global dark theme.",
+        "section": "colors"
+      },
+      {
+        "name": "The Serif Rule",
+        "body": "Keep serif type in brand accents; use Manrope for shopping controls and main headings.",
+        "section": "typography"
+      }
+    ],
+    "dos": [
+      "Do keep the marketing website and shopping demo separate and linked.",
+      "Do use painterly Indian fashion and classical art for brand imagery.",
+      "Do preserve visible keyboard focus, labelled inputs and reduced-motion final poses.",
+      "Do label fictional catalogue details and brand illustrations clearly."
+    ],
+    "donts": [
+      "Don\u2019t present brand artwork as product photography.",
+      "Don\u2019t imply real store connections, payments or purchases.",
+      "Don\u2019t make motion necessary to read or operate the page."
+    ]
+  }
+}

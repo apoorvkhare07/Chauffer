@@ -1,0 +1,18 @@
+{
+  "name": "chauffeur",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 5174",
+    "build": "vite build",
+    "test": "node --test engine.test.js website.test.js"
+  },
+  "devDependencies": {
+    "vite": "^8.3.2"
+  },
+  "dependencies": {
+    "lucide-react": "^1.52.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  }
+}
