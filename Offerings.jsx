@@ -77,6 +77,19 @@ const features = [
   ["better-deals", "Prices & offers", Tags],
   ["tracking", "Automatic tracking", PackageCheck],
 ];
+function FeatureChoices({ items, selected, onSelect }) {
+  return <div className="feature-choices wrap" role="tablist" aria-label="Choose a feature">
+    {items.map(([id, label, Icon], index) => <button key={id} id={`tab-${id}`} role="tab" aria-selected={selected === id} aria-controls={`panel-${id}`} tabIndex={selected === id ? 0 : -1} onClick={() => onSelect(id)} onKeyDown={(event) => {
+      let next;
+      if (event.key === "ArrowRight") next = (index + 1) % items.length;
+      if (event.key === "ArrowLeft") next = (index - 1 + items.length) % items.length;
+      if (event.key === "Home") next = 0;
+      if (event.key === "End") next = items.length - 1;
+      if (next !== undefined) { event.preventDefault(); onSelect(items[next][0]); document.getElementById(`tab-${items[next][0]}`).focus(); }
+    }}><Icon size={19} /><span>{label}</span></button>)}
+  </div>;
+}
+
 function StatusNote({ children = "Explore the interactive example" }) {
   return (
     <p className="capability-status">
@@ -105,6 +118,8 @@ function Waveform({ playing }) {
 }
 
 export default function Offerings() {
+  const [conversationFeature, setConversationFeature] = useState("whatsapp");
+  const [shoppingFeature, setShoppingFeature] = useState("better-deals");
   const [language, setLanguage] = useState(0);
   const [occasion, setOccasion] = useState(0);
   const voicePreview = useRef(null);
@@ -149,21 +164,14 @@ export default function Offerings() {
             One familiar conversation, all the way through.
           </p>
         </div>
-        <div
-          className="capability-directory"
-          aria-label="Explore Chauffeur capabilities"
-        >
-          {features.map(([id, label, Icon]) => (
-            <a href={`#${id}`} key={id}>
-              <Icon size={19} strokeWidth={1.6} />
-              <span>{label}</span>
-              <ArrowUpRight size={14} />
-            </a>
-          ))}
-        </div>
+
       </section>
 
-      <section className="capability-row whatsapp-section wrap" id="whatsapp">
+      <section className="feature-group" aria-label="A conversation that gets you">
+        <div className="feature-group-heading wrap"><h2>A conversation that gets you.</h2><p>Your words, your taste, your preferences. Pick a feature to explore.</p></div>
+      <FeatureChoices items={features.slice(0, 4)} selected={conversationFeature} onSelect={setConversationFeature} />
+      <div id="panel-whatsapp" role="tabpanel" aria-labelledby="tab-whatsapp" hidden={conversationFeature !== "whatsapp"} className="feature-panel">
+<section className="capability-row whatsapp-section wrap" id="whatsapp">
         <div className="capability-copy">
           <h2>
             Your shopping trip
@@ -251,8 +259,9 @@ export default function Offerings() {
           </p>
         </div>
       </section>
-
-      <section className="voice-section" id="voice">
+      </div>
+      <div id="panel-voice" role="tabpanel" aria-labelledby="tab-voice" hidden={conversationFeature !== "voice"} className="feature-panel">
+<section className="voice-section" id="voice">
         <div className="wrap voice-layout">
           <div className="capability-copy">
             <h2>
@@ -353,8 +362,9 @@ export default function Offerings() {
           </div>
         </div>
       </section>
-
-      <section
+      </div>
+      <div id="panel-personalisation" role="tabpanel" aria-labelledby="tab-personalisation" hidden={conversationFeature !== "personalisation"} className="feature-panel">
+<section
         className="capability-row personalisation-section wrap"
         id="personalisation"
       >
@@ -424,8 +434,9 @@ export default function Offerings() {
           </StatusNote>
         </div>
       </section>
-
-      <section className="memory-section" id="memory">
+      </div>
+      <div id="panel-memory" role="tabpanel" aria-labelledby="tab-memory" hidden={conversationFeature !== "memory"} className="feature-panel">
+<section className="memory-section" id="memory">
         <div className="wrap memory-layout">
           <div className="capability-copy">
             <h2>
@@ -511,8 +522,13 @@ export default function Offerings() {
           </div>
         </div>
       </section>
-
-      <section className="capability-row deals-section wrap" id="better-deals">
+      </div>
+      </section>
+      <section className="feature-group" aria-label="From shortlist to doorstep">
+        <div className="feature-group-heading wrap"><h2>From shortlist to doorstep.</h2><p>Find a good deal, give your approval, and keep the next step close.</p></div>
+      <FeatureChoices items={[["better-deals", "Prices & offers", Tags], ["approval", "Your approval", ShieldCheck], ["tracking", "Order tracking", PackageCheck], ["shopping-care", "Aftercare", Heart]]} selected={shoppingFeature} onSelect={setShoppingFeature} />
+      <div id="panel-better-deals" role="tabpanel" aria-labelledby="tab-better-deals" hidden={shoppingFeature !== "better-deals"} className="feature-panel">
+<section className="capability-row deals-section wrap" id="better-deals">
         <div className="capability-copy">
           <h2>
             A price tag isn’t
@@ -607,8 +623,12 @@ export default function Offerings() {
           </p>
         </div>
       </section>
-
-      <section className="tracking-section" id="tracking">
+      </div>
+      <div id="panel-approval" role="tabpanel" aria-labelledby="tab-approval" hidden={shoppingFeature !== "approval"} className="feature-panel">
+<VisualStories mode="approval" />
+      </div>
+      <div id="panel-tracking" role="tabpanel" aria-labelledby="tab-tracking" hidden={shoppingFeature !== "tracking"} className="feature-panel">
+<section className="tracking-section" id="tracking">
         <div className="wrap tracking-layout">
           <div className="tracking-preview">
             <div className="tracking-head">
@@ -690,8 +710,11 @@ export default function Offerings() {
           </div>
         </div>
       </section>
-
-      <VisualStories />
+      </div>
+      <div id="panel-shopping-care" role="tabpanel" aria-labelledby="tab-shopping-care" hidden={shoppingFeature !== "shopping-care"} className="feature-panel">
+<VisualStories mode="care" />
+      </div>
+      </section>
 
       <section className="agent-principles wrap">
         <div>

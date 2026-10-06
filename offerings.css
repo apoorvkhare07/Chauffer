@@ -1464,3 +1464,21 @@
     background: #6169df;
   }
 }
+
+/* Four related examples share one stage, selected by the reader. */
+.feature-group { padding-block: 42px 24px; }
+.feature-group-heading h2 { font-size: clamp(28px, 3.3vw, 40px); letter-spacing: -.03em; }
+.feature-group-heading p { color: var(--muted); font-size: 14px; margin: 14px 0 26px; line-height: 1.7; }
+.feature-choices { display: flex; gap: 8px; }
+.feature-choices button { flex: 1; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 18px 12px; border: 1px solid var(--line); border-radius: 12px; background: transparent; color: var(--ink); font: inherit; font-size: 13px; cursor: pointer; transition: background .2s, color .2s; }
+.feature-choices button[aria-selected="true"] { background: var(--ink); color: white; border-color: var(--ink); }
+.feature-choices button:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+.feature-panel[hidden] { display: none; }
+.feature-panel:not([hidden]) { animation: feature-enter .3s ease-out; }
+.feature-panel > section, .feature-panel > section > .wrap { padding-top: 42px; padding-bottom: 42px; }
+.feature-panel > section > .wrap { padding-top: 0; padding-bottom: 0; }
+@keyframes feature-enter { from { opacity: .3; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 650px) { .feature-choices { display: grid; grid-template-columns: 1fr 1fr; } .feature-choices button { justify-content: flex-start; font-size: 12px; padding: 14px 12px; } .feature-group { padding-block: 30px 12px; } }
+@media (prefers-reduced-motion: reduce) { .feature-panel:not([hidden]) { animation: none; } .feature-choices button { transition: none; } }
+.offerings-intro { grid-template-columns: 1fr; padding-bottom: 12px; }
+.offerings-intro > div > p { max-width: 680px; }

@@ -46,14 +46,14 @@ const situations = [
   },
 ];
 
-export default function VisualStories() {
+export default function VisualStories({ mode }) {
   const [scenario, setScenario] = useState(0);
   const [approved, setApproved] = useState(false);
   const care = situations[scenario];
   const CareIcon = care.icon;
   return (
     <>
-      <section className="care-story wrap" id="shopping-care">
+      {mode !== "approval" && <section className="care-story wrap" id="shopping-care">
         <div className="visual-story-copy">
           <h2>
             A little care.
@@ -122,8 +122,8 @@ export default function VisualStories() {
             connected.
           </p>
         </div>
-      </section>
-      <section className="approval-story">
+      </section>}
+      {mode !== "care" && <section className="approval-story">
         <div className="wrap approval-layout">
           <div className={`approval-stage ${approved ? "is-approved" : ""}`}>
             <div className="approval-flow" aria-hidden="true">
@@ -232,7 +232,7 @@ export default function VisualStories() {
             </p>
           </div>
         </div>
-      </section>
+      </section>}
     </>
   );
 }
