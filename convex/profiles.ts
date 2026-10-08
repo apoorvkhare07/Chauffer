@@ -14,7 +14,7 @@ export const save = mutation({args: {preferences}, returns: v.null(), handler: a
  if (budget !== undefined && (!Number.isSafeInteger(budget) || budget <= 0)) throw new Error('Budget must be a positive amount in paise.');
  const row = await ctx.db.query('profiles').withIndex('by_owner', q => q.eq('owner', owner)).unique();
  const data = {owner, preferences: args.preferences, updatedAt: Date.now()};
- if (row) await ctx.db.replace(row._id, data); else await ctx.db.insert('profiles', data);
+ if (row) await ctx.db.patch(row._id, data); else await ctx.db.insert('profiles', data);
  return null;
 }});
 export const clear = mutation({args: {}, returns: v.null(), handler: async ctx => {

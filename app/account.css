@@ -63,3 +63,5 @@
 .chat-product-preview a {display:inline-block;margin-top:8px;text-decoration:underline;}
 .chat-dislike {margin:10px 0 0 8px;}
 .chat-error {color:#9b2828;background:#fff;padding:12px;border-radius:8px;}
+.chat-reasons {font-size:12px;line-height:1.6;background:#eef3ee;border-radius:7px;padding:10px 12px;margin-top:10px;}
+.chat-reasons ul {padding-left:17px;margin:5px 0 0;}

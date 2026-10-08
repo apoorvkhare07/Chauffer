@@ -3,7 +3,7 @@ import {allowedImageUrl,allowedProductUrl,matchesOption,type Option,type Require
 
 // Amazon search cards keep each title, link and price inside one result row.
 // Missing prices or access-challenge pages produce no invented options.
-export function amazonOptions(html:string,r:Requirements,observedAt:number,excludeUrls:string[]=[]):Option[]{
+export function amazonOptions(html:string,r:Requirements,observedAt:number,excludeUrls:string[]=[],limit=3):Option[]{
  const $=load(html),options:Option[]=[];
  $('[data-component-type="s-search-result"]').each((_i,el)=>{
   const row=$(el),asin=row.attr('data-asin');if(!asin||!/^[A-Z0-9]{10}$/.test(asin))return;
@@ -17,7 +17,7 @@ export function amazonOptions(html:string,r:Requirements,observedAt:number,exclu
   const option:Option={...(allowedImageUrl(image)?{imageUrl:image}:{}),title:title.slice(0,200),url:`https://www.amazon.in/dp/${asin}`,price,colour,fabric,observedAt,store:'Amazon',source:'listing',priceFrom:true};
   if(!excludeUrls.includes(option.url)&&matchesOption(option,r)&&!options.some(x=>x.url===option.url))options.push(option);
  });
- return options.sort((a,b)=>a.price-b.price).slice(0,3);
+ return options.sort((a,b)=>a.price-b.price).slice(0,limit);
 }
 export function meeshoOptions(data:unknown,r:Requirements,observedAt:number):Option[]{
  if(!data||typeof data!=='object'||!Array.isArray((data as any).catalogs))throw new Error('No readable Meesho search');

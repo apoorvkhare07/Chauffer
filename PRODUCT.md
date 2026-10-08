@@ -41,3 +41,7 @@ The signed-in `/app/` page provides a WhatsApp-like discovery conversation, quic
 ## Discovery update — 8 October 2026
 
 Web and WhatsApp now share saved Convex conversation planning and a discovery workflow. Web chats survive reload; fresh sessions use saved size and budget. Results include store-sourced images where available, and shoppers can reject a product, ask for more without repeats, or say none of these and refine colour/fabric/budget. This is still rule-based discovery, not learned personal taste or flexible AI conversation. WhatsApp identity linking and real message delivery remain unverified. Price sorting is not exact-product comparison. Price comparison and offer intelligence are planned, not built. See `IMPLEMENTATION_PLAN.md` for the phased discovery plan.
+
+## Gemini discovery implementation
+
+Convex Agent and Gemini now provide an optional shared free-text planner for web and WhatsApp. It interprets richer preferences and numbered product feedback, with deterministic ranking of real merchant candidates and evidence-backed recommendation reasons. Explicitly remembered size/budget/taste persist in the web profile. The integration requires GEMINI_API_KEY in Convex; real Gemini responses must be tested before describing AI conversation as verified. Without a key, the app clearly identifies its basic rules mode. Store facts, size availability, price comparison, offer intelligence and real WhatsApp delivery retain their existing limits.

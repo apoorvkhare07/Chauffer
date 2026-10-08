@@ -8,6 +8,8 @@
  * @module
  */
 
+import type * as aiConversations from "../aiConversations.js";
+import type * as aiDecision from "../aiDecision.js";
 import type * as auth from "../auth.js";
 import type * as conversationCore from "../conversationCore.js";
 import type * as conversations from "../conversations.js";
@@ -19,7 +21,10 @@ import type * as liveDiscovery from "../liveDiscovery.js";
 import type * as marketplaces from "../marketplaces.js";
 import type * as profiles from "../profiles.js";
 import type * as purchases from "../purchases.js";
+import type * as ranking from "../ranking.js";
+import type * as shoppingAI from "../shoppingAI.js";
 import type * as storeExtractors from "../storeExtractors.js";
+import type * as taste from "../taste.js";
 import type * as webDiscovery from "../webDiscovery.js";
 import type * as whatsapp from "../whatsapp.js";
 import type * as whatsappProtocol from "../whatsappProtocol.js";
@@ -31,6 +36,8 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  aiConversations: typeof aiConversations;
+  aiDecision: typeof aiDecision;
   auth: typeof auth;
   conversationCore: typeof conversationCore;
   conversations: typeof conversations;
@@ -42,7 +49,10 @@ declare const fullApi: ApiFromModules<{
   marketplaces: typeof marketplaces;
   profiles: typeof profiles;
   purchases: typeof purchases;
+  ranking: typeof ranking;
+  shoppingAI: typeof shoppingAI;
   storeExtractors: typeof storeExtractors;
+  taste: typeof taste;
   webDiscovery: typeof webDiscovery;
   whatsapp: typeof whatsapp;
   whatsappProtocol: typeof whatsappProtocol;
@@ -77,4 +87,5 @@ export declare const internal: FilterApi<
 export declare const components: {
   staticHosting: import("@convex-dev/static-hosting/_generated/component.js").ComponentApi<"staticHosting">;
   workflow: import("@convex-dev/workflow/_generated/component.js").ComponentApi<"workflow">;
+  agent: import("@convex-dev/agent/_generated/component.js").ComponentApi<"agent">;
 };

@@ -15,6 +15,14 @@ Web is the current user interface. Discovery, feedback, ranking and comparison m
 - Show more skips previously shown products; Not for me records rejection for the current conversation and asks what to change. None of these asks for feedback before searching. Changes to colour, fabric, size or budget update the next search. Unsupported style/occasion requests ask for supported constraints rather than pretending to understand.
 - Result batches remain small, up to three per store. Flipkart currently reads at most 12 catalogue links per search and Amazon reads the returned search page. Exhausting those candidates is not the same as exhausting the entire store. No new matches must be shown honestly.
 
+### Gemini implementation and verification gate
+
+Implemented: Convex Agent threads, structured Gemini request planning, English/Hindi/Hinglish prompt guidance, richer style/occasion/fit/pattern fields, latest-batch numbered references, explicit feedback records, consented profile memory, bounded wider candidate retrieval, deterministic evidence-based ranking, displayed recommendation reasons and unknown preferences. Both channels use the same functions. The default model is Gemini 3.1 Flash-Lite, overridable by server configuration. User-requested direct Gemini keys override the skill’s gateway default.
+
+Activation requires GEMINI_API_KEY in each intended Convex deployment. Until configured, keep the working basic chat and label it honestly. Mocked model workflow checks are not proof of free-text understanding. Run real requests and measure quality, latency and token usage once the key is available. Confirm free text across English/Hindi/Hinglish, one-question follow-ups, explicit budget overrides, same-session rejection, numbered refinement, remembered preferences across reset and model failure. No real Gemini verification is recorded yet.
+
+Still missing: image-based style inference, richer synonym/attribute matching, deep catalogue pagination, preference editing/history interface, true relevance evaluation and broader diversity. Rankings use confirmed title/specification words; they cannot establish suitability for an occasion or absence of a disliked detail when the store omits it. Expose those unknowns.
+
 ### Next: adapt to taste, not just fetch another batch
 
 1. Persist explicit feedback with the product/result reference, reason and time: like, dislike, too expensive, wrong fit, fabric, colour, pattern and occasion. Distinguish preferences for this request from preferences the user agrees to remember across visits. Current rejection is conversation-specific.
@@ -94,7 +102,7 @@ Page content is untrusted information, never an instruction to change the user's
 | Channels | WhatsApp and voice using the same shopping backend | Account linking, repeated message handling, user verification handoff |
 | Launch | Convex static hosting through npm run deploy | Tests, build, sign-in and all page routes on deployed site |
 
-Use Convex Workflow when implementing long-running purchase execution. Do not implement a parallel job queue. The shared saved conversation layer currently uses rules. Add Convex Agent for flexible conversation while retaining shared discovery tools and channel-independent result records.
+Use Convex Workflow when implementing long-running purchase execution. Do not implement a parallel job queue. The shared conversation layer supports Gemini via Convex Agent when a server key is configured; otherwise it stays in visibly labelled rules mode. Shared discovery tools and result records are used by both channels.
 
 ## Payment and uncertain outcomes
 

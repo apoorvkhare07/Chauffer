@@ -3,10 +3,11 @@ import { v } from 'convex/values';
 export const requirementsValidator = v.object({
  category: v.optional(v.string()), budget: v.optional(v.number()), size: v.optional(v.string()),
  colour: v.optional(v.string()), fabric: v.optional(v.string()),
+ occasion:v.optional(v.string()),style:v.optional(v.string()),fit:v.optional(v.string()),pattern:v.optional(v.string()),sleeve:v.optional(v.string()),length:v.optional(v.string()),mustHave:v.optional(v.array(v.string())),
 });
-export type Requirements = {category?: string; budget?: number; size?: string; colour?: string; fabric?: string};
-export const optionValidator = v.object({title:v.string(), url:v.string(), price:v.number(), colour:v.string(), fabric:v.string(), observedAt:v.number(), store:v.optional(v.union(v.literal('Flipkart'),v.literal('Amazon'),v.literal('Meesho'))), source:v.optional(v.union(v.literal('product'),v.literal('listing'))), priceFrom:v.optional(v.boolean()),imageUrl:v.optional(v.string())});
-export type Option = {title:string; url:string; price:number; colour:string; fabric:string; observedAt:number; store?:'Flipkart'|'Amazon'|'Meesho'; source?:'product'|'listing'; priceFrom?:boolean; imageUrl?:string};
+export type Requirements = import('convex/values').Infer<typeof requirementsValidator>;
+export const optionValidator = v.object({title:v.string(), url:v.string(), price:v.number(), colour:v.string(), fabric:v.string(), observedAt:v.number(), store:v.optional(v.union(v.literal('Flipkart'),v.literal('Amazon'),v.literal('Meesho'))), source:v.optional(v.union(v.literal('product'),v.literal('listing'))), priceFrom:v.optional(v.boolean()),imageUrl:v.optional(v.string()),attributes:v.optional(v.array(v.string())),reasons:v.optional(v.array(v.string())),unknownPreferences:v.optional(v.array(v.string()))});
+export type Option = {title:string; url:string; price:number; colour:string; fabric:string; observedAt:number; store?:'Flipkart'|'Amazon'|'Meesho'; source?:'product'|'listing'; priceFrom?:boolean; imageUrl?:string;attributes?:string[];reasons?:string[];unknownPreferences?:string[]};
 
 export function nextRequest(text: string, previous: Requirements = {}): {requirements:Requirements; reply:string; search:boolean} {
  const trimmed = text.trim().slice(0,1000), lower = trimmed.toLowerCase();
@@ -38,12 +39,13 @@ export function nextRequest(text: string, previous: Requirements = {}): {require
  const query=searchTerms(requirements);
  return {requirements,reply:`I'll check Flipkart and Amazon now for ${query}, under ₹${requirements.budget.toLocaleString('en-IN')}${requirements.size?`, requested size ${requirements.size}`:''}. Size availability will need checking on the store.`,search:true};
 }
-export function searchTerms(r:Requirements): string {return [r.colour,r.fabric,r.category,'women'].filter(Boolean).join(' ');}
+export function searchTerms(r:Requirements,includeSoft=true): string {return [r.colour,r.fabric,...(includeSoft?[r.pattern,r.fit,r.style,r.sleeve,r.length]:[]),...(r.mustHave??[]),r.category,'women'].filter(Boolean).join(' ');}
 export function allowedProductUrl(raw:string): boolean {try {const u=new URL(raw);return u.protocol==='https:'&&((u.hostname==='www.flipkart.com'&&u.pathname.includes('/p/'))||(u.hostname==='www.meesho.com'&&/^\/[^/]+\/p\/[a-z0-9]+\/?$/.test(u.pathname))||(u.hostname==='www.amazon.in'&&/\/(?:dp|gp\/product)\/[A-Z0-9]{10}(?:\/|$)/.test(u.pathname)))&&!u.username&&!u.password;}catch{return false;}}
 export function matchesOption(o:Option,r:Requirements): boolean {
  if (!allowedProductUrl(o.url)||!Number.isFinite(o.price)||o.price<=0||o.price>(r.budget??0)) return false;
  const category=r.category==='top'?/\b(top|tops|tunic|tunics)\b/:r.category==='dress'?/\b(dress|dresses)\b/:r.category==='saree'?/\b(saree|sari)\b/:/\b(kurta|kurtas|kurti|kurtis)\b/;
  if (!category.test(o.title.toLowerCase()))return false;
+ if(r.mustHave?.some(term=>!new RegExp(`\\b${term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}\\b`,'i').test([o.title,...(o.attributes??[])].join(' '))))return false;
  if(r.colour&&!o.colour.toLowerCase().includes(r.colour))return false;
  if(r.fabric){const wanted=r.fabric.toLowerCase();const actual=o.fabric.toLowerCase();if(wanted==='pure cotton'||wanted==='100% cotton'){if(!/pure cotton|100% cotton/.test(actual))return false;}else if(!actual.includes(wanted))return false;}
  return true;

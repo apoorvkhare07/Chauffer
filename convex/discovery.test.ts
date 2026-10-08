@@ -27,7 +27,7 @@ const ld=(x:unknown)=>`<script type="application/ld+json">${JSON.stringify(x)}</
 function productHtml(){return ld([{ '@type':'Product',name:option.title,sku:'TEST',color:option.colour,offers:{price:500,priceCurrency:'INR',availability:'https://schema.org/InStock'}}])+`<script id="is_script">window.__INITIAL_STATE__ = ${JSON.stringify({recommendation:{tracking:{productId:'OTHER',widgetType:'atlas_product_details'},value:{label_0:{value:{text:'Fabric'}},label_1:{value:{text:['Silk']}}}},product:{tracking:{productId:'TEST',widgetType:'atlas_product_details'},value:{label_0:{value:{text:'Fabric'}},label_1:{value:{text:['Cotton Blend']}}}}})};</script>`;}
 test('live extraction uses merchant data and scopes fabric to the actual product, never recommendations',()=>{
  expect(listingUrls(ld([{'@type':'ItemList',itemListElement:[{url},{url:'https://evil.test/p/test'},{url}]}]))).toEqual([url]);
- expect(productOption(productHtml(),url,1)).toEqual(option);
+ expect(productOption(productHtml(),url,1)).toEqual({...option,attributes:['Fabric: Cotton Blend']});
  expect(productOption(productHtml().replace('InStock','OutOfStock'),url,1)).toBeNull();
  expect(productOption('<h1>Blocked</h1>',url,1)).toBeNull();
 });
