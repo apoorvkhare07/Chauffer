@@ -1,5 +1,5 @@
 import {v} from 'convex/values';
-import {searchTerms,type Requirements} from './discoveryRules';
+import {searchTerms,optionValidator,type Requirements} from './discoveryRules';
 export const stores=['Flipkart','Amazon'] as const;
 export type Store=typeof stores[number];
 export const storeValidator=v.union(v.literal('Flipkart'),v.literal('Amazon'));
@@ -11,3 +11,5 @@ export function storeSearchUrl(store:Store,r:Requirements):string {
  if(store==='Amazon'&&r.budget)url.searchParams.set('rh',`p_36:-${Math.floor(r.budget*100)}`);
  return url.href;
 }
+
+export const discoveryResultValidator=v.object({options:v.array(optionValidator),failed:v.boolean(),stores:v.array(storeResultValidator)});

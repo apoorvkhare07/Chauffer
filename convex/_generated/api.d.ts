@@ -9,6 +9,8 @@
  */
 
 import type * as auth from "../auth.js";
+import type * as conversationCore from "../conversationCore.js";
+import type * as conversations from "../conversations.js";
 import type * as discoveryRules from "../discoveryRules.js";
 import type * as discoveryWorkflow from "../discoveryWorkflow.js";
 import type * as http from "../http.js";
@@ -30,6 +32,8 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
+  conversationCore: typeof conversationCore;
+  conversations: typeof conversations;
   discoveryRules: typeof discoveryRules;
   discoveryWorkflow: typeof discoveryWorkflow;
   http: typeof http;

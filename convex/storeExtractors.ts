@@ -1,9 +1,9 @@
 import {load} from 'cheerio';
-import {allowedProductUrl,matchesOption,type Option,type Requirements} from './discoveryRules';
+import {allowedImageUrl,allowedProductUrl,matchesOption,type Option,type Requirements} from './discoveryRules';
 
 // Amazon search cards keep each title, link and price inside one result row.
 // Missing prices or access-challenge pages produce no invented options.
-export function amazonOptions(html:string,r:Requirements,observedAt:number):Option[]{
+export function amazonOptions(html:string,r:Requirements,observedAt:number,excludeUrls:string[]=[]):Option[]{
  const $=load(html),options:Option[]=[];
  $('[data-component-type="s-search-result"]').each((_i,el)=>{
   const row=$(el),asin=row.attr('data-asin');if(!asin||!/^[A-Z0-9]{10}$/.test(asin))return;
@@ -13,8 +13,9 @@ export function amazonOptions(html:string,r:Requirements,observedAt:number):Opti
   const price=Number(rawPrice.slice(1).replaceAll(',',''));
   const text=title.toLowerCase(),colour=text.match(/\b(navy blue|dark blue|light blue|blue|black|white|red|pink|green|yellow|purple|orange|beige|brown)\b/)?.[0]??'';
   const fabric=text.match(/\b(pure cotton|100% cotton|cotton blend|cotton|linen|silk|rayon|viscose|georgette|chiffon)\b/)?.[0]??'';
-  const option:Option={title:title.slice(0,200),url:`https://www.amazon.in/dp/${asin}`,price,colour,fabric,observedAt,store:'Amazon',source:'listing',priceFrom:true};
-  if(matchesOption(option,r)&&!options.some(x=>x.url===option.url))options.push(option);
+  const image=row.find('img.s-image').first().attr('src');
+  const option:Option={...(allowedImageUrl(image)?{imageUrl:image}:{}),title:title.slice(0,200),url:`https://www.amazon.in/dp/${asin}`,price,colour,fabric,observedAt,store:'Amazon',source:'listing',priceFrom:true};
+  if(!excludeUrls.includes(option.url)&&matchesOption(option,r)&&!options.some(x=>x.url===option.url))options.push(option);
  });
  return options.sort((a,b)=>a.price-b.price).slice(0,3);
 }

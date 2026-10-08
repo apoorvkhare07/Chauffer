@@ -1,7 +1,8 @@
 import { internalMutation,internalQuery,internalAction } from './_generated/server';
 import { internal } from './_generated/api';
 import { v } from 'convex/values';
-import { nextRequest,requirementsValidator } from './discoveryRules';
+import { getConversation,beginTurn } from './conversationCore';
+import { requirementsValidator } from './discoveryRules';
 import { testRecipientAllowed } from './whatsappProtocol';
 import { start } from '@convex-dev/workflow';
 import type { Id } from './_generated/dataModel';
@@ -14,12 +15,14 @@ export const receive=internalMutation({args:{incoming:v.array(v.object({messageI
   const recent=await ctx.db.query('waInbox').withIndex('by_phone',q=>q.eq('phone',message.phone).gte('_creationTime',Date.now()-60000)).take(11);if(recent.length>=10)continue;
   let conversation=await ctx.db.query('waConversations').withIndex('by_phone',q=>q.eq('phone',message.phone)).unique();
   if(conversation&&message.timestamp<conversation.lastInboundAt)continue;
-  const plan=message.text==='[unsupported message]'?{requirements:conversation?.requirements??{},reply:'Please send your clothing request as a text message for this test.',search:false}:nextRequest(message.text,conversation?.requirements??{});
+  const shared=await getConversation(ctx,`wa:${message.phone}`,conversation?.requirements??{});
+  const turn=await beginTurn(ctx,shared,message.text,{},undefined,true);
+  const plan={requirements:turn.requirements,reply:turn.reply,search:turn.search};
   let conversationId:Id<'waConversations'>;const revision=(conversation?.revision??0)+1;
-  if(conversation){conversationId=conversation._id;await ctx.db.patch(conversationId,{requirements:plan.requirements,revision,lastInboundAt:message.timestamp});}
-  else conversationId=await ctx.db.insert('waConversations',{phone:message.phone,requirements:plan.requirements,revision,lastInboundAt:message.timestamp});
+  if(conversation){conversationId=conversation._id;await ctx.db.patch(conversationId,{conversationId:turn.conversationId,requirements:plan.requirements,revision,lastInboundAt:message.timestamp});}
+  else conversationId=await ctx.db.insert('waConversations',{conversationId:turn.conversationId,phone:message.phone,requirements:plan.requirements,revision,lastInboundAt:message.timestamp});
   const id=await ctx.db.insert('waInbox',{messageId:message.messageId,phone:message.phone,timestamp:message.timestamp,conversationId,revision,...plan});
-  await start(ctx,internal.discoveryWorkflow.respond,{id});accepted++;
+  await start(ctx,internal.discoveryWorkflow.respond,{conversationId:turn.conversationId,revision:turn.revision,inboxId:id});accepted++;
  }
  const rank:Record<string,number>={sent:1,delivered:2,read:3};
  for(const s of statuses.slice(0,100)){

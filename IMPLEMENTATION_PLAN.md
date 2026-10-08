@@ -2,6 +2,56 @@
 
 Chauffeur will purchase clothing on the shopper's behalf using a browser, after the shopper approves the exact checkout details. Merchant partnerships are not assumed to be a prerequisite. Browser purchasing must be proven separately for each store before it is offered to users.
 
+## Discovery-first build plan — 8 October 2026
+
+Web is the current user interface. Discovery, feedback, ranking and comparison must live in Convex so WhatsApp can use the same functions. Checkout remains a later, separate phase. Flipkart and Amazon are active; Meesho is paused.
+
+### Current delivery
+
+- Private saved conversations, messages, requirements and live results in Convex. Reload resumes the latest conversation; Start again starts a new session while retaining old records. The interface shows the latest 80 messages. An archive browser and retention/deletion controls are not built.
+- Both web and WhatsApp use the same turn planning, saved conversation model and Convex Workflow for discovery. WhatsApp still needs real Meta configuration and phone/account linking; web and WhatsApp identities remain separate until a verified linking flow is added.
+- Saved size and budget seed a new web conversation; explicit requests override them. Profile updates apply to the next new conversation. Saved language is not yet used to translate conversations.
+- Store-sourced product images, with an honest unavailable state if a photo is absent or blocked. Product prices are observations, not guaranteed checkout prices.
+- Show more skips previously shown products; Not for me records rejection for the current conversation and asks what to change. None of these asks for feedback before searching. Changes to colour, fabric, size or budget update the next search. Unsupported style/occasion requests ask for supported constraints rather than pretending to understand.
+- Result batches remain small, up to three per store. Flipkart currently reads at most 12 catalogue links per search and Amazon reads the returned search page. Exhausting those candidates is not the same as exhausting the entire store. No new matches must be shown honestly.
+
+### Next: adapt to taste, not just fetch another batch
+
+1. Persist explicit feedback with the product/result reference, reason and time: like, dislike, too expensive, wrong fit, fabric, colour, pattern and occasion. Distinguish preferences for this request from preferences the user agrees to remember across visits. Current rejection is conversation-specific.
+2. Use Convex Agent for flexible conversation and references such as “more like number two but less shiny.” Its tools call the same search functions; a language model must not invent product facts, images, availability, discounts or prices. Select/configure the model and measure cost before enabling it.
+3. Add structured occasion, pattern, cut, sleeve, length and fit fields. Extract these only from store evidence, keeping unknown values unknown. Offer a follow-up choice when evidence is insufficient.
+4. Search a wider candidate pool using bounded pagination when supported, remove duplicates and rejected products, then rank by budget, requested constraints, confirmed attributes and explicit taste. Include variety so the first batch is not just the three cheapest products. Do not silently relax a must-have constraint; ask permission first.
+5. Show “why this fits” and any compromise on each product. Add shortlist, compare and “more like this.” Capture which results were shown so numbered references stay correct after another batch.
+6. Check relevance with a fixed set of shopping requests and rejection/refinement sequences. Measure shortlist rate, repeated rejected products, useful results after feedback, response time and cost. More results alone is not a relevance improvement.
+
+### Price comparison — not built yet
+
+Current price sorting compares different clothes. It does not prove that the same item is cheaper on another store.
+
+- Create a product identity with brand, model/style code, image and category; attach separate store listings and observations. Match the same product only when evidence supports it. Visually similar alternatives must be labelled alternatives.
+- Compare the same size, colour, quantity and seller conditions. A starting price for an unspecified variant cannot be declared the cheapest exact match.
+- Keep item price, shipping, mandatory charges and final payable amount separate. Show unknown shipping as unknown; do not rank an unknown delivered total as a verified cheapest total.
+- Show source, checked time, seller, variant availability and return conditions beside each comparison. Refresh before any future checkout review.
+- Add optional price history and user-requested alerts later, with recorded observations rather than invented previous prices.
+- Required checks: exact match versus lookalike; different size prices; out-of-stock variants; missing shipping; stale prices; one store blocked. Savings claims require comparable observed totals.
+
+### Offer intelligence — not built yet
+
+- Store each offer with source, checked time, expiry, eligible bank/card/payment method, minimum spend, cap, coupon, account restrictions and stacking rules. Do not request card numbers or payment secrets.
+- Separate unconditional price, potentially eligible discount and confirmed payable total. Cashback is later money back, not an immediate checkout discount.
+- Ask only the eligibility details needed, such as bank and card type, with an “I don’t know” choice. Do not assume first-order, membership or bank eligibility.
+- Calculate discounts deterministically in the backend from recorded terms. Return the explanation, eligibility status and missing information. Preserve unknowns when store/account access is needed.
+- Validate on the store before marking an offer confirmed. A visible banner is an advertised offer, not proof it applies to this product and shopper.
+- Required checks: spend threshold, maximum discount, expiry, excluded seller/category, coupon and bank stacking, variant changes, membership and unknown eligibility. Do not advertise false savings.
+
+### Channel work after the shared discovery system
+
+Connect Chauffeur’s WhatsApp number, verify phone-to-account linking, and format the same result records for WhatsApp text/images/buttons. Test real inbound/outbound messages, repeated deliveries, superseded searches and delivery failures. Preferences and recommendation logic must not be reimplemented per channel. Voice and photo-based discovery remain later enhancements.
+
+### Recommended sequence
+
+Shared saved conversations and previews → richer feedback and preference memory → flexible conversation and relevance ranking → exact-product comparison → verified offer calculation → real WhatsApp channel test. No checkout work is required for these discovery milestones.
+
 ## Current foundation
 
 The homepage at `/` and fictional shopping demo at `/demo/` remain separate. The initial Convex backend stores private preferences and immutable purchase reviews with approval and revocation. It does not place orders, process payments or run browsers. Public functions require a verified sign-in identity; Convex Auth and the `/app/` email/password account screen are connected in development and production. Sign-in, account creation, sign-out and preference persistence are verified. Email verification, recovery and account removal remain future work.
@@ -44,7 +94,7 @@ Page content is untrusted information, never an instruction to change the user's
 | Channels | WhatsApp and voice using the same shopping backend | Account linking, repeated message handling, user verification handoff |
 | Launch | Convex static hosting through npm run deploy | Tests, build, sign-in and all page routes on deployed site |
 
-Use Convex Workflow when implementing long-running purchase execution. Do not implement a parallel job queue. Add Convex Agent when building real conversations rather than creating a second conversation engine now.
+Use Convex Workflow when implementing long-running purchase execution. Do not implement a parallel job queue. The shared saved conversation layer currently uses rules. Add Convex Agent for flexible conversation while retaining shared discovery tools and channel-independent result records.
 
 ## Payment and uncertain outcomes
 

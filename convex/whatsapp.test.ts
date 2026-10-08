@@ -37,4 +37,9 @@ test('hi → requirements → live options completes through the workflow and ou
  await t.mutation(internal.whatsapp.receive,{incoming:[{messageId:'flow-request',phone:'919999999999',text:'blue cotton kurta size M under 1000',timestamp:Date.now()}],statuses:[]});
  await t.finishAllScheduledFunctions(vi.runAllTimers);
  expect(sent).toHaveLength(3);expect(sent[1]).toContain("I'll check Flipkart");expect(sent[2]).toContain('₹500');expect(sent[2]).toContain(url);expect(sent[2]).toContain("won't place orders");
+ const conversation=await t.run(ctx=>ctx.db.query('conversations').withIndex('by_key',q=>q.eq('key','wa:919999999999')).unique());
+ expect(conversation?.requirements).toMatchObject({category:'kurta',size:'M',budget:1000});
+ const messages=await t.run(ctx=>ctx.db.query('messages').withIndex('by_conversation_session',q=>q.eq('conversationId',conversation!._id).eq('session',conversation!.session)).order('desc').take(1));
+ expect(messages[0].result?.options[0].url).toBe(url);
+
 });

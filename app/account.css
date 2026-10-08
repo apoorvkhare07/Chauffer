@@ -57,3 +57,9 @@
 .shopping-chat button:disabled {opacity:.5;cursor:wait;}
 .shopping-chat :focus-visible {outline:3px solid #b1b9ee;outline-offset:3px;}
 @media(max-width:650px){.account-chat-layout{gap:15px;}.account-chat-layout .chat-header{padding:16px;}.chat-thread{padding:16px 12px;height:60vh;}.chat-message{max-width:94%;padding:12px 14px;}.chat-reset span{display:none;}.chat-composer{padding:14px 12px 10px;gap:8px;}.chat-suggestions{padding:12px 12px 0;}.chat-composer input{font-size:16px;}.account-chat-layout > .account-card{padding:18px;}}
+
+.chat-product-preview {height:220px;background:#f2eee7;border-radius:7px;overflow:hidden;display:flex;align-items:center;justify-content:center;margin-bottom:12px;text-align:center;color:var(--muted);font-size:12px;}
+.chat-product-preview img {width:100%;height:100%;object-fit:contain;}
+.chat-product-preview a {display:inline-block;margin-top:8px;text-decoration:underline;}
+.chat-dislike {margin:10px 0 0 8px;}
+.chat-error {color:#9b2828;background:#fff;padding:12px;border-radius:8px;}

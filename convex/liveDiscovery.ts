@@ -6,7 +6,7 @@ import { internalAction,action } from './_generated/server';
 import { internal } from './_generated/api';
 import { getAuthUserId } from '@convex-dev/auth/server';
 import { v } from 'convex/values';
-import { allowedProductUrl,matchesOption,optionValidator,requirementsValidator,searchTerms,type Option,type Requirements } from './discoveryRules';
+import { allowedProductUrl,matchesOption,allowedImageUrl,optionValidator,requirementsValidator,searchTerms,type Option,type Requirements } from './discoveryRules';
 
 function structured(html:string):any[]{
  const $=load(html);const records:any[]=[];
@@ -27,16 +27,19 @@ export function productOption(html:string,url:string,observedAt:number):Option|n
  scopedDetails(state);
  // Older product pages expose their specifications as an ordinary table.
  if(!fabric)$('tr').each((_i,el)=>{const cells=$(el).find('td');if(cells.first().text().trim()==='Fabric')fabric=cells.last().text().trim();});
- return {title:p.name.slice(0,200),url,price,colour:typeof p.color==='string'?p.color.slice(0,60):'',fabric:fabric.slice(0,80),observedAt};
+ const rawImage=Array.isArray(p.image)?p.image[0]:typeof p.image==='object'?p.image?.url:p.image;
+ const imageUrl=allowedImageUrl(rawImage)?rawImage:undefined;
+ return {...(imageUrl?{imageUrl}:{}),title:p.name.slice(0,200),url,price,colour:typeof p.color==='string'?p.color.slice(0,60):'',fabric:fabric.slice(0,80),observedAt};
 }
 async function page(url:string):Promise<string>{
  const response=await fetch(url,{signal:AbortSignal.timeout(12000),redirect:'error'});
  if(!response.ok)throw new Error(`Store unavailable: HTTP ${response.status}`);
  const html=await response.text();if(html.length>5000000)throw new Error('Unexpected store response');return html;
 }
-export async function discover(requirements:Requirements):Promise<Option[]>{
+export async function discover(requirements:Requirements,excludeUrls:string[]=[]):Promise<Option[]>{
  const search=new URL('https://www.flipkart.com/search');search.searchParams.set('q',searchTerms(requirements));
- const urls=listingUrls(await page(search.href));if(!urls.length)throw new Error('No readable live catalogue');
+ const catalogue=listingUrls(await page(search.href));if(!catalogue.length)throw new Error('No readable live catalogue');
+ const urls=catalogue.filter(url=>!excludeUrls.includes(url));
  const matches:Option[]=[];
  for(let offset=0;offset<urls.length&&matches.length<3;offset+=3){
   const results=await Promise.allSettled(urls.slice(offset,offset+3).map(async url=>productOption(await page(url),url,Date.now())));
@@ -44,16 +47,16 @@ export async function discover(requirements:Requirements):Promise<Option[]>{
  }
  return matches.sort((a,b)=>a.price-b.price).slice(0,3);
 }
-export async function discoverAcrossStores(requirements:Requirements):Promise<{options:Option[];failed:boolean;stores:StoreResult[]}>{
+export async function discoverAcrossStores(requirements:Requirements,excludeUrls:string[]=[]):Promise<{options:Option[];failed:boolean;stores:StoreResult[]}>{
  const results=await Promise.all(stores.map(async store=>{
   const searchUrl=storeSearchUrl(store,requirements);
   try{
    let options:Option[];
-   if(store==='Flipkart')options=(await discover(requirements)).map(o=>({...o,store,source:'product' as const}));
+   if(store==='Flipkart')options=(await discover(requirements,excludeUrls)).map(o=>({...o,store,source:'product' as const}));
    else{
     const html=await page(searchUrl);
     if(!load(html)('[data-component-type="s-search-result"]').length)throw new Error('Amazon search not readable');
-    options=amazonOptions(html,requirements,Date.now());
+    options=amazonOptions(html,requirements,Date.now(),excludeUrls);
    }
    return {options,result:{store,status:options.length?'matched':'no_matches',searchUrl} as StoreResult};
   }catch(error){console.warn('Store discovery unavailable',store,error instanceof Error?error.message.slice(0,120):'Unknown response');return {options:[] as Option[],result:{store,status:'unavailable',searchUrl} as StoreResult};}
@@ -61,7 +64,7 @@ export async function discoverAcrossStores(requirements:Requirements):Promise<{o
  return {options:results.flatMap(x=>x.options),failed:results.every(x=>x.result.status==='unavailable'),stores:results.map(x=>x.result)};
 }
 const searchResultValidator=v.object({options:v.array(optionValidator),failed:v.boolean(),stores:v.array(storeResultValidator)});
-export const search=internalAction({args:{requirements:requirementsValidator},returns:v.object({options:v.array(optionValidator),failed:v.boolean(),reason:v.optional(v.string()),stores:v.optional(v.array(storeResultValidator))}),handler:async(_ctx,{requirements})=>discoverAcrossStores(requirements)});
+export const search=internalAction({args:{requirements:requirementsValidator,excludeUrls:v.optional(v.array(v.string()))},returns:v.object({options:v.array(optionValidator),failed:v.boolean(),reason:v.optional(v.string()),stores:v.optional(v.array(storeResultValidator))}),handler:async(_ctx,{requirements,excludeUrls})=>discoverAcrossStores(requirements,excludeUrls)});
 export const webSearch=action({args:{requirements:requirementsValidator},returns:searchResultValidator,handler:async(ctx,{requirements}):Promise<{options:Option[];failed:boolean;stores:StoreResult[]}>=>{
  const owner=await getAuthUserId(ctx);if(!owner)throw new Error('Please sign in.');
  const budget=requirements.budget;

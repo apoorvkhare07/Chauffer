@@ -5,14 +5,16 @@ export const requirementsValidator = v.object({
  colour: v.optional(v.string()), fabric: v.optional(v.string()),
 });
 export type Requirements = {category?: string; budget?: number; size?: string; colour?: string; fabric?: string};
-export const optionValidator = v.object({title:v.string(), url:v.string(), price:v.number(), colour:v.string(), fabric:v.string(), observedAt:v.number(), store:v.optional(v.union(v.literal('Flipkart'),v.literal('Amazon'),v.literal('Meesho'))), source:v.optional(v.union(v.literal('product'),v.literal('listing'))), priceFrom:v.optional(v.boolean())});
-export type Option = {title:string; url:string; price:number; colour:string; fabric:string; observedAt:number; store?:'Flipkart'|'Amazon'|'Meesho'; source?:'product'|'listing'; priceFrom?:boolean};
+export const optionValidator = v.object({title:v.string(), url:v.string(), price:v.number(), colour:v.string(), fabric:v.string(), observedAt:v.number(), store:v.optional(v.union(v.literal('Flipkart'),v.literal('Amazon'),v.literal('Meesho'))), source:v.optional(v.union(v.literal('product'),v.literal('listing'))), priceFrom:v.optional(v.boolean()),imageUrl:v.optional(v.string())});
+export type Option = {title:string; url:string; price:number; colour:string; fabric:string; observedAt:number; store?:'Flipkart'|'Amazon'|'Meesho'; source?:'product'|'listing'; priceFrom?:boolean; imageUrl?:string};
 
 export function nextRequest(text: string, previous: Requirements = {}): {requirements:Requirements; reply:string; search:boolean} {
  const trimmed = text.trim().slice(0,1000), lower = trimmed.toLowerCase();
  if (/^(hi|hello|hey|namaste|start|reset)[!.\s]*$/i.test(trimmed)) return {requirements:{},reply:"Hi! I'm Chauffeur. I can find live clothing options, but can't buy anything. What are you looking for: a kurta, dress, top or saree?",search:false};
  if (/\b(checkout|buy it|place.*order|payment)\b/i.test(trimmed)) return {requirements:previous,reply:"This test version only finds clothing options. You can open a product link to shop on the store yourself.",search:false};
  if (/^(thanks|thank you|thankyou)[!.\s]*$/i.test(trimmed))return {requirements:previous,reply:'You’re welcome! Tell me what to change, or say reset for a new search.',search:false};
+ if (/^(none of these|don.t like (any|these)|not interested|no thanks)[!.\s]*$/i.test(trimmed)) return {requirements:previous,reply:'What should I change: colour, fabric or budget? Tell me one thing you disliked. You can also ask for more options.',search:false};
+ if (/\b(not|no|don.t (like|want)|avoid)\s+(navy blue|dark blue|light blue|blue|black|white|red|pink|green|yellow|purple|orange|beige|brown|cotton|silk|rayon|linen|printed|plain)\b/.test(lower))return {requirements:previous,reply:'What would you prefer instead? Tell me a colour or fabric, or ask for more options.',search:false};
  const requirements = {...previous};
  if (/\b(any|no preference for) colo[u]?r\b/.test(lower))delete requirements.colour;
  if (/\b(any|no preference for) (fabric|material)\b/.test(lower))delete requirements.fabric;
@@ -26,6 +28,10 @@ export function nextRequest(text: string, previous: Requirements = {}): {require
  if (colour) requirements.colour=colour[1];
  const fabric = lower.match(/\b(pure cotton|100% cotton|cotton|linen|silk|rayon|viscose|georgette|chiffon)\b/);
  if (fabric) requirements.fabric=fabric[1];
+ if (/\b(too expensive|cheaper|costs? too much)\b/.test(lower)&&!money)return {requirements,reply:'What maximum price would work better? For example: under ₹700.',search:false};
+ const understood=Boolean(money||size||colour||fabric||categories.some(([pattern])=>pattern.test(lower))||/\bany (colo[u]?r|fabric|material)\b/.test(lower));
+ const more=/^(show (me )?more( options)?|more( options)?|try again|search again|another (set|batch))[!.\s]*$/i.test(trimmed);
+ if (!understood&&!more)return {requirements,reply:'Tell me a colour, fabric, size or maximum price to change. You can also say “show more options”. Occasion and style requests aren’t understood yet.',search:false};
  if (!requirements.category) return {requirements,reply:'What clothing are you looking for: a kurta, dress, top or saree?',search:false};
  if (!requirements.budget) return {requirements,reply:'What is your maximum budget in rupees? For example: under ₹1,000.',search:false};
  if (!requirements.size && requirements.category!=='saree') return {requirements,reply:'What size do you wear? For example: M or XL.',search:false};
@@ -52,3 +58,5 @@ export function optionsReply(options:Option[],r:Requirements): string {
  }
  return `Here are ${entries.length} live clothing options:\n\n`+entries.join('\n\n')+`\n\nPrices checked just now without signing in; your account or location may show a different price. Shipping and offers can change. Listing prices are starting prices; product details and variants need checking.${r.size?` Requested size ${r.size}: availability hasn't been verified.`:''} Open the store to check size, price, delivery and returns. I won't place orders.\n\nTell me what to change, or say reset.`;
 }
+
+export function allowedImageUrl(raw:unknown): raw is string {if(typeof raw!=='string')return false;try{const u=new URL(raw);return u.protocol==='https:'&&!u.username&&!u.password&&['rukmini1.flixcart.com','rukmini2.flixcart.com','rukminim1.flixcart.com','rukminim2.flixcart.com','m.media-amazon.com','images-eu.ssl-images-amazon.com','images-na.ssl-images-amazon.com'].includes(u.hostname);}catch{return false;}}
