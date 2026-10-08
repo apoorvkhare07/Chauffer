@@ -30,7 +30,7 @@ export function nextRequest(text: string, previous: Requirements = {}): {require
  if (!requirements.budget) return {requirements,reply:'What is your maximum budget in rupees? For example: under ₹1,000.',search:false};
  if (!requirements.size && requirements.category!=='saree') return {requirements,reply:'What size do you wear? For example: M or XL.',search:false};
  const query=searchTerms(requirements);
- return {requirements,reply:`I'll check Flipkart, Amazon and Meesho now for ${query}, under ₹${requirements.budget.toLocaleString('en-IN')}${requirements.size?`, requested size ${requirements.size}`:''}. Size availability will need checking on the store.`,search:true};
+ return {requirements,reply:`I'll check Flipkart and Amazon now for ${query}, under ₹${requirements.budget.toLocaleString('en-IN')}${requirements.size?`, requested size ${requirements.size}`:''}. Size availability will need checking on the store.`,search:true};
 }
 export function searchTerms(r:Requirements): string {return [r.colour,r.fabric,r.category,'women'].filter(Boolean).join(' ');}
 export function allowedProductUrl(raw:string): boolean {try {const u=new URL(raw);return u.protocol==='https:'&&((u.hostname==='www.flipkart.com'&&u.pathname.includes('/p/'))||(u.hostname==='www.meesho.com'&&/^\/[^/]+\/p\/[a-z0-9]+\/?$/.test(u.pathname))||(u.hostname==='www.amazon.in'&&/\/(?:dp|gp\/product)\/[A-Z0-9]{10}(?:\/|$)/.test(u.pathname)))&&!u.username&&!u.password;}catch{return false;}}

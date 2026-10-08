@@ -4,7 +4,7 @@ import {Send,RotateCcw} from 'lucide-react';
 import {api} from '../convex/_generated/api';
 import {nextRequest} from '../convex/discoveryRules';
 
-const welcome="Hi! I'm Chauffeur. Tell me what you're looking for and I'll check Flipkart, Amazon and Meesho. A kurta, dress, top or saree?";
+const welcome="Hi! I'm Chauffeur. Tell me what you're looking for and I'll check Flipkart and Amazon. A kurta, dress, top or saree?";
 const suggestions=r=>!r.category?['Kurta','Dress','Top','Saree']:!r.budget?['Under ₹500','Under ₹1,000','Under ₹2,000']:!r.size&&r.category!=='saree'?['S','M','L','XL']:['Make it pink','Under ₹700','Pure cotton'];
 export default function LiveSearch(){
  const search=useAction(api.liveDiscovery.webSearch);
@@ -38,7 +38,7 @@ export default function LiveSearch(){
      {message.result.options.length>0&&<p className="chat-disclosure">Requested size availability is not verified. “From” prices may vary by size or variant. Account, location, delivery and offers may change the total. Confirm details on the store; Chauffeur won't place orders.</p>}
     </>}
    </div>)}
-   {pending&&<div className="chat-message chat-assistant chat-checking" role="status"><span className="chat-sender">Chauffeur</span><p>Checking Flipkart, Amazon and Meesho… This can take a minute.</p></div>}
+   {pending&&<div className="chat-message chat-assistant chat-checking" role="status"><span className="chat-sender">Chauffeur</span><p>Checking Flipkart and Amazon… This can take a minute.</p></div>}
   </div>
   <div className="chat-suggestions" aria-label="Suggested replies">{suggestions(requirements).map(text=><button className="chat-chip" type="button" key={text} onClick={()=>send(text)} disabled={pending}>{text}</button>)}</div>
   <form className="chat-composer" onSubmit={e=>{e.preventDefault();send(draft);}} aria-busy={pending}><label className="sr-only" htmlFor="chat-message">Message Chauffeur</label><input id="chat-message" ref={input} value={draft} onChange={e=>setDraft(e.target.value)} placeholder="Try: blue cotton kurta, M, under ₹1,000" maxLength={1000} autoComplete="off" disabled={pending}/><button type="submit" className="chat-send" aria-label="Send message" disabled={pending||!draft.trim()}><Send size={20}/></button></form>

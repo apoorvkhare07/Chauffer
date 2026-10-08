@@ -18,19 +18,20 @@ test('Amazon extracts each search row independently and cannot treat a challenge
  expect(allowedProductUrl('https://www.amazon.in.evil.test/dp/B012345678')).toBe(false);
  expect(allowedProductUrl('https://www.meesho.com/search?q=kurta')).toBe(false);
 });
-test('one blocked store does not discard other live results, and direct search links remain available',async()=>{
- vi.spyOn(globalThis,'fetch').mockImplementation(async url=>{
-  if(String(url).includes('meesho.com/api/'))return new Response(JSON.stringify({catalogs:[catalog]}));
+test('search attempts only Flipkart and Amazon; one blocked store does not discard another store’s results',async()=>{
+ const fetch=vi.spyOn(globalThis,'fetch').mockImplementation(async url=>{
+  if(new URL(String(url)).hostname==='www.amazon.in')return new Response('<div data-component-type="s-search-result" data-asin="B012345678"><h2>Brand</h2><h2>Women Blue Cotton Kurta</h2><span class="a-price"><span class="a-offscreen">₹599</span></span></div>');
   return new Response('Unavailable',{status:503});
  });
  const result=await discoverAcrossStores(r);
  expect(result.failed).toBe(false);expect(result.options).toHaveLength(1);
- expect(result.stores.map(s=>[s.store,s.status])).toEqual([['Flipkart','unavailable'],['Amazon','unavailable'],['Meesho','matched']]);
+ expect(result.stores.map(s=>[s.store,s.status])).toEqual([['Flipkart','unavailable'],['Amazon','matched']]);
  expect(new URL(result.stores[1].searchUrl).searchParams.get('k')).toBe('blue cotton kurta women');
+ expect(fetch.mock.calls.map(([url])=>new URL(String(url)).hostname).sort()).toEqual(['www.amazon.in','www.flipkart.com']);
 });
 test('chat accumulates separate answers, clears refinements explicitly and does not search on thanks',()=>{
  const category=nextRequest('kurta'),budget=nextRequest('under ₹1,000',category.requirements),ready=nextRequest('M',budget.requirements);
- expect(ready.search).toBe(true);expect(ready.reply).toContain('Amazon and Meesho');
+ expect(ready.search).toBe(true);expect(ready.reply).toContain('Flipkart and Amazon');
  const refined=nextRequest('blue pure cotton',ready.requirements);expect(refined.requirements.fabric).toBe('pure cotton');
  expect(nextRequest('any colour any fabric',refined.requirements).requirements).toEqual(ready.requirements);
  expect(nextRequest('thanks',ready.requirements).search).toBe(false);

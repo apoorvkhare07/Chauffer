@@ -1,6 +1,6 @@
 "use node";
 import {stores,storeSearchUrl,storeResultValidator,type StoreResult} from './marketplaces';
-import {amazonOptions,meeshoOptions} from './storeExtractors';
+import {amazonOptions} from './storeExtractors';
 import { load } from 'cheerio';
 import { internalAction,action } from './_generated/server';
 import { internal } from './_generated/api';
@@ -50,15 +50,10 @@ export async function discoverAcrossStores(requirements:Requirements):Promise<{o
   try{
    let options:Option[];
    if(store==='Flipkart')options=(await discover(requirements)).map(o=>({...o,store,source:'product' as const}));
-   else if(store==='Amazon'){
+   else{
     const html=await page(searchUrl);
     if(!load(html)('[data-component-type="s-search-result"]').length)throw new Error('Amazon search not readable');
     options=amazonOptions(html,requirements,Date.now());
-   }else{
-    const response=await fetch('https://www.meesho.com/api/v1/products/search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:searchTerms(requirements),type:'text_search',page:1,offset:0,limit:24,cursor:null,isDevicePhone:false}),signal:AbortSignal.timeout(12000),redirect:'error'});
-    if(!response.ok)throw new Error(`Meesho unavailable: HTTP ${response.status}`);
-    const text=await response.text();if(text.length>5000000)throw new Error('Unexpected Meesho response');
-    options=meeshoOptions(JSON.parse(text),requirements,Date.now());
    }
    return {options,result:{store,status:options.length?'matched':'no_matches',searchUrl} as StoreResult};
   }catch(error){console.warn('Store discovery unavailable',store,error instanceof Error?error.message.slice(0,120):'Unknown response');return {options:[] as Option[],result:{store,status:'unavailable',searchUrl} as StoreResult};}
