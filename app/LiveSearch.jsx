@@ -1,38 +1,47 @@
-import React,{useState} from 'react';
+import React,{useEffect,useRef,useState} from 'react';
 import {useAction} from 'convex/react';
+import {Send,RotateCcw} from 'lucide-react';
 import {api} from '../convex/_generated/api';
+import {nextRequest} from '../convex/discoveryRules';
 
+const welcome="Hi! I'm Chauffeur. Tell me what you're looking for and I'll check Flipkart, Amazon and Meesho. A kurta, dress, top or saree?";
+const suggestions=r=>!r.category?['Kurta','Dress','Top','Saree']:!r.budget?['Under ₹500','Under ₹1,000','Under ₹2,000']:!r.size&&r.category!=='saree'?['S','M','L','XL']:['Make it pink','Under ₹700','Pure cotton'];
 export default function LiveSearch(){
  const search=useAction(api.liveDiscovery.webSearch);
- const [pending,setPending]=useState(false),[result,setResult]=useState(null),[error,setError]=useState('');
- async function submit(event){
-  event.preventDefault();if(pending)return;
-  const data=new FormData(event.currentTarget);
-  const requirements={category:String(data.get('category')),budget:Number(data.get('budget'))};
-  for(const key of ['size','colour','fabric'])if(data.get(key))requirements[key]=String(data.get(key));
-  setPending(true);setResult(null);setError('');
-  try{setResult(await search({requirements}));}catch{setError('Search could not start. Please wait a minute and try again, or sign in again.');}finally{setPending(false);}
+ const [messages,setMessages]=useState([{role:'assistant',text:welcome}]);
+ const [requirements,setRequirements]=useState({}),[draft,setDraft]=useState(''),[pending,setPending]=useState(false);
+ const thread=useRef(null),input=useRef(null),busy=useRef(false);
+ useEffect(()=>{if(!pending)input.current?.focus();const el=thread.current;if(el){const last=el.lastElementChild;el.scrollTop=messages.at(-1)?.result&&last?last.offsetTop-16:el.scrollHeight;}},[messages,pending]);
+ async function send(text){
+  text=text.trim();if(!text||busy.current)return;
+  busy.current=true;setDraft('');
+  const plan=nextRequest(text,requirements);setRequirements(plan.requirements);
+  setMessages(current=>[...current,{role:'user',text},{role:'assistant',text:plan.reply}]);
+  if(!plan.search){busy.current=false;input.current?.focus();return;}
+  setPending(true);
+  try{
+   const result=await search({requirements:plan.requirements});
+   setMessages(current=>[...current,{role:'assistant',text:result.options.length?`I found ${result.options.length} matching options. Open a product to take a closer look, or tell me what to change.`:result.failed?"I couldn't reach the stores just now. You can open their searches below or try again later.":"I couldn't verify a match this time. Try a different colour, fabric or budget.",result}]);
+  }catch{setMessages(current=>[...current,{role:'assistant',text:"The search couldn't start. Wait a minute and tap Try again. If it keeps failing, sign out and back in.",retry:true}]);}
+  finally{busy.current=false;setPending(false);input.current?.focus();}
  }
- return <section className="live-search" aria-labelledby="live-search-title">
-  <span className="account-kicker">Live discovery · Flipkart</span><h2 id="live-search-title">Find something your style.</h2>
-  <p className="account-note">This searches the store now, rather than the fictional demo. No checkout or orders.</p>
-  <form className="account-form" onSubmit={submit} aria-busy={pending}>
-   <div className="search-fields">
-    <label className="account-field">Clothing<select name="category" defaultValue="kurta"><option value="kurta">Kurta</option><option value="dress">Dress</option><option value="top">Top</option><option value="saree">Saree</option></select></label>
-    <label className="account-field">Maximum budget (₹)<input name="budget" type="number" min="100" max="50000" step="1" defaultValue="1000" required/></label>
-    <label className="account-field">Requested size<select name="size" defaultValue="M"><option value="">No size preference</option>{['XS','S','M','L','XL','XXL','3XL'].map(x=><option key={x}>{x}</option>)}</select></label>
-    <label className="account-field">Colour<select name="colour" defaultValue="blue"><option value="">Any colour</option>{['blue','black','white','red','pink','green','yellow','purple','beige'].map(x=><option key={x} value={x}>{x[0].toUpperCase()+x.slice(1)}</option>)}</select></label>
-    <label className="account-field">Fabric<select name="fabric" defaultValue="cotton"><option value="">Any fabric</option><option value="cotton">Cotton, including blends</option><option value="pure cotton">Pure cotton</option>{['linen','silk','rayon','georgette'].map(x=><option key={x}>{x}</option>)}</select></label>
-   </div>
-   <button className="button primary" type="submit" disabled={pending}>{pending?'Checking live products…':'Search live products'}</button>
-  </form>
-  {pending&&<p className="account-feedback" role="status">Opening search results and checking product details. This may take up to a minute.</p>}
-  {error&&<p className="account-feedback account-error" role="alert">{error}</p>}
-  {result&&<div className="search-results" aria-live="polite">
-   <h3>{result.failed?'The store could not be reached':result.options.length?`${result.options.length} live options`:'No verified matches this time'}</h3>
-   {!result.options.length&&<p className="account-note">{result.failed?'Live store access can fail. Please try again later.':'Try a different colour, fabric or budget.'} No sample products were substituted.</p>}
-   {result.options.map(option=><article className="search-product" key={option.url}><span className="account-kicker">Flipkart</span><h4>{option.title}</h4><p className="search-price">₹{option.price.toLocaleString('en-IN')}</p><p>{option.colour||'Colour not confirmed'} · {option.fabric||'Fabric not confirmed'}</p><p className="account-note">Checked {new Date(option.observedAt).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</p><a className="button" href={option.url} target="_blank" rel="noopener noreferrer">View on Flipkart ↗</a></article>)}
-   {result.options.length>0&&<p className="account-note">Prices were checked without signing in to Flipkart. Your account or location may show different prices; delivery charges and offers can change. Requested size availability is not verified. Confirm size, price, delivery and returns on the store.</p>}
-  </div>}
+ function reset(){if(busy.current)return;setMessages([{role:'assistant',text:welcome}]);setRequirements({});setDraft('');input.current?.focus();}
+ return <section className="shopping-chat" aria-labelledby="chat-title">
+  <header className="chat-header"><div className="chat-avatar" aria-hidden="true">c</div><div><h1 id="chat-title">Chauffeur</h1><p>Your shopping conversation</p></div><button className="chat-reset" type="button" onClick={reset} disabled={pending} aria-label="Start a new chat"><RotateCcw size={16}/><span>Start again</span></button></header>
+  <div className="chat-thread" ref={thread} role="log" aria-label="Shopping messages" aria-live="polite" aria-relevant="additions">
+   <p className="chat-date">Today · Live discovery</p>
+   {messages.map((message,i)=><div className={`chat-message chat-${message.role}`} key={i}><span className="chat-sender">{message.role==='user'?'You':'Chauffeur'}</span><p className="chat-text">{message.text}</p>
+    {message.retry&&<button type="button" className="chat-chip" disabled={pending} onClick={()=>send('Try again')}>Try again</button>}
+    {message.result&&<>
+     <div className="chat-store-status">{message.result.stores.map(store=><p key={store.store}><strong>{store.store}</strong>: {store.status==='matched'?'live matches found':store.status==='unavailable'?'live access unavailable':'no verified matches'}{store.status!=='matched'&&<> · <a href={store.searchUrl} target="_blank" rel="noopener noreferrer">Open store search</a></>}</p>)}</div>
+     <div className="chat-products">{message.result.options.map(option=><article className="chat-product" key={option.url}><span className="chat-store">{option.store}</span><h2>{option.title}</h2><p className="chat-price">{option.priceFrom?'From ':''}₹{option.price.toLocaleString('en-IN')}</p><p>{option.colour||'Colour not confirmed'} · {option.fabric||'Fabric not confirmed'}</p><p className="chat-product-note">{option.source==='listing'?'From the live store search; details and variants need checking.':'Product details checked.'} Checked {new Date(option.observedAt).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}.</p><a href={option.url} className="chat-product-link" target="_blank" rel="noopener noreferrer">View on {option.store}</a></article>)}</div>
+     {message.result.options.length>0&&<p className="chat-disclosure">Requested size availability is not verified. “From” prices may vary by size or variant. Account, location, delivery and offers may change the total. Confirm details on the store; Chauffeur won't place orders.</p>}
+    </>}
+   </div>)}
+   {pending&&<div className="chat-message chat-assistant chat-checking" role="status"><span className="chat-sender">Chauffeur</span><p>Checking Flipkart, Amazon and Meesho… This can take a minute.</p></div>}
+  </div>
+  <div className="chat-suggestions" aria-label="Suggested replies">{suggestions(requirements).map(text=><button className="chat-chip" type="button" key={text} onClick={()=>send(text)} disabled={pending}>{text}</button>)}</div>
+  <form className="chat-composer" onSubmit={e=>{e.preventDefault();send(draft);}} aria-busy={pending}><label className="sr-only" htmlFor="chat-message">Message Chauffeur</label><input id="chat-message" ref={input} value={draft} onChange={e=>setDraft(e.target.value)} placeholder="Try: blue cotton kurta, M, under ₹1,000" maxLength={1000} autoComplete="off" disabled={pending}/><button type="submit" className="chat-send" aria-label="Send message" disabled={pending||!draft.trim()}><Send size={20}/></button></form>
+  <p className="chat-footer">Discovery only. Chat clears on reload. Type “reset” to start again.</p>
  </section>;
 }

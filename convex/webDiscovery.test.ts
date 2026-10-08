@@ -21,7 +21,7 @@ test('web search returns the shared live results and completes its search claim'
 test('web searches are limited per user and store failures remain honest, with no diagnostic leak',async()=>{
  const t=convexTest(schema,modules);const user=t.withIdentity({subject:'alice',issuer:'https://test.chauffeur'});
  vi.spyOn(globalThis,'fetch').mockResolvedValue(new Response('Blocked',{status:503}));
- expect(await user.action(api.liveDiscovery.webSearch,{requirements:{category:'kurta',budget:1000}})).toEqual({options:[],failed:true});
+ expect(await user.action(api.liveDiscovery.webSearch,{requirements:{category:'kurta',budget:1000}})).toMatchObject({options:[],failed:true,stores:[{store:'Flipkart',status:'unavailable'},{store:'Amazon',status:'unavailable'},{store:'Meesho',status:'unavailable'}]});
  const claim=await t.mutation(internal.webDiscovery.claim,{owner:'alice'});
  await expect(t.mutation(internal.webDiscovery.claim,{owner:'alice'})).rejects.toThrow('already running');
  expect(await t.mutation(internal.webDiscovery.claim,{owner:'bob'})).toBeDefined();

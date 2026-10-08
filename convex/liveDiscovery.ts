@@ -1,4 +1,6 @@
 "use node";
+import {stores,storeSearchUrl,storeResultValidator,type StoreResult} from './marketplaces';
+import {amazonOptions,meeshoOptions} from './storeExtractors';
 import { load } from 'cheerio';
 import { internalAction,action } from './_generated/server';
 import { internal } from './_generated/api';
@@ -12,7 +14,7 @@ function structured(html:string):any[]{
  return records.flatMap(x=>Array.isArray(x['@graph'])?x['@graph']:[x]);
 }
 export function listingUrls(html:string):string[]{
- return [...new Set(structured(html).filter(x=>x['@type']==='ItemList').flatMap(x=>(x.itemListElement??[]).map((p:any)=>p.url??p.item?.url)).filter((u:unknown)=>typeof u==='string'&&allowedProductUrl(u)))].slice(0,12) as string[];
+ return [...new Set(structured(html).filter(x=>x['@type']==='ItemList').flatMap(x=>(x.itemListElement??[]).map((p:any)=>p.url??p.item?.url)).filter((u:unknown)=>typeof u==='string'&&allowedProductUrl(u)&&new URL(u).hostname==='www.flipkart.com'))].slice(0,12) as string[];
 }
 export function productOption(html:string,url:string,observedAt:number):Option|null{
  const p=structured(html).find(x=>x['@type']==='Product');if(!p||typeof p.name!=='string')return null;
@@ -42,14 +44,34 @@ export async function discover(requirements:Requirements):Promise<Option[]>{
  }
  return matches.sort((a,b)=>a.price-b.price).slice(0,3);
 }
-export const search=internalAction({args:{requirements:requirementsValidator},returns:v.object({options:v.array(optionValidator),failed:v.boolean(),reason:v.optional(v.string())}),handler:async(_ctx,{requirements}):Promise<{options:Option[];failed:boolean;reason?:string}>=>{
- try{return {options:await discover(requirements),failed:false};}catch(error){return {options:[],failed:true,reason:error instanceof Error?error.message.slice(0,120):'Unknown store error'};}
-}});
-export const webSearch=action({args:{requirements:requirementsValidator},returns:v.object({options:v.array(optionValidator),failed:v.boolean()}),handler:async(ctx,{requirements}):Promise<{options:Option[];failed:boolean}>=>{
+export async function discoverAcrossStores(requirements:Requirements):Promise<{options:Option[];failed:boolean;stores:StoreResult[]}>{
+ const results=await Promise.all(stores.map(async store=>{
+  const searchUrl=storeSearchUrl(store,requirements);
+  try{
+   let options:Option[];
+   if(store==='Flipkart')options=(await discover(requirements)).map(o=>({...o,store,source:'product' as const}));
+   else if(store==='Amazon'){
+    const html=await page(searchUrl);
+    if(!load(html)('[data-component-type="s-search-result"]').length)throw new Error('Amazon search not readable');
+    options=amazonOptions(html,requirements,Date.now());
+   }else{
+    const response=await fetch('https://www.meesho.com/api/v1/products/search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:searchTerms(requirements),type:'text_search',page:1,offset:0,limit:24,cursor:null,isDevicePhone:false}),signal:AbortSignal.timeout(12000),redirect:'error'});
+    if(!response.ok)throw new Error(`Meesho unavailable: HTTP ${response.status}`);
+    const text=await response.text();if(text.length>5000000)throw new Error('Unexpected Meesho response');
+    options=meeshoOptions(JSON.parse(text),requirements,Date.now());
+   }
+   return {options,result:{store,status:options.length?'matched':'no_matches',searchUrl} as StoreResult};
+  }catch(error){console.warn('Store discovery unavailable',store,error instanceof Error?error.message.slice(0,120):'Unknown response');return {options:[] as Option[],result:{store,status:'unavailable',searchUrl} as StoreResult};}
+ }));
+ return {options:results.flatMap(x=>x.options),failed:results.every(x=>x.result.status==='unavailable'),stores:results.map(x=>x.result)};
+}
+const searchResultValidator=v.object({options:v.array(optionValidator),failed:v.boolean(),stores:v.array(storeResultValidator)});
+export const search=internalAction({args:{requirements:requirementsValidator},returns:v.object({options:v.array(optionValidator),failed:v.boolean(),reason:v.optional(v.string()),stores:v.optional(v.array(storeResultValidator))}),handler:async(_ctx,{requirements})=>discoverAcrossStores(requirements)});
+export const webSearch=action({args:{requirements:requirementsValidator},returns:searchResultValidator,handler:async(ctx,{requirements}):Promise<{options:Option[];failed:boolean;stores:StoreResult[]}>=>{
  const owner=await getAuthUserId(ctx);if(!owner)throw new Error('Please sign in.');
  const budget=requirements.budget;
  if(!['kurta','dress','top','saree'].includes(requirements.category??'')||typeof budget!=='number'||!Number.isFinite(budget)||budget<100||budget>50000)throw new Error('Choose clothing and a budget between ₹100 and ₹50,000.');
  for(const field of ['size','colour','fabric'] as const)if(requirements[field]&&(requirements[field]!.length>40||/[\r\n]/.test(requirements[field]!)))throw new Error('Invalid search preference.');
  const id=await ctx.runMutation(internal.webDiscovery.claim,{owner});
- try{return {options:await discover(requirements),failed:false};}catch{return {options:[],failed:true};}finally{await ctx.runMutation(internal.webDiscovery.finish,{id});}
+ try{return await discoverAcrossStores(requirements);}finally{await ctx.runMutation(internal.webDiscovery.finish,{id});}
 }});

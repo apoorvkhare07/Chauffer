@@ -82,3 +82,12 @@ The signed-in cart initially contained another item. After adding the test kurta
 Do not retain private addresses, card identifiers or account balances in this report or the product logs. The proof screenshot in `tmp/amazon-signed-in-cleanup.jpg` contains only the test-item removal notice.
 
 Updated conclusion: login takeover and agent resumption worked locally, and the agent reached address/payment choices. Filling a shopper-authorized address is a plausible next test, not yet verified here. Payment completion, exact final charges, final order submission, server access, session isolation and repeatability remain unproven. The next technical trial is this same flow from the intended server, with a separate shopper session, stopping before purchase.
+
+## Multi-store discovery gap — 8 October 2026
+
+The WhatsApp-like web chat sends accumulated requirements to one authenticated Convex action. Each store is attempted separately; failed access is visible and never replaced with saved products.
+
+- Flipkart: cloud live search and product details verified in the chat.
+- Amazon: normal anonymous requests returned HTTP 503 from the local machine and Convex. The initial adapter was tested against representative search-card fixtures. Browser inspection revealed separate brand/product headings; after correcting this, a production chat returned three live Amazon listings at ₹284, ₹289 and ₹335. Colour was not confirmed, and prices were labelled as starting prices. Access remains intermittent. Direct Amazon search links include the request and budget.
+- Meesho: public `/api/v1/products/search` returned current catalogue rows from the local machine, including hero product identity, price and specifications. Product-page access returned HTTP 403, and the same search call returned HTTP 403 from Convex. Listing parsing uses the exact hero product's price metadata rather than a catalogue minimum or special offer; prices are marked “From” and sizes remain unverified. The local success does not prove cloud availability.
+- Bridge still needed: a server-side browser/session that these stores permit to access search results. No separate browser host or proxy service was introduced. User-facing direct links let the shopper continue on each store while this remains unresolved.
