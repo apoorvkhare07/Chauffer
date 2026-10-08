@@ -77,6 +77,7 @@ function Landing({ start }) {
       <header className="site-nav wrap">
         <Brand />
         <nav aria-label="Main navigation">
+          <a href="/app/">Sign in</a>
           <a href="#the-ai">The AI</a>
           <a href="#how-it-works">How it works</a>
           <a href="#whats-next">What’s next</a>
@@ -102,6 +103,7 @@ function Landing({ start }) {
             <button className="button primary" onClick={() => start()}>
               Try the shopping demo <ArrowUpRight size={18} />
             </button>
+            <a className="mobile-account-link" href="/app/">Sign in to save your preferences</a>
             <span className="hero-note">
               Your taste. Your budget. Your AI shopping companion.
             </span>

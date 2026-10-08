@@ -5,12 +5,27 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 5174",
     "build": "vite build",
-    "test": "node --test engine.test.js website.test.js"
+    "test": "node --test engine.test.js website.test.js && npm run test:backend",
+    "test:backend": "vitest run",
+    "typecheck:backend": "tsc --noEmit -p convex/tsconfig.json",
+    "dev:backend": "convex dev",
+    "deploy": "npx @convex-dev/static-hosting deploy --no-spa"
   },
   "devDependencies": {
-    "vite": "^8.3.2"
+    "@edge-runtime/vm": "^5.0.0",
+    "@types/node": "^26.6.4",
+    "convex-test": "^0.0.60",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.2",
+    "vitest": "^5.0.3"
   },
   "dependencies": {
+    "@auth/core": "0.41.3",
+    "@convex-dev/auth": "0.0.94",
+    "@convex-dev/static-hosting": "0.2.1",
+    "@convex-dev/workflow": "^0.4.9",
+    "cheerio": "^1.2.0",
+    "convex": "^1.46.0",
     "lucide-react": "^1.52.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"

@@ -1911,3 +1911,6 @@ button {
     transform: translate(calc(-50% + var(--x)), var(--y)) rotate(var(--angle));
   }
 }
+
+.mobile-account-link { display: none; }
+@media (max-width: 760px) { .mobile-account-link { display: block; margin-top: 18px; font-size: 12px; color: var(--accent); text-decoration: underline; } }

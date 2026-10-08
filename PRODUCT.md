@@ -25,3 +25,15 @@ Chauffeur. A modern AI website with a desi or Renaissance quirk. Reference video
 
 ## Evidence on Hand
 engine.js and engine.test.js contain the existing working demonstration. Reference videos favor oversized type, spacious modern layouts and animated artwork. No customer evidence or live merchant integrations.
+
+## Account foundation
+
+The separate `/app/` page connects Convex Auth email/password account creation, sign-in, sign-out and persistent size, budget and language preferences to Chauffeur's own Convex project, with separate development and production databases. The homepage and fictional demo remain separate. Email verification and password recovery are not connected. Browser purchasing, real AI, payments, WhatsApp and voice remain planned.
+
+## WhatsApp discovery v0 backend
+
+A test-only WhatsApp discovery backend now handles greetings, basic requirements and live Flipkart product-page discovery without checkout. It uses rules rather than an LLM, returns up to three dated options, and does not claim verified size availability. Convex cloud discovery and a simulated full message workflow have been checked. The Meta number connection and real WhatsApp message delivery remain pending; the existing Saathi callback must not be replaced without an explicit choice. This does not change the fictional web demo or establish merchant partnerships.
+
+## Live web discovery
+
+The signed-in `/app/` page now searches live Flipkart pages by clothing type, budget, colour and fabric and returns up to three dated product links. A production browser run was verified on 8 October 2026. Requested size availability remains unverified; checkout and WhatsApp number connection are not enabled. The separate `/demo/` remains fictional.
