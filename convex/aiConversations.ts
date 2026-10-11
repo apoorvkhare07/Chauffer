@@ -3,23 +3,25 @@ import {v} from 'convex/values';
 import {decisionValidator,memoryConsent,missingQuestion} from './aiDecision';
 import {requirementsValidator,optionValidator} from './discoveryRules';
 import {tasteValidator,emptyTaste} from './taste';
+import {replyLanguage} from './conversationLanguage';
 export const context=internalQuery({args:{conversationId:v.id('conversations'),revision:v.number()},returns:v.union(v.null(),v.object({threadId:v.string(),prompt:v.object({text:v.string(),language:v.string(),requirements:requirementsValidator,taste:tasteValidator,history:v.array(v.object({role:v.string(),text:v.string()})),latestBatch:v.array(v.object({number:v.number(),option:optionValidator}))})})),handler:async(ctx,{conversationId,revision})=>{
  const c=await ctx.db.get(conversationId);if(!c||c.revision!==revision||!c.aiTurn||!c.agentThreadId)return null;
  const rows=await ctx.db.query('messages').withIndex('by_conversation_session',q=>q.eq('conversationId',conversationId).eq('session',c.session)).order('desc').take(30);
  const result=rows.find(m=>m.result)?.result;
- return {threadId:c.agentThreadId,prompt:{text:c.inputText??'',language:c.language??'en',requirements:c.requirements,taste:c.taste??emptyTaste,history:rows.slice(0,12).reverse().map(m=>({role:m.role,text:m.text.slice(0,700)})),latestBatch:(result?.options??[]).map((option,i)=>({number:i+1,option}))}};
+ return {threadId:c.agentThreadId,prompt:{text:c.inputText??'',language:replyLanguage(c.inputText??'',c.language??'en'),requirements:c.requirements,taste:c.taste??emptyTaste,history:rows.slice(0,12).reverse().map(m=>({role:m.role,text:m.text.slice(0,700)})),latestBatch:(c.referenceProduct?[c.referenceProduct]:result?.options??[]).map((option,i)=>({number:i+1,option}))}};
 }});
 export const apply=internalMutation({args:{conversationId:v.id('conversations'),revision:v.number(),decision:decisionValidator,inboxId:v.optional(v.id('waInbox')),claimId:v.optional(v.id('webSearchRuns'))},returns:v.union(v.null(),v.object({search:v.boolean(),reply:v.string()})),handler:async(ctx,{conversationId,revision,decision,inboxId,claimId})=>{
  const c=await ctx.db.get(conversationId);if(!c||c.revision!==revision)return null;
  let reply=decision.reply;const missing=missingQuestion(decision.requirements);
  let search=['search','refine','more'].includes(decision.intent)||(decision.intent==='feedback'&&Boolean(decision.feedbackKind));
  if(missing&&search){reply=missing;search=false;}
+ if(/(?:do not|don't)\s+search\s+yet|wait before search|or search yet/i.test(c.inputText??''))search=false;
  const consent=memoryConsent(c.inputText??'',decision.intent);
  const wantsMemory=decision.intent==='remember'||decision.intent==='forget';
  if(wantsMemory&&!consent){reply='Say “remember my preferences” to save your taste for future visits, or “forget my remembered preferences” to clear it.';search=false;}
  let taste=wantsMemory&&!consent?(c.taste??emptyTaste):decision.intent==='forget'&&consent?emptyTaste:decision.taste;
  const recent=await ctx.db.query('messages').withIndex('by_conversation_session',q=>q.eq('conversationId',conversationId).eq('session',c.session)).order('desc').take(30);
- const latest=recent.find(m=>m.result)?.result;const referenced=decision.referenceOption?latest?.options[decision.referenceOption-1]:undefined;
+ const latest=recent.find(m=>m.result)?.result;const referenced=c.referenceProduct&&!decision.referenceOption?c.referenceProduct:decision.referenceOption?(c.referenceProduct?[c.referenceProduct]:latest?.options)?.[decision.referenceOption-1]:undefined;
  if(decision.referenceOption&&!referenced){reply='Which product did you mean? Choose a numbered option from the latest results.';search=false;taste=c.taste??emptyTaste;}
  const rejected=referenced&&decision.feedbackKind==='dislike'?[...new Set([...c.rejectedUrls,referenced.url])].slice(-120):c.rejectedUrls;
  if(decision.feedbackKind||wantsMemory)await ctx.db.insert('feedback',{conversationId,session:c.session,...(referenced?{url:referenced.url}:{}),kind:consent&&wantsMemory?decision.intent as 'remember'|'forget':decision.feedbackKind??'refine',text:c.inputText??'',taste});

@@ -6,6 +6,8 @@ import { requirementsValidator } from './discoveryRules';
 import { testRecipientAllowed } from './whatsappProtocol';
 import { start } from '@convex-dev/workflow';
 import type { Id } from './_generated/dataModel';
+import {allowedImageUrl,optionValidator} from './discoveryRules';
+const phaseValidator=v.union(v.literal('reply'),v.literal('options'),v.literal('product_1'),v.literal('product_2'),v.literal('product_3'),v.literal('product_4'),v.literal('product_5'),v.literal('product_6'));
 
 export const receive=internalMutation({args:{incoming:v.array(v.object({messageId:v.string(),phone:v.string(),text:v.string(),timestamp:v.number()})),statuses:v.array(v.object({messageId:v.string(),status:v.string()}))},returns:v.number(),handler:async(ctx,{incoming,statuses}):Promise<number>=>{
  let accepted=0;
@@ -36,7 +38,7 @@ export const plan=internalQuery({args:{id:v.id('waInbox')},returns:v.union(v.nul
  const row=await ctx.db.get(id);if(!row)return null;const c=await ctx.db.get(row.conversationId);if(c?.revision!==row.revision)return null;
  return {reply:row.reply,search:row.search,requirements:row.requirements};
 }});
-export const claimSend=internalMutation({args:{id:v.id('waInbox'),phase:v.union(v.literal('reply'),v.literal('options'))},returns:v.union(v.null(),v.object({outboxId:v.id('waOutbox'),phone:v.string()})),handler:async(ctx,{id,phase}):Promise<{outboxId:Id<'waOutbox'>;phone:string}|null>=>{
+export const claimSend=internalMutation({args:{id:v.id('waInbox'),phase:phaseValidator},returns:v.union(v.null(),v.object({outboxId:v.id('waOutbox'),phone:v.string()})),handler:async(ctx,{id,phase}):Promise<{outboxId:Id<'waOutbox'>;phone:string}|null>=>{
  const row=await ctx.db.get(id);if(!row||!testRecipientAllowed(row.phone)||row.timestamp<Date.now()-86400000+60000)return null;
  const c=await ctx.db.get(row.conversationId);if(c?.revision!==row.revision)return null;
  const key=`${id}:${phase}`;if(await ctx.db.query('waOutbox').withIndex('by_key',q=>q.eq('key',key)).unique())return null;
@@ -45,14 +47,31 @@ export const claimSend=internalMutation({args:{id:v.id('waInbox'),phase:v.union(
 export const sendResult=internalMutation({args:{id:v.id('waOutbox'),state:v.union(v.literal('sent'),v.literal('failed'),v.literal('uncertain')),providerMessageId:v.optional(v.string()),reason:v.optional(v.string())},returns:v.null(),handler:async(ctx,{id,...result})=>{
  const row=await ctx.db.get(id);if(row?.state==='sending')await ctx.db.patch(id,result);return null;
 }});
-export const send=internalAction({args:{id:v.id('waInbox'),phase:v.union(v.literal('reply'),v.literal('options')),text:v.string()},returns:v.null(),handler:async(ctx,{id,phase,text}):Promise<null>=>{
+export const send=internalAction({args:{id:v.id('waInbox'),phase:phaseValidator,text:v.string(),imageUrl:v.optional(v.string())},returns:v.null(),handler:async(ctx,{id,phase,text,imageUrl}):Promise<null>=>{
  const token=process.env.WHATSAPP_TOKEN,phoneId=process.env.WHATSAPP_PHONE_ID;if(!token||!phoneId)throw new Error('WhatsApp configuration missing');
+ if(imageUrl&&!allowedImageUrl(imageUrl))throw new Error('Untrusted product photo.');
  const claim=await ctx.runMutation(internal.whatsapp.claimSend,{id,phase});if(!claim)return null;
  try{
-  const response=await fetch(`https://graph.facebook.com/v25.0/${phoneId}/messages`,{method:'POST',headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({messaging_product:'whatsapp',to:claim.phone,type:'text',text:{preview_url:false,body:text.slice(0,4000)}}),signal:AbortSignal.timeout(15000)});
+  const content=imageUrl?{type:'image',image:{link:imageUrl,caption:text.slice(0,1024)}}:{type:'text',text:{preview_url:false,body:text.slice(0,4000)}};
+  const response=await fetch(`https://graph.facebook.com/v25.0/${phoneId}/messages`,{method:'POST',headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({messaging_product:'whatsapp',to:claim.phone,...content}),signal:AbortSignal.timeout(15000)});
   const data=await response.json();const providerMessageId=data.messages?.[0]?.id;
   if(response.ok&&typeof providerMessageId==='string')await ctx.runMutation(internal.whatsapp.sendResult,{id:claim.outboxId,state:'sent',providerMessageId});
   else await ctx.runMutation(internal.whatsapp.sendResult,{id:claim.outboxId,state:'failed',reason:`Meta rejected message: HTTP ${response.status}, code ${Number(data.error?.code)||0}.`});
  }catch{await ctx.runMutation(internal.whatsapp.sendResult,{id:claim.outboxId,state:'uncertain',reason:'Send result unknown; no automatic resend.'});}
+ return null;
+}});
+export const productPreviews=internalQuery({args:{id:v.id('waInbox')},returns:v.array(optionValidator),handler:async(ctx,{id})=>{
+ const inbox=await ctx.db.get(id);if(!inbox)return [];
+ const wa=await ctx.db.get(inbox.conversationId);if(!wa?.conversationId||wa.revision!==inbox.revision)return [];
+ const c=await ctx.db.get(wa.conversationId);if(!c||c.pending)return [];
+ const rows=await ctx.db.query('messages').withIndex('by_conversation_session',q=>q.eq('conversationId',c._id).eq('session',c.session)).order('desc').take(1);
+ return rows[0]?.result?.options.slice(0,6)??[];
+}});
+export const sendPreviews=internalAction({args:{id:v.id('waInbox')},returns:v.null(),handler:async(ctx,{id}):Promise<null>=>{
+ const products=await ctx.runQuery(internal.whatsapp.productPreviews,{id});
+ for(let i=0;i<products.length;i++){
+  const o=products[i];if(!o.imageUrl||!allowedImageUrl(o.imageUrl))continue;
+  await ctx.runAction(internal.whatsapp.send,{id,phase:`product_${i+1}` as 'product_1'|'product_2'|'product_3'|'product_4'|'product_5'|'product_6',imageUrl:o.imageUrl,text:`Option ${i+1} · ${o.store}\n${o.title.slice(0,160)}\n${o.priceFrom?'From ':''}₹${o.price.toLocaleString('en-IN')}\n${o.url}\nSize and checkout total need checking. Reply “more like number ${i+1}” or tell me what to change.`});
+ }
  return null;
 }});

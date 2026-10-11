@@ -60,6 +60,9 @@ test('preference ranking cannot invent attributes or override hard budget/constr
  expect(ranked[0].price).toBe(800);expect(ranked[1].unknownPreferences).toContain('solid');expect(ranked[1].reasons).not.toContain('Store details match your solid preference.');
  expect(()=>normalizeDecision(reply('search',{requirements:{...fullRequirements,budget:999999}}),{}, {prefer:[],avoid:[]})).toThrow();
  expect(memoryConsent('I like this','remember')).toBe(false);expect(memoryConsent('Remember this for next time','remember')).toBe(true);
+ expect(memoryConsent('I usually wear black','remember')).toBe(false);
+ expect(memoryConsent('I like this, do not save it permanently or search yet','remember')).toBe(false);
+ expect(memoryConsent('Do not forget my preferences','forget')).toBe(false);
 });
 test('negative styles never become required search words; synonyms rank real details and chat changes persist',()=>{
  const raw=reply('search',{requirements:{...fullRequirements,style:'simple',pattern:'plain',mustHave:['no embroidery']},taste:{prefer:['plain','simple'],avoid:[]}});
@@ -76,10 +79,35 @@ test('the model cannot turn an ordinary style preference into a mandatory filter
  const raw=reply('search',{requirements:{...fullRequirements,mustHave:['solid']}});
  expect(normalizeDecision(raw,{}, {prefer:[],avoid:[]},'Something simple for office').requirements.mustHave).toEqual([]);
  expect(normalizeDecision(raw,{}, {prefer:[],avoid:[]},'Only plain kurtas please').requirements.mustHave).toEqual(['solid']);
+ expect(normalizeDecision(raw,{}, {prefer:[],avoid:[]},'Plain is preferred, not a must').requirements.mustHave).toEqual([]);
+ expect(normalizeDecision(raw,{}, {prefer:[],avoid:[]},'सिर्फ कॉटन।').requirements.fabric).toBe('pure cotton');
+ expect(normalizeDecision(raw,{}, {prefer:[],avoid:[]},'Only cotton blend please').requirements.fabric).not.toBe('pure cotton');
 });
 
 test('broad printed feedback cannot silently acquire a new floral preference',()=>{
  const plan=normalizeDecision(reply('feedback',{requirements:{...fullRequirements,pattern:'floral',style:null},taste:{prefer:['printed','floral'],avoid:['solid']}}),{category:'kurta',budget:1500,size:'M'}, {prefer:['solid'],avoid:[]},'Second one is too plain. Show printed kurtas instead, same size and budget.');
  expect(plan.requirements.pattern).toBe('printed');expect(plan.taste.prefer).toEqual(['printed']);
  const negative=normalizeDecision(reply('feedback',{taste:{prefer:['solid'],avoid:['printed']}}),{}, {prefer:[],avoid:[]},"I don't want printed kurtas");expect(negative.requirements.pattern).toBe('solid');
+});
+test('card feedback targets that verified card even after later batches; like alone does not launch a search',async()=>{
+ const {t,user}=setup();products();const generate=vi.spyOn(Agent.prototype,'generateObject').mockImplementation(async()=>modelReply(reply()));
+ await user.mutation(api.conversations.post,{text:'plain kurta size M under 1500'});await t.finishAllScheduledFunctions(vi.runAllTimers);
+ const first=(await user.query(api.conversations.current,{})).messages.at(-1)!;const chosen=first.result!.options[0];
+ const c=await t.run(ctx=>ctx.db.query('conversations').withIndex('by_key',q=>q.eq('key','web:alice')).unique());
+ await t.run(ctx=>ctx.db.insert('messages',{conversationId:c!._id,session:c!.session,role:'assistant',text:'Different later batch',result:{options:[],failed:false,stores:[]}}));
+ generate.mockImplementation(async()=>modelReply(reply('feedback',{referenceOption:1,feedbackKind:'like'})));
+ await user.mutation(api.conversations.post,{text:'I like option 1. Keep that preference for this conversation; do not save it permanently or search yet.',reference:{messageId:first.id as any,url:chosen.url}});
+ await t.finishAllScheduledFunctions(vi.runAllTimers);
+ const feedback=await t.run(ctx=>ctx.db.query('feedback').withIndex('by_conversation',q=>q.eq('conversationId',c!._id)).order('desc').take(1));
+ expect(feedback[0].url).toBe(chosen.url);
+ expect((await user.query(api.conversations.current,{})).messages.at(-1)?.result).toBeUndefined();
+ expect(await t.run(ctx=>ctx.db.query('profiles').withIndex('by_owner',q=>q.eq('owner','alice')).unique())).toBeNull();
+});
+test('a plain more request preserves requirements and exclusions without another model interpretation',async()=>{
+ const {t,user}=setup();products();const generate=vi.spyOn(Agent.prototype,'generateObject').mockImplementation(async()=>modelReply(reply()));
+ await user.mutation(api.conversations.post,{text:'plain kurta size M under 1500'});await t.finishAllScheduledFunctions(vi.runAllTimers);
+ const first=await user.query(api.conversations.current,{}),shown=first.messages.at(-1)!.result!.options;
+ await user.mutation(api.conversations.post,{text:'Show more options'});await t.finishAllScheduledFunctions(vi.runAllTimers);
+ const next=await user.query(api.conversations.current,{});expect(next.requirements).toEqual(first.requirements);expect(generate).toHaveBeenCalledTimes(1);
+ expect(next.messages.at(-1)!.result!.options.every(o=>!shown.some(p=>p.url===o.url))).toBe(true);
 });

@@ -132,3 +132,20 @@ Implemented negative-term separation, concise positive queries, bounded broad fa
 
 ### Five-step homepage journey
 The homepage now has a scroll-driven, sticky five-step story: a need, a conversation, discovery, personalised recommendations and price comparison, then purchase approval. Clickable steps also work on smaller screens and with reduced motion. Clothing drawings and comparison prices are illustrative. WhatsApp, exact-product comparison and one-click checkout remain explicitly planned; web discovery and feedback ranking are live.
+
+
+## Functionality build — 11 October 2026
+
+The current build follows the discovery milestones above. Detailed evidence, unresolved gaps and joint checks are recorded in [TESTING_LEDGER.md](TESTING_LEDGER.md).
+
+Built in this batch:
+- Private saved shortlist (up to 50), side-by-side choice comparison (up to three), backend-sourced price refresh and dated observation history (up to 30 checks per item).
+- More-like-this and like feedback linked to the actual stored card, including earlier batches in the current chat. Likes do not automatically search or permanently save taste.
+- Visible remembered preferences, separate taste clearing, general preference clearing, bounded read-only chat history and a stop-request control that suppresses late results.
+- Product identity fields only when a store supplies brand/manufacturer code; store SKU and visual similarity cannot establish the same item.
+- Exact-variant comparison rules connected to saved products. Unknown stock, variant, delivered total or conditions blocks cheapest-price claims. Actual cross-store identity collection and variant checking remain pending.
+- Backend-only offer evidence records, eligibility/calculation rules and an honest empty/unverified offer view. Live term extraction and confirmed cart eligibility remain pending; no offer is claimed or applied.
+- WhatsApp image previews with separate send claims and no resend after an uncertain send. Actual number connection and photo delivery remain pending.
+- Explicit readiness placeholders for checkout, tracking/returns, voice/photo requests, recovery and account deletion.
+
+The live test pass found and corrected bare-batch rejection launching a search, language selection staying on a previous language, optional “not a must” being treated as a mandatory signal, and “only cotton” allowing cotton blends. The generic printed-feedback fix was confirmed live. Model and merchant reliability still need a broader real request set. Automatic tests exercise rules and simulated providers; they do not prove real checkout or WhatsApp delivery.

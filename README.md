@@ -114,3 +114,18 @@ A real development request, “Office ke liye simple kurta chahiye. Size M, ₹1
 Production verification after deployment: the refreshed homepage and request handoff through sign-in worked. The same Hinglish style request returned three solid Flipkart options at ₹221, ₹251 and ₹270. The stored plan kept budget ₹1,500 and size M, had no mandatory style filters, and stored heavy embroidery as an avoided preference. Amazon was unavailable and showed its fallback link. All 35 automated checks, the production build and backend type checks passed.
 
 The homepage journey uses native scrolling and clickable steps, with a compact mobile version and reduced-motion support. Its store prices and clothing drawings are illustrations, not live shopping results.
+
+
+## Saved shopping tools — 11 October 2026
+
+The signed-in `/app/` page now provides Save, More like this and I like this actions on verified result cards. Saving records the existing server-side merchant observation rather than accepting a price from the browser. Your private shortlist survives new chats and reload; select up to three items for a side-by-side comparison. This can compare different clothes and is not a cheapest-same-item promise. Refresh price attempts another dated store read; failures leave the old observation intact. Recorded prices keep up to 30 observations per saved URL.
+
+The account panel shows explicitly remembered taste and supports forgetting taste independently of size/budget, plus clearing all saved profile preferences. Previous chats are read-only within the newest 300 messages/up to 20 sessions, with the latest 80 messages per selected session. Stop this request invalidates the current result; it cannot undo an already-started store request or model charge.
+
+`convex/comparisonRules.ts` requires manufacturer identity, exact variant, stock, fresh full delivered totals, seller and returns before reporting comparable savings. `convex/offerRules.ts` computes eligibility-aware benefits with expiry, minimums, caps and cashback separated, and refuses unknown stacking. Offer records can only be prepared internally; no live offer reader or trusted browser worker is connected. Current saved-card comparisons and offer views show the missing evidence instead of fabricated totals.
+
+WhatsApp now prepares up to six trusted product image messages after the text results, with per-option send claims and uncertain-send suppression. Merchant photos might be inaccessible to Meta, so this is only fixture-tested until the Chauffeur test number is connected. Existing Saathi settings remain untouched. Web-to-phone identity linking is not implemented.
+
+Password recovery has an honest unavailable state. Account deletion, checkout/payment/order execution, tracking/returns, voice/photo interpretation and price alerts remain explicit placeholders. No additional service, merchant partnership or payment connection was introduced.
+
+See [TESTING_LEDGER.md](TESTING_LEDGER.md) for what was actually tested and what we must check together.

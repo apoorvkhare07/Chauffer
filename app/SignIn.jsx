@@ -5,6 +5,7 @@ export default function SignIn() {
  const [flow,setFlow] = useState('signIn');
  const [busy,setBusy] = useState(false);
  const [error,setError] = useState('');
+ const [recovery,setRecovery]=useState(false);
  async function submit(event) {
   event.preventDefault(); setError(''); setBusy(true);
   const data = new FormData(event.currentTarget);
@@ -23,5 +24,5 @@ export default function SignIn() {
  {flow==='signUp' && <><label className="account-field">Confirm password<input name="confirmPassword" type="password" autoComplete="new-password" required minLength={8} disabled={busy}/></label><p className="account-note">Use at least 8 characters. Email verification and password recovery are not available in this early version; keep your password in a password manager.</p></>}
  {error && <p role="alert" className="account-feedback account-error">{error}</p>}
  <button className="button primary" disabled={busy}>{busy?'Please wait…':flow==='signIn'?'Sign in':'Create account'}</button>
- </form><button type="button" className="account-switch" disabled={busy} onClick={()=>{setFlow(flow==='signIn'?'signUp':'signIn');setError('');}}>{flow==='signIn'?'New here? Create an account':'Already have an account? Sign in'}</button></>;
+ </form><button type="button" className="account-switch" disabled={busy} onClick={()=>{setFlow(flow==='signIn'?'signUp':'signIn');setError('');}}>{flow==='signIn'?'New here? Create an account':'Already have an account? Sign in'}</button>{flow==='signIn'&&<><button type="button" className="account-switch recovery-link" onClick={()=>setRecovery(!recovery)} aria-expanded={recovery}>Forgot password?</button>{recovery&&<p role="status" className="account-feedback">Password recovery is not connected yet. No reset email has been sent. Use your existing password to sign in; recovery will need a verified email delivery connection.</p>}</>}</>;
 }

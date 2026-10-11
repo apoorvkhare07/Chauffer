@@ -7,15 +7,15 @@ export const requirementsValidator = v.object({
  occasion:v.optional(v.string()),style:v.optional(v.string()),fit:v.optional(v.string()),pattern:v.optional(v.string()),sleeve:v.optional(v.string()),length:v.optional(v.string()),mustHave:v.optional(v.array(v.string())),
 });
 export type Requirements = import('convex/values').Infer<typeof requirementsValidator>;
-export const optionValidator = v.object({title:v.string(), url:v.string(), price:v.number(), colour:v.string(), fabric:v.string(), observedAt:v.number(), store:v.optional(v.union(v.literal('Flipkart'),v.literal('Amazon'),v.literal('Meesho'))), source:v.optional(v.union(v.literal('product'),v.literal('listing'))), priceFrom:v.optional(v.boolean()),imageUrl:v.optional(v.string()),attributes:v.optional(v.array(v.string())),reasons:v.optional(v.array(v.string())),unknownPreferences:v.optional(v.array(v.string()))});
-export type Option = {title:string; url:string; price:number; colour:string; fabric:string; observedAt:number; store?:'Flipkart'|'Amazon'|'Meesho'; source?:'product'|'listing'; priceFrom?:boolean; imageUrl?:string;attributes?:string[];reasons?:string[];unknownPreferences?:string[]};
+export const optionValidator = v.object({title:v.string(), url:v.string(), price:v.number(), colour:v.string(), fabric:v.string(), observedAt:v.number(),brand:v.optional(v.string()),manufacturerCode:v.optional(v.string()), store:v.optional(v.union(v.literal('Flipkart'),v.literal('Amazon'),v.literal('Meesho'))), source:v.optional(v.union(v.literal('product'),v.literal('listing'))), priceFrom:v.optional(v.boolean()),imageUrl:v.optional(v.string()),attributes:v.optional(v.array(v.string())),reasons:v.optional(v.array(v.string())),unknownPreferences:v.optional(v.array(v.string()))});
+export type Option = import('convex/values').Infer<typeof optionValidator>;
 
 export function nextRequest(text: string, previous: Requirements = {}): {requirements:Requirements; reply:string; search:boolean} {
  const trimmed = text.trim().slice(0,1000), lower = trimmed.toLowerCase();
  if (/^(hi|hello|hey|namaste|start|reset)[!.\s]*$/i.test(trimmed)) return {requirements:{},reply:"Hi! I'm Chauffeur. I can find live clothing options, but can't buy anything. What are you looking for: a kurta, dress, top or saree?",search:false};
  if (/\b(checkout|buy it|place.*order|payment)\b/i.test(trimmed)) return {requirements:previous,reply:"This test version only finds clothing options. You can open a product link to shop on the store yourself.",search:false};
  if (/^(thanks|thank you|thankyou)[!.\s]*$/i.test(trimmed))return {requirements:previous,reply:'You’re welcome! Tell me what to change, or say reset for a new search.',search:false};
- if (/^(none of these|don.t like (any|these)|not interested|no thanks)[!.\s]*$/i.test(trimmed)) return {requirements:previous,reply:'What should I change: colour, fabric or budget? Tell me one thing you disliked. You can also ask for more options.',search:false};
+ if (/^(none of these|don.t like (any|these)|not interested|no thanks)[!.\s]*$/i.test(trimmed)) return {requirements:previous,reply:'What should I change? Tell me what felt wrong about the style, fit or price, and I’ll adjust the next picks.',search:false};
  if (/\b(not|no|don.t (like|want)|avoid)\s+(navy blue|dark blue|light blue|blue|black|white|red|pink|green|yellow|purple|orange|beige|brown|cotton|silk|rayon|linen|printed|plain)\b/.test(lower))return {requirements:previous,reply:'What would you prefer instead? Tell me a colour or fabric, or ask for more options.',search:false};
  const requirements = {...previous};
  if (/\b(any|no preference for) colo[u]?r\b/.test(lower))delete requirements.colour;

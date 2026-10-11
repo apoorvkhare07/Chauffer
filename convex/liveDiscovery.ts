@@ -32,7 +32,10 @@ export function productOption(html:string,url:string,observedAt:number):Option|n
  if(!fabric)$('tr').each((_i,el)=>{const cells=$(el).find('td');if(cells.first().text().trim()==='Fabric')fabric=cells.last().text().trim();});
  const rawImage=Array.isArray(p.image)?p.image[0]:typeof p.image==='object'?p.image?.url:p.image;
  const imageUrl=allowedImageUrl(rawImage)?rawImage:undefined;
- return {...(imageUrl?{imageUrl}:{}),title:p.name.slice(0,200),url,price,colour:typeof p.color==='string'?p.color.slice(0,60):'',fabric:fabric.slice(0,80),attributes:[...new Set(attributes)],observedAt};
+ const brand=typeof p.brand==='string'?p.brand:typeof p.brand?.name==='string'?p.brand.name:undefined;
+ // A marketplace SKU is not a manufacturer code and cannot establish a cross-store match.
+ const manufacturerCode=typeof p.mpn==='string'?p.mpn:undefined;
+ return {...(imageUrl?{imageUrl}:{}),...(brand?{brand:brand.slice(0,80)}:{}),...(manufacturerCode?{manufacturerCode:manufacturerCode.slice(0,80)}:{}),title:p.name.slice(0,200),url,price,colour:typeof p.color==='string'?p.color.slice(0,60):'',fabric:fabric.slice(0,80),attributes:[...new Set(attributes)],observedAt};
 }
 async function page(url:string):Promise<string>{
  const response=await fetch(url,{signal:AbortSignal.timeout(12000),redirect:'error'});

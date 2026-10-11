@@ -26,6 +26,6 @@ export const respond=workflow.define({args:{conversationId:v.id('conversations')
  }catch{
   text=await step.runMutation(internal.conversations.complete,{conversationId,revision,error:'Search failed',...(claimId?{claimId}:{})});
  }
- if(inboxId&&text)await step.runAction(internal.whatsapp.send,{id:inboxId,phase:'options',text},{retry:false});
+ if(inboxId&&text){await step.runAction(internal.whatsapp.send,{id:inboxId,phase:'options',text},{retry:false});await step.runAction(internal.whatsapp.sendPreviews,{id:inboxId},{retry:false});}
  return null;
 });

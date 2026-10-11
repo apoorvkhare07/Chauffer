@@ -54,3 +54,8 @@ The professional homepage prioritises the live `/app/` conversation. Request exa
 
 ### Five-step homepage journey
 The homepage now has a scroll-driven, sticky five-step story: a need, a conversation, discovery, personalised recommendations and price comparison, then purchase approval. Clickable steps also work on smaller screens and with reduced motion. Clothing drawings and comparison prices are illustrative. WhatsApp, exact-product comparison and one-click checkout remain explicitly planned; web discovery and feedback ranking are live.
+
+
+## Saved discovery and comparison foundations
+
+The live web assistant now supports private saved favourites, side-by-side comparisons, dated price observations and refresh attempts, older-card feedback, visible consented taste and clearing controls, read-only chat history and stopping requests. Exact same-item delivered-price comparison and offer calculations have conservative backend rules and evidence storage; merchant identity/variant/shipping/terms collection is still missing. These foundations must not be marketed as live price comparison or verified savings. WhatsApp photo-message preparation is built but actual delivery remains untested. Recovery, account removal, checkout, order support, voice/photo search and alerts remain placeholders. Joint testing is tracked in TESTING_LEDGER.md.

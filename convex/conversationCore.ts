@@ -20,7 +20,10 @@ export async function beginTurn(ctx:MutationCtx,conversation:Doc<'conversations'
  const previous=reset?defaults:conversation.requirements;
  const plan=text==='[unsupported message]'?{requirements:previous,reply:'Please send your clothing request as a text message for this test.',search:false}:reset?{requirements:defaults,reply:welcome,search:false}:nextRequest(text,previous);
  if(rejectUrl){plan.requirements=previous;plan.search=false;plan.reply='Got it. I’ll skip that product. What should I change: colour, fabric or budget? Or ask for more options.';}
- const useAI=Boolean(process.env.GEMINI_API_KEY)&&!reset&&!rejectUrl&&text!=='[unsupported message]';
+ // A bare batch rejection needs clarification, not a paid/model-dependent search.
+ const bareRejection=/^(none of these|don.t like (any|these)|not interested|no thanks)[!.\s]*$/i.test(text);
+ const sameSearchMore=/^(show (me )?more( options)?|more( options)?|try again|search again|another (set|batch))[!.\s]*$/i.test(text);
+ const useAI=Boolean(process.env.GEMINI_API_KEY)&&!reset&&!rejectUrl&&!bareRejection&&!sameSearchMore&&text!=='[unsupported message]';
  if(useAI){plan.requirements=previous;plan.search=false;}
  const revision=conversation.revision+1,session=conversation.session+(reset?1:0);
  const rejectedUrls=reset?[]:[...new Set([...conversation.rejectedUrls,...(rejectUrl?[rejectUrl]:[])])].slice(-120);

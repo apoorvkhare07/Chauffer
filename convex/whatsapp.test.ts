@@ -43,3 +43,19 @@ test('hi → requirements → live options completes through the workflow and ou
  expect(messages[0].result?.options[0].url).toBe(url);
 
 });
+test('product photo sends use trusted links and distinct duplicate-safe claims; uncertain sends are not retried',async()=>{
+ vi.stubEnv('GEMINI_API_KEY','');vi.stubEnv('WHATSAPP_TEST_RECIPIENTS','919999999999');vi.stubEnv('WHATSAPP_TOKEN','test-token');vi.stubEnv('WHATSAPP_PHONE_ID','test-phone-id');vi.useFakeTimers();
+ const t=convexTest(schema,modules);workflow.register(t);
+ await t.mutation(internal.whatsapp.receive,{incoming:[{messageId:'photo-request',phone:'919999999999',text:'hi',timestamp:Date.now()}],statuses:[]});
+ const inbox=await t.run(ctx=>ctx.db.query('waInbox').withIndex('by_message',q=>q.eq('messageId','photo-request')).unique());
+ const fetcher=vi.spyOn(globalThis,'fetch').mockResolvedValue(new Response(JSON.stringify({messages:[{id:'photo-provider'}]})));
+ const args={id:inbox!._id,phase:'product_1' as const,text:'Option 1 · price observed, size unverified',imageUrl:'https://rukmini1.flixcart.com/image/item.jpg'};
+ await expect(t.action(internal.whatsapp.send,{...args,imageUrl:'https://untrusted.example/image.jpg'})).rejects.toThrow('Untrusted');
+ await t.action(internal.whatsapp.send,args);await t.action(internal.whatsapp.send,args);
+ expect(fetcher).toHaveBeenCalledTimes(1);
+ const body=JSON.parse(String(fetcher.mock.calls[0][1]?.body));expect(body).toMatchObject({type:'image',image:{link:args.imageUrl,caption:args.text}});
+ fetcher.mockRejectedValue(new Error('timeout'));
+ await t.action(internal.whatsapp.send,{...args,phase:'product_2'});await t.action(internal.whatsapp.send,{...args,phase:'product_2'});
+ expect(fetcher).toHaveBeenCalledTimes(2);
+ const outbox=await t.run(ctx=>ctx.db.query('waOutbox').withIndex('by_key',q=>q.eq('key',`${inbox!._id}:product_2`)).unique());expect(outbox?.state).toBe('uncertain');
+});

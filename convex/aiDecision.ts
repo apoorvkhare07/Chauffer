@@ -17,7 +17,10 @@ export type Decision=Infer<typeof decisionValidator>;
 export function normalizeDecision(raw:unknown,previous:Requirements,taste:Taste,text=""):Decision{
  const value=decisionSchema.parse(raw);const requirements=Object.fromEntries(Object.entries(value.requirements).filter(([,v])=>v!==null)) as Requirements;
  const avoid=cleanTerms([...value.taste.avoid,...value.taste.prefer.map(negativeStyle).filter((x):x is string=>Boolean(x)),...(requirements.mustHave??[]).map(negativeStyle).filter((x):x is string=>Boolean(x)),...[requirements.style,requirements.pattern].map(x=>x?negativeStyle(x):null).filter((x):x is string=>Boolean(x))].map(term=>negativeStyle(term)??canonicalStyle(term)));
- const explicitMust=/\b(only|must|has to|needs to|compulsory|sirf)\b|सिर्फ|केवल|ज़रूर/i.test(text);
+ const explicitMust=/\b(only|must|has to|needs to|compulsory|sirf)\b|सिर्फ|केवल|ज़रूर/i.test(text.replace(/not (?:a )?must|not mandatory|not compulsory|don.t have to|do not have to/gi,''));
+ const onlyCotton=/(?:only|sirf|सिर्फ|केवल)\s+(?:cotton\b|कॉटन|कपास|सूती)(?!\s*(?:blend|mix))|\bcotton only\b/i.test(text);
+ const notOnlyCotton=/not only cotton|sirf cotton nahi|सिर्फ\s*कॉटन\s*नहीं/i.test(text);
+ if(onlyCotton&&!notOnlyCotton)requirements.fabric='pure cotton';
  requirements.mustHave=positiveStyleTerms(requirements.mustHave??[]).filter(term=>explicitMust||positiveStyleTerms(previous.mustHave??[]).includes(term));
  for(const field of ['style','pattern','fit','sleeve','length'] as const){const term=requirements[field];if(term){if(negativeStyle(term))delete requirements[field];else requirements[field]=canonicalStyle(term);}}
  const nextTaste={prefer:cleanTerms(positiveStyleTerms(value.taste.prefer).filter(term=>!avoid.includes(term))),avoid};
@@ -43,5 +46,7 @@ export function missingQuestion(r:Requirements):string|null{
  return null;
 }
 export function memoryConsent(text:string,intent:string):boolean{
- return intent==='remember'?/\b(remember|save|always|usually|usual|hamesha|yaad)\b|याद|हमेशा/i.test(text):intent==='forget'?/\b(forget|clear|remove|delete)\b.*\b(preferences?|taste|memory|remembered)\b|भूल/i.test(text):false;
+ if(intent==='remember'&&/(?:do not|don't|dont|never|not)\s+(?:save|remember)|nahi\s*(?:save|yaad)|याद\s*मत|मत\s*(?:रख|याद)/i.test(text))return false;
+ if(intent==='forget'&&/(?:do not|don't|dont|never|not)\s+(?:forget|clear|remove|delete)|भूलना\s*मत|मत\s*भूल/i.test(text))return false;
+ return intent==='remember'?/\bremember\b|\bsave\s+(?:my|these|this|the|current)\s+(?:preferences?|taste|size|budget)|\byaad\s+rakh|याद\s*(?:रख|रखो)/i.test(text):intent==='forget'?/\b(forget|clear|remove|delete)\b.*\b(preferences?|taste|memory|remembered)\b|भूल/i.test(text):false;
 }
