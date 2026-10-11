@@ -201,3 +201,6 @@ Inputs and selects have programmatic labels, icon-only buttons have accessible n
 
 ### Five-step homepage journey
 The homepage now has a scroll-driven, sticky five-step story: a need, a conversation, discovery, personalised recommendations and price comparison, then purchase approval. Clickable steps also work on smaller screens and with reduced motion. Clothing drawings and comparison prices are illustrative. WhatsApp, exact-product comparison and one-click checkout remain explicitly planned; web discovery and feedback ranking are live.
+
+### Photography refresh
+The marketing homepage now uses individual high-resolution clothing photographs, replacing the enlarged five-panel painterly collage. Keep local images sharp with object-fit cropping; retain the original artwork only for the separate demo. Homepage photos are style inspiration, not live products or customer endorsements. Source and license details are in public/images/CREDITS.md.
