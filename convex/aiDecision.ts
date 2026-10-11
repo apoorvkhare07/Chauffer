@@ -29,6 +29,10 @@ export function normalizeDecision(raw:unknown,previous:Requirements,taste:Taste,
  const rejectsPrint=/(?:no|not|avoid|without|don't want|do not want)\s+(?:\w+\s+){0,2}print(?:ed|s)?\b/i.test(text);
  if(broadPrint&&!rejectsPrint&&!/\b(floral|flowers?|striped|stripes|polka|checked|checks|geometric|abstract)\b/i.test(text)){
   requirements.pattern='printed';
+  if(/\btoo (?:plain|solid)\b/i.test(text)){
+   nextTaste.prefer=nextTaste.prefer.filter(term=>term!=='solid');
+   if(requirements.style==='solid')delete requirements.style;
+  }
   const subtypes=new Set(['floral','striped','polka dot','checked','geometric','abstract']);
   nextTaste.prefer=nextTaste.prefer.filter(term=>!subtypes.has(term)||positiveStyleTerms(taste.prefer).includes(term));
  }

@@ -111,3 +111,12 @@ test('a plain more request preserves requirements and exclusions without another
  const next=await user.query(api.conversations.current,{});expect(next.requirements).toEqual(first.requirements);expect(generate).toHaveBeenCalledTimes(1);
  expect(next.messages.at(-1)!.result!.options.every(o=>!shown.some(p=>p.url===o.url))).toBe(true);
 });
+
+test('printed correction removes an outdated plain preference without banning mixed prints',()=>{
+ const plan=normalizeDecision(reply('refine',{requirements:{...fullRequirements,style:'understated',pattern:'printed'},taste:{prefer:['solid','printed','cotton'],avoid:['heavy embroidery']}}),{category:'kurta',budget:1500,size:'M',style:'solid',pattern:'solid'}, {prefer:['solid','cotton'],avoid:['heavy embroidery']},'The first one is too plain. Show printed kurtas instead, same size and budget.');
+ expect(plan.taste.prefer).not.toContain('solid');
+ expect(plan.requirements.style).toBeUndefined();
+ expect(plan.requirements.pattern).toBe('printed');
+ expect(plan.requirements).toMatchObject({budget:1500,size:'M'});
+ expect(plan.taste.avoid).not.toContain('solid');
+});

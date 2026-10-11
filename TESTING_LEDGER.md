@@ -9,7 +9,7 @@ This is the handover checklist for the 11–12 October functionality build. Auto
 | Hinglish office kurta, M, under ₹1,500, no heavy embroidery | Preserve constraints, use merchant facts | Live production returned three Flipkart kurtas under ₹1,500; Amazon unavailable. Heavy-embroidery absence remains unknown. |
 | Second one too plain; printed instead | Reject the referenced option; no invented floral preference | Live production passed: generic printed query, three printed products, previous second URL excluded. |
 | None of these | Ask what to change, no guessed preference | First real AI turn failed; retry asked a question but also searched. Fixed with a deterministic clarification path; automated check passed. Live production recheck passed: a clarification reply appeared without a new result batch. |
-| English dress request | Correct category, size and budget | Live production returned three dresses under ₹2,000, L requested. Reply incorrectly stayed Hinglish; language-selection fix automated-tested, live recheck pending. |
+| English dress request | Correct category, size and budget | Live production returned three dresses under ₹2,000, L requested. Reply incorrectly stayed Hinglish; language-selection fix passed live recheck with a full English office-kurta request; dress-category language recheck remains pending. |
 | Hindi request | Correct requirements; readable reply | Initial request returned cotton blends and replied in Roman-script Hindi. Fixed language and cotton-only interpretation; live recheck returned three pure-cotton options with a Hindi-script AI reply. Optional-question wording while searching still needs quality review. |
 | Show more | New batch without rejected/repeated URLs | Live production returned three different pure-cotton products. Final code makes bare “show more” preserve the existing search without a model call; final live recheck passed: three new pure-cotton products below ₹1,000 with M retained, followed by a batch with three Flipkart and two Amazon options. |
 | Remember, new chat, reload, forget | Explicit memory only; forget clears taste | Pending |
@@ -89,3 +89,16 @@ Automated verification: 45 checks (4 page/demo checks and 41 backend checks) pas
 - Desktop page had no horizontal overflow and both shortlist images loaded. The browser viewport override did not produce a 390px viewport, so mobile testing remains pending.
 - Preference budget bounds and blocking clear while a request is active passed automated checks; actual preference deletion was not exercised on the real account.
 - Screenshot: `tmp/chauffeur-shopping-tools.jpg`.
+
+## Feedback quality pass (12 October)
+
+- English request: understated office kurta, M, ₹1,500, cotton preferred, small prints optional, avoid heavy embroidery. Six real options returned across Flipkart and Amazon; the assistant replied in English. Optional prints did not exclude solid options. Small-print evidence was correctly marked unknown.
+- Correction: first too plain, printed instead, same size/budget, blue preferred. Returned three blue printed kurtas under ₹1,500 and retained M. Found a bug: old solid preference still earned ranking points. Added a failing regression check and fixed normalization to remove that outdated preference when explicitly correcting plain to printed, without banning mixed-print titles.
+- Clicked More like this on the third card: returned three new blue printed kurtas under ₹1,500, retained M. Visual similarity is not proven; this uses merchant text, not photo understanding.
+- Two Amazon cards in the first batch had identical titles. Distinct product links can still look like duplicates; stronger visual/variant grouping remains a quality gap.
+- Real searches took roughly a minute. Store access changed between turns: Amazon matches, then no verified matches, then unavailable.
+- Current automated total: 46 passing checks (4 page/demo and 42 backend), with backend type checking and production build passing.
+
+- Post-fix live correction returned three blue printed products and no solid-match ranking reason. However, old solid wording remained in unknown-preference notes; model-generated fields need broader contradiction cleanup. Changing preferences also allows some earlier products to reappear, so diversity across changed requests needs review.
+- Optional neck-style question appeared while searching; it did not become a stated product constraint. Reply wording still needs improvement.
+- Fix published with `npm run deploy`; screenshot `tmp/chauffeur-feedback-check.jpg`.
