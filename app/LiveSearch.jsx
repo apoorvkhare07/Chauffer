@@ -8,8 +8,8 @@ const suggestions=r=>!r.category?['Kurta','Dress','Top','Saree']:!r.budget?['Und
 export default function LiveSearch(){
  const post=useMutation(api.conversations.post),conversation=useQuery(api.conversations.current);
  const messages=conversation?.messages??[{id:'welcome',role:'assistant',text:welcome}],requirements=conversation?.requirements??{};
- const [draft,setDraft]=useState(''),[submitting,setSubmitting]=useState(false),[error,setError]=useState('');
- const pending=submitting||conversation?.pending;
+ const [draft,setDraft]=useState(()=>new URLSearchParams(window.location.search).get('q')?.slice(0,1000)??''),[submitting,setSubmitting]=useState(false),[error,setError]=useState('');
+ const pending=submitting||!conversation||conversation.pending;
  const thread=useRef(null),input=useRef(null),busy=useRef(false);
  useEffect(()=>{if(!pending)input.current?.focus();const el=thread.current;if(el){const last=el.lastElementChild;el.scrollTop=messages.at(-1)?.result&&last?last.offsetTop-16:el.scrollHeight;}},[conversation,pending]);
  async function send(text,rejectUrl){
@@ -20,7 +20,7 @@ export default function LiveSearch(){
  }
  function reset(){send('reset');}
  return <section className="shopping-chat" aria-labelledby="chat-title">
-  <header className="chat-header"><div className="chat-avatar" aria-hidden="true">c</div><div><h1 id="chat-title">Chauffeur</h1><p>{conversation?.aiEnabled?'Gemini AI · Your shopping conversation':'Basic chat · AI not connected yet'}</p></div><button className="chat-reset" type="button" onClick={reset} disabled={pending} aria-label="Start a new chat"><RotateCcw size={16}/><span>Start again</span></button></header>
+  <header className="chat-header"><div className="chat-avatar" aria-hidden="true">c</div><div><h1 id="chat-title">Chauffeur</h1><p>{!conversation?'Loading your conversation…':conversation.aiEnabled?'Gemini AI · Your shopping conversation':'Basic chat · AI not connected yet'}</p></div><button className="chat-reset" type="button" onClick={reset} disabled={pending} aria-label="Start a new chat"><RotateCcw size={16}/><span>Start again</span></button></header>
   <div className="chat-thread" ref={thread} role="log" aria-label="Shopping messages" aria-live="polite" aria-relevant="additions">
    <p className="chat-date">Saved conversation · Live discovery</p>
    {messages.map(message=><div className={`chat-message chat-${message.role}`} key={message.id}><span className="chat-sender">{message.role==='user'?'You':'Chauffeur'}</span><p className="chat-text">{message.text}</p>
@@ -31,7 +31,7 @@ export default function LiveSearch(){
     </>}
    </div>)}
    {error&&<p className="chat-error" role="alert">{error}</p>}
-   {pending&&<div className="chat-message chat-assistant chat-checking" role="status"><span className="chat-sender">Chauffeur</span><p>{conversation?.pending?(conversation.pendingPhase==='thinking'?'Understanding your request…':'Checking Flipkart and Amazon… This can take a minute.'):'Saving your message…'}</p></div>}
+   {pending&&<div className="chat-message chat-assistant chat-checking" role="status"><span className="chat-sender">Chauffeur</span><p>{!conversation?'Loading your conversation…':conversation.pending?(conversation.pendingPhase==='thinking'?'Understanding your request…':'Checking Flipkart and Amazon… This can take a minute.'):'Saving your message…'}</p></div>}
   </div>
   <div className="chat-suggestions" aria-label="Suggested replies">{(messages.some(m=>m.result?.options.length)?['Show more options','None of these',...suggestions(requirements)]:suggestions(requirements)).map(text=><button className="chat-chip" type="button" key={text} onClick={()=>send(text)} disabled={pending}>{text}</button>)}</div>
   <form className="chat-composer" onSubmit={e=>{e.preventDefault();send(draft);}} aria-busy={pending}><label className="sr-only" htmlFor="chat-message">Message Chauffeur</label><input id="chat-message" ref={input} value={draft} onChange={e=>setDraft(e.target.value)} placeholder={conversation?.aiEnabled?'Try: something understated for office, under ₹1,500':'Try: blue cotton kurta, M, under ₹1,000'} maxLength={1000} autoComplete="off" disabled={pending}/><button type="submit" className="chat-send" aria-label="Send message" disabled={pending||!draft.trim()}><Send size={20}/></button></form>

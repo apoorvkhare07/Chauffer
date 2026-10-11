@@ -2,6 +2,7 @@ import {z} from 'zod';
 import {v,type Infer} from 'convex/values';
 import {requirementsValidator,type Requirements} from './discoveryRules';
 import {tasteValidator,cleanTerms,type Taste} from './taste';
+import {canonicalStyle,negativeStyle,positiveStyleTerms} from './styleTerms';
 const nullable=z.string().max(80).nullable();
 export const decisionSchema=z.object({
  intent:z.enum(['search','refine','more','feedback','chat','remember','forget']),
@@ -13,11 +14,27 @@ export const decisionSchema=z.object({
 });
 export const decisionValidator=v.object({intent:v.union(v.literal('search'),v.literal('refine'),v.literal('more'),v.literal('feedback'),v.literal('chat'),v.literal('remember'),v.literal('forget')),reply:v.string(),requirements:requirementsValidator,taste:tasteValidator,referenceOption:v.optional(v.number()),feedbackKind:v.optional(v.union(v.literal('like'),v.literal('dislike'),v.literal('refine')))});
 export type Decision=Infer<typeof decisionValidator>;
-export function normalizeDecision(raw:unknown,previous:Requirements,taste:Taste):Decision{
+export function normalizeDecision(raw:unknown,previous:Requirements,taste:Taste,text=""):Decision{
  const value=decisionSchema.parse(raw);const requirements=Object.fromEntries(Object.entries(value.requirements).filter(([,v])=>v!==null)) as Requirements;
- // Greetings / feedback must not silently erase a completed search or stored taste.
- if(value.intent==='chat')return {intent:'chat',reply:value.reply,requirements:previous,taste};
- return {intent:value.intent,reply:value.reply,requirements,taste:{prefer:cleanTerms(value.taste.prefer),avoid:cleanTerms(value.taste.avoid)},...(value.referenceOption!==null?{referenceOption:value.referenceOption}:{}),...(value.feedbackKind?{feedbackKind:value.feedbackKind}:{})};
+ const avoid=cleanTerms([...value.taste.avoid,...value.taste.prefer.map(negativeStyle).filter((x):x is string=>Boolean(x)),...(requirements.mustHave??[]).map(negativeStyle).filter((x):x is string=>Boolean(x)),...[requirements.style,requirements.pattern].map(x=>x?negativeStyle(x):null).filter((x):x is string=>Boolean(x))].map(term=>negativeStyle(term)??canonicalStyle(term)));
+ const explicitMust=/\b(only|must|has to|needs to|compulsory|sirf)\b|सिर्फ|केवल|ज़रूर/i.test(text);
+ requirements.mustHave=positiveStyleTerms(requirements.mustHave??[]).filter(term=>explicitMust||positiveStyleTerms(previous.mustHave??[]).includes(term));
+ for(const field of ['style','pattern','fit','sleeve','length'] as const){const term=requirements[field];if(term){if(negativeStyle(term))delete requirements[field];else requirements[field]=canonicalStyle(term);}}
+ const nextTaste={prefer:cleanTerms(positiveStyleTerms(value.taste.prefer).filter(term=>!avoid.includes(term))),avoid};
+ // An explicit broad request for prints is not permission to pick a new print subtype.
+ const broadPrint=/(?:show|prefer|want)\s+(?:me\s+)?printed\b|printed\s+(?:kurtas?|tops?|dresses|instead)/i.test(text);
+ const rejectsPrint=/(?:no|not|avoid|without|don't want|do not want)\s+(?:\w+\s+){0,2}print(?:ed|s)?\b/i.test(text);
+ if(broadPrint&&!rejectsPrint&&!/\b(floral|flowers?|striped|stripes|polka|checked|checks|geometric|abstract)\b/i.test(text)){
+  requirements.pattern='printed';
+  const subtypes=new Set(['floral','striped','polka dot','checked','geometric','abstract']);
+  nextTaste.prefer=nextTaste.prefer.filter(term=>!subtypes.has(term)||positiveStyleTerms(taste.prefer).includes(term));
+ }
+
+ // A shopper can describe preferences while asking us to wait before searching.
+ // Greetings with null fields preserve existing requirements rather than clearing them.
+ const planned=value.intent==='chat'?{...previous,...requirements,mustHave:requirements.mustHave?.length?requirements.mustHave:previous.mustHave??[]}:requirements;
+ const plannedTaste=value.intent==='chat'&&!nextTaste.prefer.length&&!nextTaste.avoid.length?taste:nextTaste;
+ return {intent:value.intent,reply:value.reply,requirements:planned,taste:plannedTaste,...(value.referenceOption!==null?{referenceOption:value.referenceOption}:{}),...(value.feedbackKind?{feedbackKind:value.feedbackKind}:{})};
 }
 export function missingQuestion(r:Requirements):string|null{
  if(!r.category)return 'What would you like: a kurta, dress, top or saree?';

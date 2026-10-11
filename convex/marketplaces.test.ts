@@ -41,3 +41,16 @@ test('multi-store WhatsApp replies preserve complete product links and disclosur
  const options=Array.from({length:9},(_,i)=>({title:'Women Blue Cotton Kurta '.repeat(9),url:`https://www.flipkart.com/${'long-product-name-'.repeat(15)}${i}/p/test`,price:400,colour:'Blue',fabric:'Pure Cotton',observedAt:1}));
  const reply=optionsReply(options,r);expect(reply.length).toBeLessThan(3500);expect(reply).toContain("won't place orders");expect(reply).toContain("availability hasn't been verified");expect(reply).toContain(options[0].url);
 });
+test('Amazon broad fallback recovers style candidates while preserving price and required attributes',async()=>{
+ const row=(asin:string,title:string,price:number)=>`<div data-component-type="s-search-result" data-asin="${asin}"><h2>${title}</h2><span class="a-price"><span class="a-offscreen">₹${price}</span></span></div>`;
+ const fetch=vi.spyOn(globalThis,'fetch').mockImplementation(async input=>{
+  const url=new URL(String(input));if(url.hostname!=='www.amazon.in')return new Response('Unavailable',{status:503});
+  if(url.searchParams.get('k')?.includes('straight'))return new Response('<div data-component-type="s-search-result"></div>');
+  return new Response(row('B012345678','Women Blue Cotton Plain Kurta',599)+row('B012345679','Women Blue Cotton Plain Kurta',1500)+row('B012345680','Women Blue Cotton Printed Kurta',499));
+ });
+ const result=await discoverAcrossStores({...r,fit:'straight',mustHave:['solid']},[],{prefer:['plain'],avoid:[]});
+ expect(result.options).toHaveLength(1);expect(result.options[0].price).toBe(599);
+ const requests=fetch.mock.calls.map(([u])=>new URL(String(u))).filter(u=>u.hostname==='www.amazon.in');
+ expect(requests).toHaveLength(2);expect(requests.every(u=>u.searchParams.get('rh')==='p_36:-100000')).toBe(true);
+ expect(requests.every(u=>u.searchParams.get('k')?.includes('solid'))).toBe(true);
+});

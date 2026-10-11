@@ -1,4 +1,5 @@
 import { v } from 'convex/values';
+import {positiveStyleTerms,negativeStyle,styleEvidence} from './styleTerms';
 
 export const requirementsValidator = v.object({
  category: v.optional(v.string()), budget: v.optional(v.number()), size: v.optional(v.string()),
@@ -39,13 +40,19 @@ export function nextRequest(text: string, previous: Requirements = {}): {require
  const query=searchTerms(requirements);
  return {requirements,reply:`I'll check Flipkart and Amazon now for ${query}, under ₹${requirements.budget.toLocaleString('en-IN')}${requirements.size?`, requested size ${requirements.size}`:''}. Size availability will need checking on the store.`,search:true};
 }
-export function searchTerms(r:Requirements,includeSoft=true): string {return [r.colour,r.fabric,...(includeSoft?[r.pattern,r.fit,r.style,r.sleeve,r.length]:[]),...(r.mustHave??[]),r.category,'women'].filter(Boolean).join(' ');}
+export function searchTerms(r:Requirements,includeSoft=true): string {
+ const hard=positiveStyleTerms(r.mustHave??[]);
+ // Broad search keeps every hard constraint. Style words only guide candidate retrieval.
+ const soft=includeSoft?positiveStyleTerms([r.pattern,r.fit,r.sleeve,r.length,r.style]).filter(term=>!hard.includes(term)).slice(0,2):[];
+ return [...new Set([r.colour,r.fabric,...hard,...soft,r.category,'women'].filter(Boolean))].join(' ');
+}
 export function allowedProductUrl(raw:string): boolean {try {const u=new URL(raw);return u.protocol==='https:'&&((u.hostname==='www.flipkart.com'&&u.pathname.includes('/p/'))||(u.hostname==='www.meesho.com'&&/^\/[^/]+\/p\/[a-z0-9]+\/?$/.test(u.pathname))||(u.hostname==='www.amazon.in'&&/\/(?:dp|gp\/product)\/[A-Z0-9]{10}(?:\/|$)/.test(u.pathname)))&&!u.username&&!u.password;}catch{return false;}}
 export function matchesOption(o:Option,r:Requirements): boolean {
  if (!allowedProductUrl(o.url)||!Number.isFinite(o.price)||o.price<=0||o.price>(r.budget??0)) return false;
  const category=r.category==='top'?/\b(top|tops|tunic|tunics)\b/:r.category==='dress'?/\b(dress|dresses)\b/:r.category==='saree'?/\b(saree|sari)\b/:/\b(kurta|kurtas|kurti|kurtis)\b/;
  if (!category.test(o.title.toLowerCase()))return false;
- if(r.mustHave?.some(term=>!new RegExp(`\\b${term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}\\b`,'i').test([o.title,...(o.attributes??[])].join(' '))))return false;
+ const evidence=[o.title,o.colour,o.fabric,...(o.attributes??[])].join(' ');
+ if(r.mustHave?.some(term=>{const negative=negativeStyle(term);return negative?styleEvidence(evidence,negative):!styleEvidence(evidence,term);} ))return false;
  if(r.colour&&!o.colour.toLowerCase().includes(r.colour))return false;
  if(r.fabric){const wanted=r.fabric.toLowerCase();const actual=o.fabric.toLowerCase();if(wanted==='pure cotton'||wanted==='100% cotton'){if(!/pure cotton|100% cotton/.test(actual))return false;}else if(!actual.includes(wanted))return false;}
  return true;

@@ -1,15 +1,16 @@
 import {matchesOption,type Option,type Requirements} from './discoveryRules';
 import {type Taste,cleanTerms} from './taste';
-function has(evidence:string,term:string){const words=term.toLowerCase().split(/\s+/).filter(Boolean);return words.length>0&&words.every(word=>new RegExp(`\\b${word.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}\\b`,'i').test(evidence));}
+import {styleEvidence,positiveStyleTerms,negativeStyle} from './styleTerms';
 export function rankOptions(options:Option[],requirements:Requirements,taste:Taste={prefer:[],avoid:[]}):Option[]{
- const preferred=cleanTerms([...taste.prefer,...[requirements.pattern,requirements.fit,requirements.style,requirements.sleeve,requirements.length].filter((x):x is string=>Boolean(x))]);
+ const preferred=positiveStyleTerms([...taste.prefer,...[requirements.pattern,requirements.fit,requirements.style,requirements.sleeve,requirements.length].filter((x):x is string=>Boolean(x))]);
  const scored=options.filter(o=>matchesOption(o,requirements)).map(option=>{
   const evidence=[option.title,option.colour,option.fabric,...(option.attributes??[])].join(' ');
-  const matched=preferred.filter(term=>has(evidence,term));const unknown=preferred.filter(term=>!has(evidence,term));
-  const avoided=cleanTerms(taste.avoid).filter(term=>has(evidence,term));
+  const matched=preferred.filter(term=>styleEvidence(evidence,term));const unknown=preferred.filter(term=>!styleEvidence(evidence,term));
+  const avoid=cleanTerms([...taste.avoid,...(requirements.mustHave??[]).map(negativeStyle).filter((x):x is string=>Boolean(x))]);
+  const avoided=avoid.filter(term=>styleEvidence(evidence,term));
   const score=matched.length*8-avoided.length*12;
-  const reasons=[...matched.map(term=>`Store details mention ${term}.`),...(requirements.fabric&&option.fabric?[`Fabric: ${option.fabric}.`]:[]),`Listed price fits your ₹${requirements.budget?.toLocaleString('en-IN')} budget.`].slice(0,4);
-  return {avoid:avoided.length>0,option:{...option,reasons,unknownPreferences:[...unknown,...cleanTerms(taste.avoid).filter(term=>!has(evidence,term)).map(term=>`whether it avoids ${term}`)].slice(0,8)},score};
+  const reasons=[...matched.map(term=>`Store details match your ${term} preference.`),...(requirements.fabric&&option.fabric?[`Fabric: ${option.fabric}.`]:[]),`Listed price fits your ₹${requirements.budget?.toLocaleString('en-IN')} budget.`].slice(0,4);
+  return {avoid:avoided.length>0,option:{...option,reasons,unknownPreferences:[...unknown,...avoid.filter(term=>!styleEvidence(evidence,term)).map(term=>`whether it avoids ${term}`)].slice(0,8)},score};
  });
  return scored.filter(x=>!x.avoid).sort((a,b)=>b.score-a.score||a.option.price-b.option.price).map(x=>x.option);
 }

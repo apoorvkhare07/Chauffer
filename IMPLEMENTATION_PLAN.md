@@ -19,9 +19,9 @@ Web is the current user interface. Discovery, feedback, ranking and comparison m
 
 Implemented: Convex Agent threads, structured Gemini request planning, English/Hindi/Hinglish prompt guidance, richer style/occasion/fit/pattern fields, latest-batch numbered references, explicit feedback records, consented profile memory, bounded wider candidate retrieval, deterministic evidence-based ranking, displayed recommendation reasons and unknown preferences. Both channels use the same functions. The default model is Gemini 3.1 Flash-Lite, overridable by server configuration. User-requested direct Gemini keys override the skill’s gateway default.
 
-Activation requires GEMINI_API_KEY in each intended Convex deployment. Until configured, keep the working basic chat and label it honestly. Mocked model workflow checks are not proof of free-text understanding. Run real requests and measure quality, latency and token usage once the key is available. Confirm free text across English/Hindi/Hinglish, one-question follow-ups, explicit budget overrides, same-session rejection, numbered refinement, remembered preferences across reset and model failure. No real Gemini verification is recorded yet.
+Activation requires GEMINI_API_KEY in each intended Convex deployment. Until configured, keep the working basic chat and label it honestly. Mocked model workflow checks are not proof of free-text understanding. Run real requests and measure quality, latency and token usage once the key is available. Confirm free text across English/Hindi/Hinglish, one-question follow-ups, explicit budget overrides, same-session rejection, numbered refinement, remembered preferences across reset and model failure. Real Hinglish replies are verified and a live development style search returned three solid kurtas on 11 October. Wider language, feedback and memory evaluation remains pending.
 
-Still missing: image-based style inference, richer synonym/attribute matching, deep catalogue pagination, preference editing/history interface, true relevance evaluation and broader diversity. Rankings use confirmed title/specification words; they cannot establish suitability for an occasion or absence of a disliked detail when the store omits it. Expose those unknowns.
+Still missing: image-based style inference, richer attribute matching beyond the initial merchant synonyms, deep catalogue pagination, preference editing/history interface, true relevance evaluation and broader diversity. Rankings use confirmed title/specification words; they cannot establish suitability for an occasion or absence of a disliked detail when the store omits it. Expose those unknowns.
 
 ### Next: adapt to taste, not just fetch another batch
 
@@ -125,3 +125,10 @@ Track payment status separately from merchant order status. After a timeout, ins
 Instinct describes operating devices like a person: [Instinct](https://instinct.com/). Stripe names Instinct as an agent-wallet user: [agent purchasing](https://stripe.com/blog/helping-personal-agents-shop-more-intelligently-and-reliably-with-link). These establish that delegated purchasing exists, not support for Chauffeur's target marketplaces.
 
 Amazon's documented createOrder operation ships seller inventory: [Amazon](https://developer-docs.amazon/sp-api/lang-en_en/reference/createorder). Flipkart's documented seller tools manage seller listings and existing orders: [Flipkart](https://seller.flipkart.com/api-docs/FMSAPI.html?highlight=flipkart+seller). Neither source establishes general buyer checkout access.
+
+## Style search refinement — 11 October 2026
+
+Implemented negative-term separation, concise positive queries, bounded broad fallbacks for both stores, initial merchant synonyms, and a guard against making ordinary style preferences mandatory. Descriptions can be saved in the current conversation without immediately searching. See README.md for actual live test results and the remaining quality checks.
+
+### Five-step homepage journey
+The homepage now has a scroll-driven, sticky five-step story: a need, a conversation, discovery, personalised recommendations and price comparison, then purchase approval. Clickable steps also work on smaller screens and with reduced motion. Clothing drawings and comparison prices are illustrative. WhatsApp, exact-product comparison and one-click checkout remain explicitly planned; web discovery and feedback ranking are live.

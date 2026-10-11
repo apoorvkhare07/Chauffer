@@ -41,7 +41,7 @@ async function page(url:string):Promise<string>{
 }
 export async function discover(requirements:Requirements,excludeUrls:string[]=[],limit=3):Promise<Option[]>{
  const search=new URL('https://www.flipkart.com/search');search.searchParams.set('q',searchTerms(requirements));
- const hasSoft=Boolean(requirements.pattern||requirements.fit||requirements.style||requirements.sleeve||requirements.length);
+ const hasSoft=searchTerms(requirements)!==searchTerms(requirements,false);
  const broad=new URL(search.href);broad.searchParams.set('q',searchTerms(requirements,false));
  const pages=await Promise.allSettled([page(search.href),...(hasSoft?[page(broad.href)]:[])]);
  if(pages.every(p=>p.status==='rejected'))throw (pages[0] as PromiseRejectedResult).reason;
@@ -62,9 +62,13 @@ export async function discoverAcrossStores(requirements:Requirements,excludeUrls
    let options:Option[];
    if(store==='Flipkart')options=(await discover(requirements,excludeUrls,12)).map(o=>({...o,store,source:'product' as const}));
    else{
-    const html=await page(searchUrl);
-    if(!load(html)('[data-component-type="s-search-result"]').length)throw new Error('Amazon search not readable');
-    options=amazonOptions(html,requirements,Date.now(),excludeUrls,12);
+    const broadUrl=storeSearchUrl(store,requirements,false);
+    const pages=await Promise.allSettled([page(searchUrl),...(broadUrl!==searchUrl?[page(broadUrl)]:[])]);
+    const readable=pages.filter((p):p is PromiseFulfilledResult<string>=>p.status==='fulfilled'&&load(p.value)('[data-component-type="s-search-result"]').length>0);
+    if(!readable.length)throw new Error('Amazon search not readable');
+    const pools=readable.map(p=>amazonOptions(p.value,requirements,Date.now(),excludeUrls,12));
+    const candidates=pools.length>1?[...pools[0].slice(0,6),...pools[1]]:pools[0];
+    options=[...new Map(candidates.map(o=>[o.url,o])).values()].slice(0,12);
    }
    return {options,result:{store,status:options.length?'matched':'no_matches',searchUrl} as StoreResult};
   }catch(error){console.warn('Store discovery unavailable',store,error instanceof Error?error.message.slice(0,120):'Unknown response');return {options:[] as Option[],result:{store,status:'unavailable',searchUrl} as StoreResult};}

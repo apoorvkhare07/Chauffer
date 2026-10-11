@@ -99,6 +99,14 @@ components:
 
 # Design System: Chauffeur
 
+## Homepage refresh — 11 October 2026
+
+The `/` page now uses `homepage.css` and a quieter discovery-first layout, following visual reviews of Phia and Wishi. Preserve the existing porcelain `#f7f8fa`, ink `#242438`, cobalt `#4149cf`, soft blue `#e9edfa`, muted `#646576` and green `#176557` palette, locally served Manrope and Instrument Serif. The serif stays in brand details; main headings and controls stay in Manrope.
+
+Desktop layout: restrained navigation → split hero with request field and painterly portrait/bust → store-search strip → three real process steps → interactive illustrative conversation → consented memory → available/planned features → FAQ → closing action and footer. The artwork is the single decorative focal point; there are no fabricated logos of customers, reviews or numerical savings. Primary actions open `/app/`; the sample demo is a secondary, clearly labelled link. Conversation examples are illustrative and never invented live product cards.
+
+The same 1184px container is retained. At 760px columns stack, navigation anchors hide, the main action stays visible, and request chips wrap. The phone view is checked at 390px. There is no automatic motion; feedback from pressed example controls and expanded FAQ rows is immediate. Focus remains visible and reduced motion is respected. The earlier website component descriptions below are historical; demo styles and behavior remain unchanged.
+
 ## Overview
 
 **Creative North Star: "Old-school charm. New-school shopping."**
@@ -190,3 +198,6 @@ Inputs and selects have programmatic labels, icon-only buttons have accessible n
 - Don’t present brand artwork as product photography.
 - Don’t imply real store connections, payments or purchases.
 - Don’t make motion necessary to read or operate the page.
+
+### Five-step homepage journey
+The homepage now has a scroll-driven, sticky five-step story: a need, a conversation, discovery, personalised recommendations and price comparison, then purchase approval. Clickable steps also work on smaller screens and with reduced motion. Clothing drawings and comparison prices are illustrative. WhatsApp, exact-product comparison and one-click checkout remain explicitly planned; web discovery and feedback ranking are live.

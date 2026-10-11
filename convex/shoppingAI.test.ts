@@ -25,7 +25,7 @@ test('AI plans free text in the shared workflow, ranks real evidence and saves o
  expect((await user.query(api.conversations.current,{})).pendingPhase).toBe('thinking');
  await t.finishAllScheduledFunctions(vi.runAllTimers);
  let current=await user.query(api.conversations.current,{});expect(generate).toHaveBeenCalledTimes(1);expect(current.requirements).toMatchObject({occasion:'office',pattern:'solid',budget:1500});
- const options=current.messages.at(-1)?.result?.options;expect(options?.[0].url).toBe(urls[1]);expect(options?.some(o=>o.url===urls[0])).toBe(false);expect(options?.[0].reasons).toContain('Store details mention solid.');
+ const options=current.messages.at(-1)?.result?.options;expect(options?.[0].url).toBe(urls[1]);expect(options?.some(o=>o.url===urls[0])).toBe(false);expect(options?.[0].reasons).toContain('Store details match your solid preference.');
  expect(await t.run(ctx=>ctx.db.query('profiles').withIndex('by_owner',q=>q.eq('owner','alice')).unique())).toBeNull();
  generate.mockImplementation(async()=>modelReply(reply('remember')));
  await user.mutation(api.conversations.post,{text:'Remember my preference for solid straight kurtas, avoid embroidery.'});await t.finishAllScheduledFunctions(vi.runAllTimers);
@@ -57,7 +57,29 @@ test('numbered feedback targets only the latest verified batch and keeps rejecte
 test('preference ranking cannot invent attributes or override hard budget/constraints',()=>{
  const base={url:'https://www.flipkart.com/a/p/a',title:'Women Kurta',price:500,colour:'Blue',fabric:'Cotton',observedAt:1};
  const ranked=rankOptions([base,{...base,title:'Women Solid Straight Kurta',price:800}],{category:'kurta',budget:1000},{prefer:['solid'],avoid:[]});
- expect(ranked[0].price).toBe(800);expect(ranked[1].unknownPreferences).toContain('solid');expect(ranked[1].reasons).not.toContain('Store details mention solid.');
+ expect(ranked[0].price).toBe(800);expect(ranked[1].unknownPreferences).toContain('solid');expect(ranked[1].reasons).not.toContain('Store details match your solid preference.');
  expect(()=>normalizeDecision(reply('search',{requirements:{...fullRequirements,budget:999999}}),{}, {prefer:[],avoid:[]})).toThrow();
  expect(memoryConsent('I like this','remember')).toBe(false);expect(memoryConsent('Remember this for next time','remember')).toBe(true);
+});
+test('negative styles never become required search words; synonyms rank real details and chat changes persist',()=>{
+ const raw=reply('search',{requirements:{...fullRequirements,style:'simple',pattern:'plain',mustHave:['no embroidery']},taste:{prefer:['plain','simple'],avoid:[]}});
+ const plan=normalizeDecision(raw,{}, {prefer:[],avoid:[]});
+ expect(plan.requirements.mustHave).toEqual([]);expect(plan.taste.avoid).toContain('embroidered');
+ const base={url:'https://www.flipkart.com/a/p/a',title:'Women Plain Kurta',price:500,colour:'Blue',fabric:'Cotton',observedAt:1};
+ expect(rankOptions([base,{...base,title:'Women Embroidery Kurta'}],plan.requirements,plan.taste)).toHaveLength(1);
+ expect(rankOptions([base],{category:'kurta',budget:1000,mustHave:['solid']},{prefer:[],avoid:[]})).toHaveLength(1);
+ const waiting=normalizeDecision({...raw,intent:'chat'}, {category:'kurta',budget:1000,size:'L'},{prefer:[],avoid:[]});
+ expect(waiting.requirements).toMatchObject({budget:1500,size:'M',pattern:'solid'});expect(waiting.taste.avoid).toContain('embroidered');
+});
+
+test('the model cannot turn an ordinary style preference into a mandatory filter',()=>{
+ const raw=reply('search',{requirements:{...fullRequirements,mustHave:['solid']}});
+ expect(normalizeDecision(raw,{}, {prefer:[],avoid:[]},'Something simple for office').requirements.mustHave).toEqual([]);
+ expect(normalizeDecision(raw,{}, {prefer:[],avoid:[]},'Only plain kurtas please').requirements.mustHave).toEqual(['solid']);
+});
+
+test('broad printed feedback cannot silently acquire a new floral preference',()=>{
+ const plan=normalizeDecision(reply('feedback',{requirements:{...fullRequirements,pattern:'floral',style:null},taste:{prefer:['printed','floral'],avoid:['solid']}}),{category:'kurta',budget:1500,size:'M'}, {prefer:['solid'],avoid:[]},'Second one is too plain. Show printed kurtas instead, same size and budget.');
+ expect(plan.requirements.pattern).toBe('printed');expect(plan.taste.prefer).toEqual(['printed']);
+ const negative=normalizeDecision(reply('feedback',{taste:{prefer:['solid'],avoid:['printed']}}),{}, {prefer:[],avoid:[]},"I don't want printed kurtas");expect(negative.requirements.pattern).toBe('solid');
 });

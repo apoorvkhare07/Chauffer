@@ -6,7 +6,7 @@
 web
 
 ## Stack
-Vite + React, requested by the user. Convex is the only authorized backend, authentication and hosting provider. This iteration is local frontend work, not deployment.
+Vite + React, requested by the user. Convex is the only authorized backend, authentication and hosting provider. Changes are checked locally and deployed to the existing Convex static host.
 
 ## Users
 People shopping for women's clothing across Indian marketplaces. More specific audience research is open.
@@ -28,11 +28,11 @@ engine.js and engine.test.js contain the existing working demonstration. Referen
 
 ## Account foundation
 
-The separate `/app/` page connects Convex Auth email/password account creation, sign-in, sign-out and persistent size, budget and language preferences to Chauffeur's own Convex project, with separate development and production databases. The homepage and fictional demo remain separate. Email verification and password recovery are not connected. Browser purchasing, real AI, payments, WhatsApp and voice remain planned.
+The separate `/app/` page connects Convex Auth email/password account creation, sign-in, sign-out and persistent size, budget and language preferences to Chauffeur's own Convex project, with separate development and production databases. The homepage and fictional demo remain separate. Email verification and password recovery are not connected. Gemini free-text discovery is connected; browser purchasing, payments, real WhatsApp delivery and voice remain planned.
 
 ## WhatsApp discovery v0 backend
 
-A test-only WhatsApp discovery backend now handles greetings, basic requirements and multi-store live discovery attempts without checkout. It uses rules rather than an LLM, returns up to three dated options per reachable store, and does not claim verified size availability. Convex cloud discovery and a simulated full message workflow have been checked. The Meta number connection and real WhatsApp message delivery remain pending; the existing Saathi callback must not be replaced without an explicit choice. This does not change the fictional web demo or establish merchant partnerships.
+A test-only WhatsApp discovery backend now handles greetings, basic requirements and multi-store live discovery attempts without checkout. It uses shared Gemini planning when configured, or labelled rules mode without a key, and returns up to three dated options per reachable store, and does not claim verified size availability. Convex cloud discovery and a simulated full message workflow have been checked. The Meta number connection and real WhatsApp message delivery remain pending; the existing Saathi callback must not be replaced without an explicit choice. This does not change the fictional web demo or establish merchant partnerships.
 
 ## Live web discovery
 
@@ -40,8 +40,17 @@ The signed-in `/app/` page provides a WhatsApp-like discovery conversation, quic
 
 ## Discovery update — 8 October 2026
 
-Web and WhatsApp now share saved Convex conversation planning and a discovery workflow. Web chats survive reload; fresh sessions use saved size and budget. Results include store-sourced images where available, and shoppers can reject a product, ask for more without repeats, or say none of these and refine colour/fabric/budget. This is still rule-based discovery, not learned personal taste or flexible AI conversation. WhatsApp identity linking and real message delivery remain unverified. Price sorting is not exact-product comparison. Price comparison and offer intelligence are planned, not built. See `IMPLEMENTATION_PLAN.md` for the phased discovery plan.
+Web and WhatsApp now share saved Convex conversation planning and a discovery workflow. Web chats survive reload; fresh sessions use saved size and budget. Results include store-sourced images where available, and shoppers can reject a product, ask for more without repeats, or say none of these and refine colour/fabric/budget. This records the initial rule-based milestone; Gemini and taste ranking supersede that limitation below. WhatsApp identity linking and real message delivery remain unverified. Price sorting is not exact-product comparison. Price comparison and offer intelligence are planned, not built. See `IMPLEMENTATION_PLAN.md` for the phased discovery plan.
 
 ## Gemini discovery implementation
 
-Convex Agent and Gemini now provide an optional shared free-text planner for web and WhatsApp. It interprets richer preferences and numbered product feedback, with deterministic ranking of real merchant candidates and evidence-backed recommendation reasons. Explicitly remembered size/budget/taste persist in the web profile. The integration requires GEMINI_API_KEY in Convex; real Gemini responses must be tested before describing AI conversation as verified. Without a key, the app clearly identifies its basic rules mode. Store facts, size availability, price comparison, offer intelligence and real WhatsApp delivery retain their existing limits.
+Convex Agent and Gemini now provide an optional shared free-text planner for web and WhatsApp. It interprets richer preferences and numbered product feedback, with deterministic ranking of real merchant candidates and evidence-backed recommendation reasons. Explicitly remembered size/budget/taste persist in the web profile. GEMINI_API_KEY is configured in development and production. A real Hinglish reply was verified on 11 October; style-search verification is recorded in README.md. Without a key, the app clearly identifies its basic rules mode. Store facts, size availability, price comparison, offer intelligence and real WhatsApp delivery retain their existing limits.
+
+## Style discovery and website refresh — 11 October 2026
+
+Negative requests are kept out of positive search terms. Concise style queries and bounded broad fallbacks run on both stores; hard budget, colour, fabric and explicitly required attributes remain enforced. Merchant synonyms such as plain/solid and embroidery/embroidered are matched when ranking. Ordinary style preferences cannot become mandatory filters without explicit wording. Preferences described while asking to wait before searching are retained. Store details still cannot prove suitability for an occasion or absence of an unmentioned detail.
+
+The professional homepage prioritises the live `/app/` conversation. Request examples and the hero search carry a draft through sign-in; the shopper sends it themselves. The fictional `/demo/` stays separate. Marketing distinguishes available discovery from planned price comparisons, offers, WhatsApp, voice and checkout. No customer, review, savings or availability claims are invented.
+
+### Five-step homepage journey
+The homepage now has a scroll-driven, sticky five-step story: a need, a conversation, discovery, personalised recommendations and price comparison, then purchase approval. Clickable steps also work on smaller screens and with reduced motion. Clothing drawings and comparison prices are illustrative. WhatsApp, exact-product comparison and one-click checkout remain explicitly planned; web discovery and feedback ranking are live.

@@ -43,3 +43,15 @@ test('webhook checks exact signature and routes only configured phone ID',async(
  const payload={object:'whatsapp_business_account',entry:[{changes:[{field:'messages',value:{metadata:{phone_number_id:'phone-id'},messages:[{id:'msg',from:'919999999999',type:'text',text:{body:'hi'},timestamp:'100'}]}}]}]};
  expect(parsePayload(payload,'phone-id').incoming).toHaveLength(1);expect(parsePayload(payload,'other').incoming).toEqual([]);
 });
+test('style searches stay concise and broad fallback can recover candidates without relaxing budget',async()=>{
+ const {searchTerms}=await import('./discoveryRules');
+ const r={category:'kurta',budget:1000,size:'M',style:'simple',pattern:'plain',mustHave:['no embroidery']};
+ expect(searchTerms(r)).toBe('solid kurta women');expect(searchTerms(r,false)).toBe('kurta women');
+ const fetch=vi.spyOn(globalThis,'fetch').mockImplementation(async input=>{
+  const u=new URL(String(input));
+  if(u.pathname==='/search')return new Response(ld({'@type':'ItemList',itemListElement:u.searchParams.get('q')==='kurta women'?[{url}]:[]}));
+  return new Response(productHtml());
+ });
+ const options=await discover(r);expect(options).toHaveLength(1);expect(fetch).toHaveBeenCalledTimes(3);
+ expect(matchesOption({...option,price:1001},r)).toBe(false);
+});

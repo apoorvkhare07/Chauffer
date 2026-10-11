@@ -24,6 +24,7 @@ import type * as purchases from "../purchases.js";
 import type * as ranking from "../ranking.js";
 import type * as shoppingAI from "../shoppingAI.js";
 import type * as storeExtractors from "../storeExtractors.js";
+import type * as styleTerms from "../styleTerms.js";
 import type * as taste from "../taste.js";
 import type * as webDiscovery from "../webDiscovery.js";
 import type * as whatsapp from "../whatsapp.js";
@@ -52,6 +53,7 @@ declare const fullApi: ApiFromModules<{
   ranking: typeof ranking;
   shoppingAI: typeof shoppingAI;
   storeExtractors: typeof storeExtractors;
+  styleTerms: typeof styleTerms;
   taste: typeof taste;
   webDiscovery: typeof webDiscovery;
   whatsapp: typeof whatsapp;
