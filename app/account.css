@@ -5,7 +5,7 @@
 .account-intro h1 {font-size:clamp(36px,5vw,58px); line-height:1.1; letter-spacing:-.04em; margin:20px 0;}
 .account-intro p {color:var(--muted); line-height:1.8; max-width:390px;}
 .account-kicker {color:var(--accent); font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;}
-.account-art {height:220px; border-radius:120px 120px 14px 14px; background:url('/images/style-gallery.jpg') center/cover; margin-top:28px; max-width:340px;}
+.account-art {height:220px; border-radius:120px 120px 14px 14px; background:url('/images/everyday-kurta.jpg') center 35%/cover; margin-top:28px; max-width:340px;}
 .account-card {background:#fff; border:1px solid var(--line); padding:30px; border-radius:16px;}
 .account-card h2 {margin:0 0 12px; font-size:26px; letter-spacing:-.03em;}
 .account-form {display:grid; gap:18px; margin-top:24px;}

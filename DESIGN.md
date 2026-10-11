@@ -204,3 +204,6 @@ The homepage now has a scroll-driven, sticky five-step story: a need, a conversa
 
 ### Photography refresh
 The marketing homepage now uses individual high-resolution clothing photographs, replacing the enlarged five-panel painterly collage. Keep local images sharp with object-fit cropping; retain the original artwork only for the separate demo. Homepage photos are style inspiration, not live products or customer endorsements. Source and license details are in public/images/CREDITS.md.
+
+### Shopping assistant direction
+The homepage leads with a direct clothing-shopping promise and an example assistant shortlist. Three photo cards start style-specific live chat drafts; photos remain clearly labelled inspiration. Shopping ideas include office kurtas, everyday tops, wedding guest sarees and weekend dresses. Cobalt #4149cf, white #ffffff, porcelain #f7f8fa, ink #242438 and muted #646576 remain; Manrope carries shopping copy, Instrument Serif the brand. Keep the shopping board the main visual, with compact store and category rows, the retained scroll journey and a prominent Chat to shop action.
