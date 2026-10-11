@@ -28,8 +28,7 @@ export async function beginTurn(ctx:MutationCtx,conversation:Doc<'conversations'
  const revision=conversation.revision+1,session=conversation.session+(reset?1:0);
  const rejectedUrls=reset?[]:[...new Set([...conversation.rejectedUrls,...(rejectUrl?[rejectUrl]:[])])].slice(-120);
  let shownUrls=reset?[]:conversation.shownUrls;
- // Changing constraints starts a new result set; asking for more keeps exclusions.
- if(plan.search&&JSON.stringify(plan.requirements)!==JSON.stringify(previous))shownUrls=[];
+ // Keep seen products excluded throughout this chat, including refinements.
  await ctx.db.patch(conversation._id,{requirements:plan.requirements,revision,session,pending:plan.search||useAI,aiTurn:useAI,inputText:text,updatedAt:Date.now(),shownUrls,rejectedUrls,...(reset?{taste:emptyTaste,agentThreadId:undefined}:{})});
  if(reset)await ctx.db.insert('messages',{conversationId:conversation._id,session,role:'assistant',text:plan.reply});
  else{

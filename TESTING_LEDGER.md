@@ -102,3 +102,16 @@ Automated verification: 45 checks (4 page/demo checks and 41 backend checks) pas
 - Post-fix live correction returned three blue printed products and no solid-match ranking reason. However, old solid wording remained in unknown-preference notes; model-generated fields need broader contradiction cleanup. Changing preferences also allows some earlier products to reappear, so diversity across changed requests needs review.
 - Optional neck-style question appeared while searching; it did not become a stated product constraint. Reply wording still needs improvement.
 - Fix published with `npm run deploy`; screenshot `tmp/chauffeur-feedback-check.jpg`.
+
+## Preference cleanup and variety (12 October)
+
+- Avoided styles are removed from positive style/pattern/fit/sleeve/length fields, preventing conflicting match/unknown notes after a refinement.
+- Previously shown URLs remain excluded across changed requirements within the same chat, until Start again. The exclusion window remains bounded to the existing 120 URLs. Exhausted catalogues can return fewer or zero options rather than recycled items.
+- Within a batch, equal normalized store/title/colour/fabric uses one recommendation slot. This reduces identical-looking text cards without claiming exact identity or comparing variant prices. Distinct titles/colours remain eligible; grouping can hide an unknown variant, so store detail confirmation is still required.
+- Automated checks: 49 pass (4 page/demo and 45 backend). New tests cover conflicting positive/avoided fields, grouping similar titles, and no repeats after refinement. Existing discovery fixture titles were made distinct to represent different designs. Type checking and build pass.
+
+- First live check revealed older chats had lost seen URLs under the previous behavior. Recovered up to 30 recent stored messages when applying AI feedback; automated regression simulates missing seen URLs.
+- Final production check: changed to geometric prints, retained blue/cotton/M/₹1,500, returned three distinct titles and zero URLs from prior batches in this chat. Geometric evidence was honestly unknown; it was preferred rather than mandatory. Positive solid notes disappeared, while the unknown absence of solid remained disclosed.
+- Similar-title grouping is automated-tested; no duplicate-title pair appeared in the final live batch. Amazon was unavailable, so real Amazon grouping remains a joint test.
+- AI optional questions and overconfident search acknowledgements remain a reply-quality gap; product evidence still states unverified attributes. No photo understanding is implied.
+- Final fix deployed and screenshot saved at `tmp/chauffeur-variety-check.jpg`.

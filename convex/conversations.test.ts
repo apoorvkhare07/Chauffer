@@ -11,7 +11,7 @@ const urls=Array.from({length:6},(_,i)=>`https://www.flipkart.com/cotton-kurta/p
 function mockStores(){vi.spyOn(globalThis,'fetch').mockImplementation(async input=>{
  const url=String(input);if(url.includes('amazon.in'))return new Response('Unavailable',{status:503});
  if(url.includes('/search?'))return new Response(`<script type="application/ld+json">${JSON.stringify({'@type':'ItemList',itemListElement:urls.map(url=>({url}))})}</script>`);
- return new Response(`<script type="application/ld+json">${JSON.stringify({'@type':'Product',name:'Women Cotton Kurta',color:'Blue',image:'https://rukmini1.flixcart.com/image/preview.jpg',offers:{price:500,priceCurrency:'INR',availability:'https://schema.org/InStock'}})}</script><table><tr><td>Fabric</td><td>Cotton</td></tr></table>`);
+ return new Response(`<script type="application/ld+json">${JSON.stringify({'@type':'Product',name:`Women Cotton Kurta Design ${urls.indexOf(url)}`,color:'Blue',image:'https://rukmini1.flixcart.com/image/preview.jpg',offers:{price:500,priceCurrency:'INR',availability:'https://schema.org/InStock'}})}</script><table><tr><td>Fabric</td><td>Cotton</td></tr></table>`);
 });}
 test('saved profile seeds discovery; shared workflow saves results privately and avoids repeats',async()=>{
  vi.useFakeTimers();mockStores();const t=convexTest(schema,modules);workflow.register(t);
@@ -33,7 +33,7 @@ test('saved profile seeds discovery; shared workflow saves results privately and
  expect((await alice.query(api.conversations.current,{})).messages.at(-1)?.text).toContain('What should I change');
  await alice.mutation(api.conversations.post,{text:'Show more options'});await t.finishAllScheduledFunctions(vi.runAllTimers);
  const second=(await alice.query(api.conversations.current,{})).messages.at(-1)!.result!.options;expect(second).toHaveLength(3);expect(second.every(o=>!first.messages.at(-1)!.result!.options.some(p=>p.url===o.url))).toBe(true);
- // Refining allows previously seen options, but never a explicitly rejected product.
+ // Refining keeps all previously seen options excluded.
  await alice.mutation(api.conversations.post,{text:'blue size M under 1000'});await t.finishAllScheduledFunctions(vi.runAllTimers);
  const refined=await alice.query(api.conversations.current,{});expect(refined.requirements).toMatchObject({size:'M',budget:1000,colour:'blue'});expect(refined.messages.at(-1)!.result!.options.some(o=>o.url===rejected)).toBe(false);
  await expect(bob.mutation(api.conversations.post,{text:'Not this one',rejectUrl:rejected})).rejects.toThrow('Choose a product');

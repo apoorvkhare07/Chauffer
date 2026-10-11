@@ -120,3 +120,20 @@ test('printed correction removes an outdated plain preference without banning mi
  expect(plan.requirements).toMatchObject({budget:1500,size:'M'});
  expect(plan.taste.avoid).not.toContain('solid');
 });
+
+test('conflicting avoided styles cannot remain positive requirement notes',()=>{
+ const plan=normalizeDecision(reply('refine',{requirements:{...fullRequirements,style:'solid',pattern:'printed'},taste:{prefer:['solid','printed'],avoid:['solid']}}),{}, {prefer:[],avoid:[]},'Printed instead, floral is not a must');
+ expect(plan.requirements.style).toBeUndefined();
+ expect(plan.taste.prefer).toEqual(['printed']);
+});
+
+test('refining a preference keeps previously shown products excluded',async()=>{
+ const {t,user}=setup();products();const generate=vi.spyOn(Agent.prototype,'generateObject').mockImplementation(async()=>modelReply(reply()));
+ await user.mutation(api.conversations.post,{text:'plain kurta M under 1500'});await t.finishAllScheduledFunctions(vi.runAllTimers);
+ const first=(await user.query(api.conversations.current,{})).messages.at(-1)!.result!.options;
+ await t.run(async ctx=>{const c=await ctx.db.query('conversations').withIndex('by_key',q=>q.eq('key','web:alice')).unique();await ctx.db.patch(c!._id,{shownUrls:[]});}); // Recover older-chat exclusions from persisted messages.
+ generate.mockImplementation(async()=>modelReply(reply('refine',{requirements:{...fullRequirements,pattern:'printed'},taste:{prefer:['printed'],avoid:['embroidered']}})));
+ await user.mutation(api.conversations.post,{text:'Printed instead, same size and budget'});await t.finishAllScheduledFunctions(vi.runAllTimers);
+ const next=(await user.query(api.conversations.current,{})).messages.at(-1)!.result!.options;
+ expect(next.every(o=>!first.some(p=>p.url===o.url))).toBe(true);expect(next).toEqual([]); // The tiny fixture catalogue was exhausted in the first batch.
+});

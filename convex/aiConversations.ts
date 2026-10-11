@@ -36,8 +36,7 @@ export const apply=internalMutation({args:{conversationId:v.id('conversations'),
   else reply=decision.intent==='remember'?'I’ll keep these preferences for this WhatsApp conversation. Linking your account for memory across channels isn’t connected yet.':'I’ve cleared the taste preferences for this WhatsApp conversation.';
  }
  if(!search&&claimId)await ctx.db.patch(claimId,{finishedAt:Date.now()});
- const changed=JSON.stringify(decision.requirements)!==JSON.stringify(c.requirements)||JSON.stringify(taste)!==JSON.stringify(c.taste??emptyTaste);
- await ctx.db.patch(conversationId,{requirements:decision.requirements,taste,rejectedUrls:rejected,shownUrls:search&&changed?[]:c.shownUrls,pending:search,aiTurn:false,updatedAt:Date.now()});
+ await ctx.db.patch(conversationId,{requirements:decision.requirements,taste,rejectedUrls:rejected,shownUrls:[...new Set([...recent.slice().reverse().flatMap(m=>m.result?.options.map(o=>o.url)??[]),...c.shownUrls])].slice(-120),pending:search,aiTurn:false,updatedAt:Date.now()});
  await ctx.db.insert('messages',{conversationId,session:c.session,role:'assistant',text:reply,ai:true});
  if(inboxId){const inbox=await ctx.db.get(inboxId);if(!inbox)return null;await ctx.db.patch(inboxId,{reply,search,requirements:decision.requirements});}
  return {search,reply};

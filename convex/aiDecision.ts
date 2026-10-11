@@ -37,6 +37,9 @@ export function normalizeDecision(raw:unknown,previous:Requirements,taste:Taste,
   nextTaste.prefer=nextTaste.prefer.filter(term=>!subtypes.has(term)||positiveStyleTerms(taste.prefer).includes(term));
  }
 
+ for(const field of ['style','pattern','fit','sleeve','length'] as const){
+  if(requirements[field]&&nextTaste.avoid.includes(requirements[field]!))delete requirements[field];
+ }
  // A shopper can describe preferences while asking us to wait before searching.
  // Greetings with null fields preserve existing requirements rather than clearing them.
  const planned=value.intent==='chat'?{...previous,...requirements,mustHave:requirements.mustHave?.length?requirements.mustHave:previous.mustHave??[]}:requirements;
