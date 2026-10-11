@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import ShoppingJourney from './ShoppingJourney.jsx';
+import AssistantShoppingBanner from './AssistantShoppingBanner.jsx';
 import { Asterisk, ArrowUpRight, ArrowRight, Plus, Check, SlidersHorizontal, MessageCircle, ShoppingBag } from 'lucide-react';
 
 const scenarios = [
@@ -23,22 +24,12 @@ export default function App() {
     <header className="cs-nav cs-wrap"><Brand/><nav aria-label="Main navigation"><a href="#how-it-works">How it works</a><a href="#shop-by-occasion">Shopping ideas</a><a href="#the-details">Questions</a></nav><a className="cs-button cs-button-small" href="/app/">Chat to shop <MessageCircle size={16}/></a></header>
     <main id="main-content">
       <section className="cs-hero cs-wrap">
-        <div className="cs-hero-copy"><p className="cs-release"><span/>Your AI shopping assistant</p><h1>Tell us what you need.<br/>We’ll find the clothes.</h1><p className="cs-intro">Shopping for work, a wedding, or every day? Tell Chauffeur your budget and what you like. Get clothing options from Flipkart and Amazon, then chat to refine your picks.</p>
+        <div className="cs-hero-copy"><p className="cs-release"><span/>Your AI shopping assistant</p><h1>More options.<br/>One AI assistant.</h1><p className="cs-intro">Tell Chauffeur what you need. Your AI assistant searches Flipkart and Amazon, brings you clothing options, and refines the picks around your style and budget.</p>
           <form className="cs-search" onSubmit={e=>{e.preventDefault();window.location.href=liveLink(request.trim());}}><label htmlFor="hero-query" className="sr-only">Describe what you’re looking for</label><MessageCircle size={20} aria-hidden="true"/><input id="hero-query" placeholder="What are you shopping for?" value={request} onChange={e=>setRequest(e.target.value)} maxLength={1000} required/><button aria-label="Find clothes with your assistant"><ArrowRight size={20}/></button></form>
           <div className="cs-prompts" aria-label="Shopping ideas">{scenarios.map(s=><a href={liveLink(s.request)} key={s.name}>{s.name}<ArrowUpRight size={13}/></a>)}</div><p className="cs-signin-note">Chat in English, हिंदी or Hinglish. Sign in to see live results.</p>
         </div>
-        <div className="cs-shopping-preview">
-          <div className="cs-preview-header"><span><Asterisk size={21}/>Chauffeur</span><small>Shopping preview</small></div>
-          <div className="cs-preview-request"><MessageCircle size={17}/><p>“A printed kurta for work. Under ₹1,500, size M.”</p></div>
-          <div className="cs-preview-reply"><span>From your request to a shortlist.</span><p>Browse the photos. Tell us what you like. We’ll refine the search.</p></div>
-          <div className="cs-preview-products">{[
-            [0,'Soft floral prints','Show me soft floral kurtas under ₹1500, size M'],
-            [1,'Bolder patterns','Show me colourful printed kurtas under ₹1500, size M'],
-            [4,'Everyday cotton','Show me cotton kurtas under ₹1500, size M'],
-          ].map(([index,label,prompt])=><a className="cs-preview-product" href={liveLink(prompt)} key={label}><div><Artwork index={index}/><span className="cs-product-detail"><ShoppingBag size={13}/>Explore this style</span></div><strong>{label}</strong><span>Ask Chauffeur <ArrowUpRight size={13}/></span></a>)}</div>
-          <div className="cs-preview-refine"><SlidersHorizontal size={15}/><span>“Less busy. A softer colour.”</span><span className="cs-preview-refine-dot"/></div>
-          <p className="cs-preview-caption">Style inspiration, not live products. Chat to find current listings.</p>
-        </div>
+        <AssistantShoppingBanner/>
+
       </section>
       <section className="cs-store-band"><div className="cs-wrap"><p>Find clothing across<br/><strong>Flipkart and Amazon.</strong></p><div className="cs-store-names"><span>Flipkart</span><span>amazon<span className="cs-amazon-line"/></span></div><p className="cs-store-note">Live searches, with links to the stores.<br/>Availability and final prices need checking.</p></div></section>
       <section className="cs-shopping-ideas cs-wrap" id="shop-by-occasion"><div><ShoppingBag size={20}/><h2>What’s on your shopping list?</h2></div><div className="cs-shopping-links">{[

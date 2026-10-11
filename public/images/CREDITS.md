@@ -7,3 +7,10 @@ Downloaded 11 October 2026. Free photographs under the [Unsplash License](https:
 - `patterned-kurta.jpg`: [A woman in a colourful patterned kurta](https://unsplash.com/photos/a-woman-in-a-colorful-patterned-kurta-P9g4Wb6z5ZE). Image source: https://images.unsplash.com/photo-1769063382706-8156b3b33eac
 
 Each image is downloaded separately at up to 1,400 pixels wide, quality 85. The old `style-gallery.jpg` remains for the separate demo.
+
+## Animated shopping banner
+Additional free Unsplash photographs, downloaded at 1,000 pixels wide:
+
+- `white-floral-kurta.jpg`: Shahenaz India, [source photograph](https://unsplash.com/photos/a-woman-is-wearing-a-floral-white-outfit-BnYctNPLV20). https://images.unsplash.com/photo-1752653425039-cf1ff22d61bc
+- `kurta-palazzo.jpg`: Shahenaz India, [source photograph](https://unsplash.com/photos/woman-wears-a-printed-kurti-with-matching-palazzo-pants-0xoVzPFGpd0). https://images.unsplash.com/photo-1754391851702-e5275cf80e34
+- `green-floral-kurta.jpg`: Shahenaz India, [source photograph](https://unsplash.com/photos/woman-models-a-white-floral-kurta-pajama-Yci8aYzkjpk). https://images.unsplash.com/photo-1745313452052-0e4e341f326c

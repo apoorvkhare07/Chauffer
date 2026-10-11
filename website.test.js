@@ -27,7 +27,7 @@ test("the separate homepage renders its full content without crashing", async ()
       pathToFileURL(resolve(output, "App.js")).href
     );
     const html = renderToString(React.createElement(Homepage));
-    assert.match(html, /Tell us what you need/);
+    assert.match(html, /More options/);
     assert.match(html, /Can I actually buy something here/);
     assert.match(html, /Try the shopping demo/);
     assert.doesNotMatch(html, /id="order-size"/);
