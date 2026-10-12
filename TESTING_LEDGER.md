@@ -143,3 +143,15 @@ Automated: 61 total checks pass, with backend type checking and frontend build. 
 Joint tests pending: upload actual clothes, assess outfit quality for real occasions, edit/laundry/wear controls with real inventory, and phone layout. Weather is used only when supplied in the request.
 
 Production published successfully: `ee9e3c5d-a1f5-48ad-808a-54242b5ac90b`. Live signed-in browser verified the empty wardrobe, expanded detail/photo form and disabled outfit action before inventory exists. Screenshot: `/tmp/chauffeur-wardrobe-live.jpg`. Development fixture garments were removed after the Gemini check.
+
+## AI wardrobe photos and optional styling preferences (12 October)
+
+Supersedes the earlier preview-only photo limitation. Built: Gemini image input, owned draft storage, review/confirmation with original AI metadata retained, specific garment kind, colour/pattern/cut, readable-brand evidence, unknown fabric handling, compressed previews, three photo attempts/minute, failed-photo cleanup and 24-hour abandoned-draft cleanup. Body/fit/style/avoid descriptions are optional shopper input and can be cleared. Changes invalidate old wardrobe outfits. Outfit AI and web shopping context receive these preferences and confirmed inventory; WhatsApp has no wardrobe account link.
+
+Automated: 66 total checks pass (4 page/demo, 62 backend), type checking and production build pass. Added tests exercise image input, authenticated drafts, foreign-owner confirmation rejection, corrections vs original reading, duplicate confirmation, failed-photo deletion, rate limiting, expiry cleanup, private/clearable styling and outfit invalidation, styling in outfit prompts, and owner-only shopping context.
+
+Real Gemini development test: repository clothing image was read as a white floral kurta with pink/green accents and a straight cut. Brand and fabric remained empty. Confirmed metadata, original analysis and a stored photo URL were checked under a separate test identity; the test garment and image were removed. This does not establish accuracy on all garments; print vs embroidery and occasion descriptions still need shopper review.
+
+Joint tests pending: real shopper upload and correction, readable/obscured labels, gowns/jeans/other types, multiple items and unclear images, body/fit preference usefulness for occasions, saved wardrobe matching during shopping, phone upload, and scheduled draft cleanup over actual time. Daily-feed wardrobe ranking and merchant-photo styling are not connected.
+
+Published production deployment `97836c90-cbe5-47c9-a52e-99c0b392350d`. Signed-in browser verified the photo-analysis form, editable metadata fields, optional styling form and disabled analysis without a selected photo. Browser upload/confirmation with actual shopper clothes remains a joint test; the real Gemini photo and saved-metadata check above used the development backend. Screenshot: `/tmp/chauffeur-ai-wardrobe-live.jpg`.

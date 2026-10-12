@@ -42,6 +42,7 @@ import type * as styleTerms from "../styleTerms.js";
 import type * as taste from "../taste.js";
 import type * as wardrobe from "../wardrobe.js";
 import type * as wardrobeAI from "../wardrobeAI.js";
+import type * as wardrobeMetadata from "../wardrobeMetadata.js";
 import type * as wardrobePhoto from "../wardrobePhoto.js";
 import type * as wardrobeRules from "../wardrobeRules.js";
 import type * as wardrobeWorkflow from "../wardrobeWorkflow.js";
@@ -90,6 +91,7 @@ declare const fullApi: ApiFromModules<{
   taste: typeof taste;
   wardrobe: typeof wardrobe;
   wardrobeAI: typeof wardrobeAI;
+  wardrobeMetadata: typeof wardrobeMetadata;
   wardrobePhoto: typeof wardrobePhoto;
   wardrobeRules: typeof wardrobeRules;
   wardrobeWorkflow: typeof wardrobeWorkflow;

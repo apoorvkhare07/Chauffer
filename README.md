@@ -139,3 +139,9 @@ Up to six matching items are shown. Three relevant saved Flipkart listings can b
 ## Wardrobe outfits — 12 October 2026
 
 The signed-in web app supports a private wardrobe with optional photos and confirmed clothing details, editing, laundry availability and wear history. Gemini suggests up to three outfits for a free-text daily plan using only available owned pieces; invented items, incomplete outfits and stale inventory results are rejected. Photos are previews, not AI image analysis. Outfit recommendations currently live in their own web section; WhatsApp delivery and wardrobe-aware shopping-feed ranking remain future work.
+
+## AI wardrobe photos and styling context — 12 October 2026
+
+Photo analysis now sends a compressed clothing image to Gemini and stores a private, editable draft. It extracts the garment group and specific type (such as gown, jeans or blouse), colour, pattern, cut and tentative occasion suggestions. Brand is retained only when the model supplies readable label evidence; fabric composition stays unknown without a readable label. AI guesses require shopper review: confirmed details and the original AI reading are stored separately with the clothing photo. Abandoned drafts expire after 24 hours; failed analysis deletes the uploaded image. Manual entry remains available.
+
+Optional self-described body/proportion, fit, style and avoid preferences are saved privately and can be cleared. They guide wardrobe outfit generation and the web shopping conversation together with owned clothing details. Current occasion/size/budget requests take priority; this is not a fit or attractiveness guarantee. No body type is inferred from images. Wardrobe-based daily-feed ranking, visual analysis of merchant candidates, exact purchase-gap detection, automatic cross-channel identity and WhatsApp wardrobe photo intake remain future work.
