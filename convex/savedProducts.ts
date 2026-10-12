@@ -18,11 +18,7 @@ export const save=mutation({args:{messageId:v.id('messages'),url:v.string()},ret
  const conversation=message?await ctx.db.get(message.conversationId):null;
  const option=message?.result?.options.find(o=>o.url===url);
  if(!conversation||conversation.key!==`web:${owner}`||!option)throw new Error('Choose a product from your own search results.');
- const existing=await ctx.db.query('savedProducts').withIndex('by_owner_url',q=>q.eq('owner',owner).eq('option.url',url)).unique();
- if(existing){if(option.observedAt>=existing.option.observedAt){await ctx.db.patch(existing._id,{option});await recordPrice(ctx,owner,option);}return null;}
- const rows=await ctx.db.query('savedProducts').withIndex('by_owner',q=>q.eq('owner',owner)).take(50);
- if(rows.length>=50)throw new Error('Your shortlist holds 50 products. Remove one before saving another.');
- await ctx.db.insert('savedProducts',{owner,option,savedAt:Date.now()});await recordPrice(ctx,owner,option);return null;
+ return saveKnownOption(ctx,owner,option);
 }});
 export const remove=mutation({args:{id:v.id('savedProducts')},returns:v.null(),handler:async(ctx,{id})=>{
  const owner=await requireOwner(ctx),row=await ctx.db.get(id);
@@ -44,4 +40,20 @@ async function recordPrice(ctx:MutationCtx,owner:string,option:Option){
 export const history=query({args:{id:v.id('savedProducts')},returns:v.array(v.object({price:v.number(),observedAt:v.number(),priceFrom:v.optional(v.boolean())})),handler:async(ctx,{id})=>{
  const owner=await requireOwner(ctx),row=await ctx.db.get(id);if(!row||row.owner!==owner)throw new Error('Saved product unavailable.');
  return (await ctx.db.query('savedPriceHistory').withIndex('by_owner_url',q=>q.eq('owner',owner).eq('url',row.option.url)).order('desc').take(30)).map(({price,observedAt,priceFrom})=>({price,observedAt,...(priceFrom!==undefined?{priceFrom}:{})}));
+}});
+
+async function saveKnownOption(ctx:MutationCtx,owner:string,option:Option){
+ const url=option.url;
+ const existing=await ctx.db.query('savedProducts').withIndex('by_owner_url',q=>q.eq('owner',owner).eq('option.url',url)).unique();
+ if(existing){if(option.observedAt>=existing.option.observedAt){await ctx.db.patch(existing._id,{option});await recordPrice(ctx,owner,option);}return null;}
+ const rows=await ctx.db.query('savedProducts').withIndex('by_owner',q=>q.eq('owner',owner)).take(50);
+ if(rows.length>=50)throw new Error('Your shortlist holds 50 products. Remove one before saving another.');
+ await ctx.db.insert('savedProducts',{owner,option,savedAt:Date.now()});await recordPrice(ctx,owner,option);return null;
+}
+
+export const saveDaily=mutation({args:{feedId:v.id('dailyFeeds'),url:v.string()},returns:v.null(),handler:async(ctx,{feedId,url})=>{
+ const owner=await requireOwner(ctx),feed=await ctx.db.get(feedId);
+ const option=feed?.options.find(o=>o.url===url);
+ if(!feed||feed.owner!==owner||feed.state!=='ready'||!option)throw new Error('Choose a product from your own daily edit.');
+ return saveKnownOption(ctx,owner,option);
 }});

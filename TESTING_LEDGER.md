@@ -115,3 +115,31 @@ Automated verification: 45 checks (4 page/demo checks and 41 backend checks) pas
 - Similar-title grouping is automated-tested; no duplicate-title pair appeared in the final live batch. Amazon was unavailable, so real Amazon grouping remains a joint test.
 - AI optional questions and overconfident search acknowledgements remain a reply-quality gap; product evidence still states unverified attributes. No photo understanding is implied.
 - Final fix deployed and screenshot saved at `tmp/chauffeur-variety-check.jpg`.
+
+## Daily edit (12 October)
+
+Built: opt-in web feed, first edit immediately, then one edition per India-calendar day around 9 am. A Convex timer checks due subscriptions every 15 minutes; jobs use the existing workflow component. Pause stops future editions and invalidates unfinished results. No unsolicited WhatsApp messages are sent.
+
+- Uses the current chat’s clothing, size, budget and taste; needs older than 30 days are not searched. Preferences come from the existing AI conversation rather than another daily model call.
+- Targets 4–6 real products, with up to six from one readable store. Fewer matches are shown honestly. No budget/mandatory requirement is relaxed.
+- Excludes rejected and recently shown chat products and products from up to seven recent feed records. Similar store/title/colour/fabric occupies one slot. Relevant saved-listing price drops receive priority.
+- Checks up to three matching saved Flipkart listings for newer observations. A listed-price-drop badge requires identical URL/title/colour/fabric, product-page evidence, no starting price, and a lower fresh observation. It does not prove selected-size price, checkout savings or a sale event.
+- Saves feed picks using only owned stored results; clients cannot invent prices. Price history updates use the existing private shortlist.
+- A changed shopping need hides the old daily edit; the next day follows the latest chat. No second edition is generated merely by toggling the subscription. Pending chat turns are deferred 15 minutes rather than consuming that day’s edition.
+- Real offer/coupon/bank eligibility and sale-event extraction remain disconnected, explicitly shown in the feed. WhatsApp proactive delivery and cross-channel identity linking remain disconnected.
+
+Automated: 56 checks pass (4 page/demo and 52 backend); type checking and frontend build pass. Daily tests cover India-day timing, same-listing price evidence, owner privacy, opt-in, once-per-day claims, pause, changed requirements, saving trusted feed items, scheduled generation, and price-drop priority. The price-drop workflow test uses controlled merchant fixtures; it is not evidence of an actual current promotion.
+
+Joint tests pending: next morning’s timer execution, repeated daily variety, a real observed price fall, Amazon consistency, and stale/changed requirements across days.
+
+Live daily-feed browser check: six real Flipkart picks appeared, saving added a private shortlist item, and pause/resume restored the same edition. Saved-listing observations updated; no actual price drop was observed. Amazon was unavailable in that run. Tomorrow's scheduled edition remains untested.
+
+## Wardrobe outfits (12 October)
+
+Built: private confirmed inventory, optional compressed photo previews, editing/removal, laundry availability, up to three Gemini outfits based on today's plans, and marking an outfit worn. Photos are not analysed by AI. Owned IDs and complete combinations are checked after model output; changes to clothing availability/details invalidate old results. Wardrobe-aware shopping-feed ranking and WhatsApp wardrobe interactions remain unconnected.
+
+Automated: 61 total checks pass, with backend type checking and frontend build. Wardrobe tests cover owner privacy, stored photos, invented/unavailable/incomplete item rejection, wear history, and stale completion. A separate development identity with three fictional garments received two valid outfits from real Gemini (green dress; blue shirt with black trousers). No fictional wardrobe was added to the actual shopper account.
+
+Joint tests pending: upload actual clothes, assess outfit quality for real occasions, edit/laundry/wear controls with real inventory, and phone layout. Weather is used only when supplied in the request.
+
+Production published successfully: `ee9e3c5d-a1f5-48ad-808a-54242b5ac90b`. Live signed-in browser verified the empty wardrobe, expanded detail/photo form and disabled outfit action before inventory exists. Screenshot: `/tmp/chauffeur-wardrobe-live.jpg`. Development fixture garments were removed after the Gemini check.

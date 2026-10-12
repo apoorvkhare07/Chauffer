@@ -1,14 +1,20 @@
 import { defineSchema, defineTable } from 'convex/server';
 import { v } from 'convex/values';
 import { authTables } from '@convex-dev/auth/server';
-import { discoveryResultValidator } from './marketplaces';
+import { discoveryResultValidator,storeResultValidator } from './marketplaces';
 import { tasteValidator } from './taste';
 import { requirementsValidator,optionValidator } from './discoveryRules';
+import {garmentValidator,outfitValidator} from './wardrobeRules';
+import {priceDropValidator} from './feedValidators';
 import {offerValidator} from './offerValidators';
 export const preferences = v.object({language: v.union(v.literal('en'), v.literal('hi'), v.literal('hinglish')), size: v.optional(v.string()), budgetPaise: v.optional(v.number())});
 export const quote = v.object({store: v.string(), productUrl: v.string(), title: v.string(), variant: v.string(), quantity: v.number(), itemPaise: v.number(), shippingPaise: v.number(), totalPaise: v.number(), currency: v.literal('INR'), addressReference: v.string(), returnTerms: v.string(), observedAt: v.number(), expiresAt: v.number()});
 export default defineSchema({
  ...authTables,
+ wardrobeItems: defineTable({owner:v.string(),details:garmentValidator,photoId:v.optional(v.id('_storage')),available:v.boolean(),lastWornAt:v.optional(v.number()),createdAt:v.number()}).index('by_owner',['owner']),
+ wardrobeOutfits: defineTable({owner:v.string(),request:v.string(),wardrobeKey:v.string(),threadId:v.string(),state:v.union(v.literal('building'),v.literal('ready'),v.literal('failed')),outfits:v.array(outfitValidator),note:v.string(),createdAt:v.number(),completedAt:v.optional(v.number()),wornIndex:v.optional(v.number()),inputTokens:v.optional(v.number()),outputTokens:v.optional(v.number())}).index('by_owner',['owner']),
+ dailySubscriptions: defineTable({owner:v.string(),enabled:v.boolean(),nextAt:v.number(),updatedAt:v.number()}).index('by_owner',['owner']).index('by_due',['enabled','nextAt']),
+ dailyFeeds: defineTable({owner:v.string(),day:v.string(),subscriptionId:v.id('dailySubscriptions'),needKey:v.string(),requirements:requirementsValidator,taste:tasteValidator,state:v.union(v.literal('building'),v.literal('ready'),v.literal('failed'),v.literal('paused')),options:v.array(optionValidator),drops:v.array(priceDropValidator),stores:v.array(storeResultValidator),note:v.string(),startedAt:v.number(),completedAt:v.optional(v.number())}).index('by_owner_day',['owner','day']),
  conversations: defineTable({key:v.string(),referenceProduct:v.optional(optionValidator),taste:v.optional(tasteValidator),agentThreadId:v.optional(v.string()),aiTurn:v.optional(v.boolean()),inputText:v.optional(v.string()),language:v.optional(v.string()),requirements:requirementsValidator,revision:v.number(),session:v.number(),pending:v.boolean(),updatedAt:v.number(),shownUrls:v.array(v.string()),rejectedUrls:v.array(v.string())}).index('by_key',['key']),
  messages: defineTable({conversationId:v.id('conversations'),session:v.number(),role:v.union(v.literal('user'),v.literal('assistant')),text:v.string(),result:v.optional(discoveryResultValidator),ai:v.optional(v.boolean())}).index('by_conversation_session',['conversationId','session']),
  profiles: defineTable({owner: v.string(), taste:v.optional(tasteValidator),preferences, updatedAt: v.number()}).index('by_owner', ['owner']),

@@ -58,7 +58,7 @@ export async function discover(requirements:Requirements,excludeUrls:string[]=[]
  }
  return matches.sort((a,b)=>a.price-b.price).slice(0,limit);
 }
-export async function discoverAcrossStores(requirements:Requirements,excludeUrls:string[]=[],taste:Taste=emptyTaste):Promise<{options:Option[];failed:boolean;stores:StoreResult[]}>{
+export async function discoverAcrossStores(requirements:Requirements,excludeUrls:string[]=[],taste:Taste=emptyTaste,perStoreLimit=3):Promise<{options:Option[];failed:boolean;stores:StoreResult[]}>{
  const results=await Promise.all(stores.map(async store=>{
   const searchUrl=storeSearchUrl(store,requirements);
   try{
@@ -76,7 +76,7 @@ export async function discoverAcrossStores(requirements:Requirements,excludeUrls
    return {options,result:{store,status:options.length?'matched':'no_matches',searchUrl} as StoreResult};
   }catch(error){console.warn('Store discovery unavailable',store,error instanceof Error?error.message.slice(0,120):'Unknown response');return {options:[] as Option[],result:{store,status:'unavailable',searchUrl} as StoreResult};}
  }));
- const options=chooseBatch(results.flatMap(x=>x.options),requirements,taste);
+ const options=chooseBatch(results.flatMap(x=>x.options),requirements,taste,perStoreLimit);
  return {options,failed:results.every(x=>x.result.status==='unavailable'),stores:results.map(x=>({...x.result,status:x.result.status==='unavailable'?'unavailable':options.some(o=>o.store===x.result.store)?'matched':'no_matches'}))};
 }
 const searchResultValidator=v.object({options:v.array(optionValidator),failed:v.boolean(),stores:v.array(storeResultValidator)});

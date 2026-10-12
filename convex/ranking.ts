@@ -14,7 +14,7 @@ export function rankOptions(options:Option[],requirements:Requirements,taste:Tas
  });
  return scored.filter(x=>!x.avoid).sort((a,b)=>b.score-a.score||a.option.price-b.option.price).map(x=>x.option);
 }
-export function chooseBatch(options:Option[],requirements:Requirements,taste:Taste):Option[]{
- const ranked=rankOptions(options,requirements,taste);const counts=new Map<string,number>();const seen=new Set<string>();
- return ranked.filter(o=>{const store=o.store??'Flipkart';const n=counts.get(store)??0;const key=[store,o.title,o.colour,o.fabric].map(x=>x.toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim()).join('|');if(n>=3||seen.has(key))return false;seen.add(key);counts.set(store,n+1);return true;}).slice(0,6);
+export function chooseBatch(options:Option[],requirements:Requirements,taste:Taste,perStoreLimit=3,priorityUrls:string[]=[]):Option[]{
+ const ranked=rankOptions(options,requirements,taste).sort((a,b)=>Number(priorityUrls.includes(b.url))-Number(priorityUrls.includes(a.url)));const counts=new Map<string,number>();const seen=new Set<string>();
+ return ranked.filter(o=>{const store=o.store??'Flipkart';const n=counts.get(store)??0;const key=[store,o.title,o.colour,o.fabric].map(x=>x.toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim()).join('|');if(n>=perStoreLimit||seen.has(key))return false;seen.add(key);counts.set(store,n+1);return true;}).slice(0,6);
 }

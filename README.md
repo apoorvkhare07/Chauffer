@@ -129,3 +129,13 @@ WhatsApp now prepares up to six trusted product image messages after the text re
 Password recovery has an honest unavailable state. Account deletion, checkout/payment/order execution, tracking/returns, voice/photo interpretation and price alerts remain explicit placeholders. No additional service, merchant partnership or payment connection was introduced.
 
 See [TESTING_LEDGER.md](TESTING_LEDGER.md) for what was actually tested and what we must check together.
+
+### Daily personalised feed
+
+`/app/` includes an opt-in daily edit. First generation starts immediately, then Convex checks due subscriptions every 15 minutes for the next 9 am India-time edition. The current chat supplies the need and taste; no new daily LLM call is required. Feed records are private and idempotent by owner/day. The existing workflow component runs store checks without automatic external-call retries.
+
+Up to six matching items are shown. Three relevant saved Flipkart listings can be refreshed for dated listed-price changes. This is not exact-variant checkout comparison or sale/offer detection. Those readers and proactive WhatsApp delivery remain pending. Tests are in `convex/dailyFeed.test.ts`, `feedRules.ts` and `rankingVariety.test.ts`; real overnight scheduling and a genuine observed price drop need joint verification.
+
+## Wardrobe outfits — 12 October 2026
+
+The signed-in web app supports a private wardrobe with optional photos and confirmed clothing details, editing, laundry availability and wear history. Gemini suggests up to three outfits for a free-text daily plan using only available owned pieces; invented items, incomplete outfits and stale inventory results are rejected. Photos are previews, not AI image analysis. Outfit recommendations currently live in their own web section; WhatsApp delivery and wardrobe-aware shopping-feed ranking remain future work.

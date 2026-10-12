@@ -59,3 +59,9 @@ The homepage now has a scroll-driven, sticky five-step story: a need, a conversa
 ## Saved discovery and comparison foundations
 
 The live web assistant now supports private saved favourites, side-by-side comparisons, dated price observations and refresh attempts, older-card feedback, visible consented taste and clearing controls, read-only chat history and stopping requests. Exact same-item delivered-price comparison and offer calculations have conservative backend rules and evidence storage; merchant identity/variant/shipping/terms collection is still missing. These foundations must not be marketed as live price comparison or verified savings. WhatsApp photo-message preparation is built but actual delivery remains untested. Recovery, account removal, checkout, order support, voice/photo search and alerts remain placeholders. Joint testing is tracked in TESTING_LEDGER.md.
+
+Daily edit is an opt-in feature on `/app/`: fresh picks for the current shopping need, size, budget and taste, once daily around 9 am India time. It targets 4–6 real options and discloses fewer verified matches. Matching saved Flipkart products can carry dated listed-price-drop evidence; size-specific checkout savings, coupons, bank offers, sale detection and WhatsApp delivery remain unconnected. Pause is available, and needs older than 30 days require another chat.
+
+## Wardrobe outfits — 12 October 2026
+
+The signed-in web app supports a private wardrobe with optional photos and confirmed clothing details, editing, laundry availability and wear history. Gemini suggests up to three outfits for a free-text daily plan using only available owned pieces; invented items, incomplete outfits and stale inventory results are rejected. Photos are previews, not AI image analysis. Outfit recommendations currently live in their own web section; WhatsApp delivery and wardrobe-aware shopping-feed ranking remain future work.
