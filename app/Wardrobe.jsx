@@ -2,13 +2,10 @@ import React,{useState,useEffect} from 'react';
 import {useMutation,useQuery,useAction} from 'convex/react';
 import {Shirt,Sparkles} from 'lucide-react';
 import WardrobeStyle from './WardrobeStyle';
+import {jpegPhoto} from './photoUpload';
 import {api} from '../convex/_generated/api';
 const empty={name:'',category:'top',colour:'',fabric:'',pattern:'',notes:'',kind:'',brand:'',cut:'',occasion:''};
 const categories={top:'Top / blouse',bottom:'Trousers / skirt / leggings',dress:'Dress',kurta:'Kurta',saree:'Saree',outerwear:'Jacket / outer layer',shoes:'Shoes',accessory:'Accessory'};
-async function jpegPhoto(file){
- if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>12000000)throw new Error('Choose an image smaller than 12 MB.');
- const url=URL.createObjectURL(file);try{const image=new Image();await new Promise((resolve,reject)=>{image.onload=resolve;image.onerror=()=>reject(new Error('That photo could not be read.'));image.src=url;});const scale=Math.min(1,1000/Math.max(image.width,image.height)),canvas=document.createElement('canvas');canvas.width=Math.round(image.width*scale);canvas.height=Math.round(image.height*scale);const context=canvas.getContext('2d');context.fillStyle='#ffffff';context.fillRect(0,0,canvas.width,canvas.height);context.drawImage(image,0,0,canvas.width,canvas.height);let base64=canvas.toDataURL('image/jpeg',.75).split(',')[1];if(base64.length>930000)base64=canvas.toDataURL('image/jpeg',.45).split(',')[1];if(base64.length>930000)throw new Error('Choose a smaller photo.');return base64;}finally{URL.revokeObjectURL(url);}
-}
 export default function Wardrobe(){
  const analysePhoto=useAction(api.wardrobePhoto.analyse),confirmPhoto=useMutation(api.wardrobeMetadata.confirm);
  const [draft,setDraft]=useState(null),[preview,setPreview]=useState('');

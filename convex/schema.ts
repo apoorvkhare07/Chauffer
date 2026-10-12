@@ -5,12 +5,16 @@ import { discoveryResultValidator,storeResultValidator } from './marketplaces';
 import { tasteValidator } from './taste';
 import { requirementsValidator,optionValidator } from './discoveryRules';
 import {garmentValidator,outfitValidator,styleValidator,photoAnalysisValidator} from './wardrobeRules';
+import {bodyAnalysisValidator,previewSourceValidator} from './stylingRules';
 import {priceDropValidator} from './feedValidators';
 import {offerValidator} from './offerValidators';
 export const preferences = v.object({language: v.union(v.literal('en'), v.literal('hi'), v.literal('hinglish')), size: v.optional(v.string()), budgetPaise: v.optional(v.number())});
 export const quote = v.object({store: v.string(), productUrl: v.string(), title: v.string(), variant: v.string(), quantity: v.number(), itemPaise: v.number(), shippingPaise: v.number(), totalPaise: v.number(), currency: v.literal('INR'), addressReference: v.string(), returnTerms: v.string(), observedAt: v.number(), expiresAt: v.number()});
 export default defineSchema({
  ...authTables,
+ stylingRequests: defineTable({owner:v.string(),purpose:v.union(v.literal('body'),v.literal('tryon'))}).index('by_owner_purpose',['owner','purpose']),
+ stylingProfiles: defineTable({owner:v.string(),onboarding:v.union(v.literal('active'),v.literal('complete'),v.literal('skipped')),photoId:v.optional(v.id('_storage')),photoState:v.union(v.literal('empty'),v.literal('building'),v.literal('ready'),v.literal('failed')),analysis:v.optional(bodyAnalysisValidator),confirmedDescription:v.optional(v.string()),updatedAt:v.number()}).index('by_owner',['owner']),
+ tryOnPreviews: defineTable({owner:v.string(),source:previewSourceValidator,title:v.string(),photoId:v.id('_storage'),garmentPhotoId:v.optional(v.id('_storage')),garmentImageUrl:v.optional(v.string()),state:v.union(v.literal('building'),v.literal('ready'),v.literal('failed')),outputId:v.optional(v.id('_storage')),note:v.string(),failureCode:v.optional(v.string()),createdAt:v.number(),expiresAt:v.number()}).index('by_owner',['owner']).index('by_expiry',['expiresAt']),
  wardrobeStyles: defineTable({owner:v.string(),details:styleValidator,updatedAt:v.number()}).index('by_owner',['owner']),
  wardrobePhotoDrafts: defineTable({owner:v.string(),photoId:v.optional(v.id('_storage')),analysis:v.optional(photoAnalysisValidator),state:v.union(v.literal('building'),v.literal('ready'),v.literal('failed')),createdAt:v.number()}).index('by_owner',['owner']).index('by_created',['createdAt']),
  wardrobeItems: defineTable({owner:v.string(),details:garmentValidator,analysis:v.optional(photoAnalysisValidator),photoId:v.optional(v.id('_storage')),available:v.boolean(),lastWornAt:v.optional(v.number()),createdAt:v.number()}).index('by_owner',['owner']),

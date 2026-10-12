@@ -155,3 +155,19 @@ Real Gemini development test: repository clothing image was read as a white flor
 Joint tests pending: real shopper upload and correction, readable/obscured labels, gowns/jeans/other types, multiple items and unclear images, body/fit preference usefulness for occasions, saved wardrobe matching during shopping, phone upload, and scheduled draft cleanup over actual time. Daily-feed wardrobe ranking and merchant-photo styling are not connected.
 
 Published production deployment `97836c90-cbe5-47c9-a52e-99c0b392350d`. Signed-in browser verified the photo-analysis form, editable metadata fields, optional styling form and disabled analysis without a selected photo. Browser upload/confirmation with actual shopper clothes remains a joint test; the real Gemini photo and saved-metadata check above used the development backend. Screenshot: `/tmp/chauffeur-ai-wardrobe-live.jpg`.
+
+## Photo onboarding and virtual try-on (12 October)
+
+Builder reports prior wardrobe/photo testing complete; this is user-reported, not a new agent browser verification.
+
+Built: three-step optional onboarding; saved size/language/budget/fit/style; consented portrait upload and tentative Gemini proportion/shape suggestions; human confirmation before styling context; separate try-on-photo suitability and shape visibility; one-piece previews from private wardrobe photos or saved merchant images; Workflow job state; allowlisted image hosts, rejected redirects and bounded downloads; five attempts/rolling 24h; no automatic generation retries; seven-day output expiry; portrait replacement/removal cleanup and stale-result rejection. Existing preference/taste records are preserved. No face identification or measurements are inferred.
+
+Automated: 75 total checks pass (4 page/demo and 71 backend), backend type checking passes, frontend build passes. New tests cover onboarding preservation/privacy/budget validation, photo consent/auth, unconfirmed estimates, ownership, stale confirmation, photo/derived-description/output deletion, usable photo without body inference, image request/response storage, quota messages/no retry, removal during generation, unsafe merchant hosts, caps after result deletion, and expiry cleanup. Controlled generated-image bytes test transport/storage and do not establish visual quality.
+
+Real Gemini: a repository clothing model photo under a separate development test identity received low-confidence tentative proportions and a rectangle shorthand, with explicit caveats that the loose garment/angled pose hide contours. This may be inaccurate and was not confirmed as shopper truth. The real image-generation attempt failed with HTTP 429 and correctly became a failed preview; no output image was claimed. Google API access/quota is the concrete try-on blocker.
+
+Joint tests pending: actual shopper onboarding photo, confirming/correcting estimates, multiple people/partial photos/obscured contours, generation after quota access is resolved, identity/body/garment preservation, saved-product image access, expiry over real elapsed time, and mobile uploads. Full multi-item outfit previews and WhatsApp onboarding remain outside this version.
+
+Retry requested by the builder: a second real Gemini image-generation attempt also returned the quota failure. Both development test portraits, garments and preview records were removed; no actual shopper photos were added or removed.
+
+Production published with the final onboarding and styling-form changes. Signed-in browser verified saved existing preferences, navigation through all three onboarding steps, optional-photo continuation, saved-product selection and disabled generation without a photo/consent. Final live account asset: `account-BkTE2NBi.js`. Screenshots: `/tmp/chauffeur-photo-onboarding-live.jpg` and `/tmp/chauffeur-tryon-flow-live.jpg`. Actual shopper upload and a generated visual remain joint tests.

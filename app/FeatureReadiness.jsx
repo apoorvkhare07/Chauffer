@@ -6,7 +6,8 @@ export default function FeatureReadiness(){
  <dt>WhatsApp</dt><dd>Conversation and product-preview handling are prepared. Connecting the test number, checking real delivery and securely linking it to your web account remain pending.</dd>
  <dt>Buy with Chauffeur</dt><dd>Not connected. Merchant login → exact variant → cart → address → fresh total and returns → your approval → payment handoff → order confirmation all need a tested browser connection. No order is placed here.</dd>
  <dt>Order tracking and returns</dt><dd>Not connected. Requires verified order receipts and store access.</dd>
- <dt>Voice and photo requests</dt><dd>Not connected. Text requests work now.</dd>
+ <dt>Personal styling and virtual try-on</dt><dd>Photo onboarding and editable proportion suggestions are live. The one-piece visual preview flow is built; a real generation test hit the image provider’s quota. AI previews are illustrations; size and fit are not verified.</dd>
+ <dt>Voice and photo-based shopping search</dt><dd>Not connected in chat. Wardrobe photo analysis and styling photos have their own sections.</dd>
  <dt>Email recovery and account removal</dt><dd>Recovery needs an approved email delivery connection. Complete account removal needs verified cleanup of chats, saved items, sign-in records and AI history. Both remain unavailable; signing out does not delete your account.</dd>
  </dl></details>;
 }
