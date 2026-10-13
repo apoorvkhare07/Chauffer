@@ -27,6 +27,7 @@ export const remove=mutation({args:{id:v.id('savedProducts')},returns:v.null(),h
  for(const observation of history)await ctx.db.delete(observation._id);
  const offers=await ctx.db.query('offerEvidence').withIndex('by_owner_url',q=>q.eq('owner',owner).eq('productUrl',row.option.url)).take(20);
  for(const offer of offers)await ctx.db.delete(offer._id);
+ const intelligence=await ctx.db.query('priceIntelligence').withIndex('by_saved',q=>q.eq('savedId',id)).unique();if(intelligence)await ctx.db.delete(intelligence._id);
  await ctx.db.delete(id);return null;
 }});
 import type {MutationCtx} from './_generated/server';

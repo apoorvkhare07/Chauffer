@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as accountSupport from "../accountSupport.js";
 import type * as aiConversations from "../aiConversations.js";
 import type * as aiDecision from "../aiDecision.js";
 import type * as auth from "../auth.js";
@@ -31,12 +32,16 @@ import type * as marketplaces from "../marketplaces.js";
 import type * as offerEvidence from "../offerEvidence.js";
 import type * as offerRules from "../offerRules.js";
 import type * as offerValidators from "../offerValidators.js";
+import type * as priceIntelligence from "../priceIntelligence.js";
+import type * as priceIntelligenceRules from "../priceIntelligenceRules.js";
+import type * as priceIntelligenceWorker from "../priceIntelligenceWorker.js";
 import type * as productRefresh from "../productRefresh.js";
 import type * as profiles from "../profiles.js";
 import type * as purchases from "../purchases.js";
 import type * as ranking from "../ranking.js";
 import type * as savedProducts from "../savedProducts.js";
 import type * as shoppingAI from "../shoppingAI.js";
+import type * as shoppingInput from "../shoppingInput.js";
 import type * as storeExtractors from "../storeExtractors.js";
 import type * as styleTerms from "../styleTerms.js";
 import type * as styling from "../styling.js";
@@ -48,6 +53,8 @@ import type * as tryOnAI from "../tryOnAI.js";
 import type * as tryOnWorkflow from "../tryOnWorkflow.js";
 import type * as wardrobe from "../wardrobe.js";
 import type * as wardrobeAI from "../wardrobeAI.js";
+import type * as wardrobeBuying from "../wardrobeBuying.js";
+import type * as wardrobeBuyingAI from "../wardrobeBuyingAI.js";
 import type * as wardrobeMetadata from "../wardrobeMetadata.js";
 import type * as wardrobePhoto from "../wardrobePhoto.js";
 import type * as wardrobeRules from "../wardrobeRules.js";
@@ -63,6 +70,7 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  accountSupport: typeof accountSupport;
   aiConversations: typeof aiConversations;
   aiDecision: typeof aiDecision;
   auth: typeof auth;
@@ -86,12 +94,16 @@ declare const fullApi: ApiFromModules<{
   offerEvidence: typeof offerEvidence;
   offerRules: typeof offerRules;
   offerValidators: typeof offerValidators;
+  priceIntelligence: typeof priceIntelligence;
+  priceIntelligenceRules: typeof priceIntelligenceRules;
+  priceIntelligenceWorker: typeof priceIntelligenceWorker;
   productRefresh: typeof productRefresh;
   profiles: typeof profiles;
   purchases: typeof purchases;
   ranking: typeof ranking;
   savedProducts: typeof savedProducts;
   shoppingAI: typeof shoppingAI;
+  shoppingInput: typeof shoppingInput;
   storeExtractors: typeof storeExtractors;
   styleTerms: typeof styleTerms;
   styling: typeof styling;
@@ -103,6 +115,8 @@ declare const fullApi: ApiFromModules<{
   tryOnWorkflow: typeof tryOnWorkflow;
   wardrobe: typeof wardrobe;
   wardrobeAI: typeof wardrobeAI;
+  wardrobeBuying: typeof wardrobeBuying;
+  wardrobeBuyingAI: typeof wardrobeBuyingAI;
   wardrobeMetadata: typeof wardrobeMetadata;
   wardrobePhoto: typeof wardrobePhoto;
   wardrobeRules: typeof wardrobeRules;

@@ -1,0 +1,12 @@
+import React,{useState,useEffect} from 'react';
+import {useAction,useConvex} from 'convex/react';
+import {useAuthActions} from '@convex-dev/auth/react';
+import {api} from '../convex/_generated/api';
+export default function AccountSupport(){
+ const convex=useConvex(),logout=useAction(api.accountSupport.signOutEverywhere),{signOut}=useAuthActions();
+ const [busy,setBusy]=useState(false),[notice,setNotice]=useState(''),[confirm,setConfirm]=useState(false),[downloadUrl,setDownloadUrl]=useState('');
+ useEffect(()=>()=>{if(downloadUrl)URL.revokeObjectURL(downloadUrl);},[downloadUrl]);
+ async function download(){setBusy(true);setNotice('');try{const data=await convex.query(api.accountSupport.download,{});const url=URL.createObjectURL(new Blob([data],{type:'application/json'}));setDownloadUrl(url);setNotice('Your file is ready. Choose Save my data file below. It contains recent chat and metadata; image files and older history are excluded.');}catch{setNotice('Could not prepare your download. Try again.');}finally{setBusy(false);}}
+ async function everywhere(){setBusy(true);setNotice('');try{await logout({confirmation:'SIGN OUT'});await signOut();}catch{setNotice('Could not finish signing out. Try again.');}finally{setBusy(false);}}
+ return <details className="shopping-library"><summary>Account support and data</summary><p>Download your shopping data or sign out on all devices.</p><p className="account-note">The download contains preferences, wardrobe details, saved products, the latest 100 web messages and seven daily edits. It is a partial snapshot; photos, older history and AI logs are excluded.</p><button disabled={busy} onClick={download}>Prepare shopping data download</button>{downloadUrl&&<a href={downloadUrl} download="chauffeur-shopping-data.json">Save my data file</a>}<button disabled={busy} onClick={()=>setConfirm(!confirm)}>Sign out on all devices</button>{confirm&&<div><p>This ends your saved sign-in sessions, including this one. Already-open sessions may take a short time to expire. Your shopping data stays saved.</p><button disabled={busy} onClick={everywhere}>Confirm sign out everywhere</button><button disabled={busy} onClick={()=>setConfirm(false)}>Keep me signed in</button></div>}{notice&&<p role="status">{notice}</p>}<p className="account-note"><strong>Pending:</strong> password recovery and email verification need an email delivery connection. Complete account deletion remains unavailable until all saved data, images, sign-in records and AI history can be safely cleared and checked.</p></details>;
+}

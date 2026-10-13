@@ -3,6 +3,7 @@ import {useMutation,useQuery} from 'convex/react';
 import {Send,RotateCcw} from 'lucide-react';
 import {api} from '../convex/_generated/api';
 import ProductPreview from './ProductPreview.jsx';
+import ShoppingInput from './ShoppingInput.jsx';
 
 const welcome="Hi! I'm Chauffeur. Tell me what you're looking for and I'll check Flipkart and Amazon. A kurta, dress, top or saree?";
 const suggestions=r=>!r.category?['Kurta','Dress','Top','Saree']:!r.budget?['Under ₹500','Under ₹1,000','Under ₹2,000']:!r.size&&r.category!=='saree'?['S','M','L','XL']:['Make it pink','Under ₹700','Pure cotton'];
@@ -36,6 +37,7 @@ export default function LiveSearch(){
    {pending&&<div className="chat-message chat-assistant chat-checking" role="status"><span className="chat-sender">Chauffeur</span><p>{!conversation?'Loading your conversation…':conversation.pending?(conversation.pendingPhase==='thinking'?'Understanding your request…':'Checking Flipkart and Amazon… This can take a minute.'):'Saving your message…'}</p>{conversation?.pending&&<button className="chat-chip" type="button" onClick={async()=>{try{await cancel();}catch{setError('Could not stop the request. Try again.');}}}>Stop this request</button>}</div>}
   </div>
   <div className="chat-suggestions" aria-label="Suggested replies">{(messages.some(m=>m.result?.options.length)?['Show more options','None of these',...suggestions(requirements)]:suggestions(requirements)).map(text=><button className="chat-chip" type="button" key={text} onClick={()=>send(text)} disabled={pending}>{text}</button>)}</div>
+  <ShoppingInput disabled={pending} onDraft={text=>{setDraft(text);input.current?.focus();}}/>
   <form className="chat-composer" onSubmit={e=>{e.preventDefault();send(draft);}} aria-busy={pending}><label className="sr-only" htmlFor="chat-message">Message Chauffeur</label><input id="chat-message" ref={input} value={draft} onChange={e=>setDraft(e.target.value)} placeholder={conversation?.aiEnabled?'Try: something understated for office, under ₹1,500':'Try: blue cotton kurta, M, under ₹1,000'} maxLength={1000} autoComplete="off" disabled={pending}/><button type="submit" className="chat-send" aria-label="Send message" disabled={pending||!draft.trim()}><Send size={20}/></button></form>
   <p className="chat-footer">Discovery only. Your chat is saved. Start again opens a fresh conversation.</p>
  </section>;
