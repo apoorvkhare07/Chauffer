@@ -35,3 +35,9 @@
 @media(max-width:1050px){.cs-hero{gap:30px}.cs-shopping-preview{padding:18px}.cs-preview-product .cs-art{height:160px}.cs-product-detail{font-size:7px}.cs-preview-product>strong{font-size:10px}}
 @media(max-width:760px){.cs-hero{grid-template-columns:1fr;padding-block:35px 40px;gap:30px}.chauffeur-site h1{font-size:clamp(42px,10vw,60px)}.cs-shopping-preview{width:100%;max-width:520px;margin-inline:auto;padding:18px}.cs-preview-product .cs-art{height:180px}.cs-preview-request{margin-left:20px}.cs-shopping-ideas{padding-block:30px}.cs-shopping-ideas h2{font-size:18px}.cs-shopping-links{gap:8px}.cs-shopping-links>a{font-size:11px;padding:11px 12px;gap:12px}.cs-preview-product>strong{font-size:10px}.cs-closing h2{font-size:34px}.cs-preview-products{gap:8px}}
 @media(max-width:420px){.cs-preview-product .cs-art{height:150px}.cs-preview-product>strong{font-size:9px}.cs-product-detail{font-size:7px;gap:3px}.cs-product-detail svg{width:10px}.cs-preview-product>span{font-size:9px}.cs-preview-reply p{font-size:10px}}
+
+/* Rotate only the navigation brand icon; share the banner's pause control. */
+.cs-nav .cs-brand>svg{animation:brand-icon-turn 12s linear infinite;transform-origin:center}
+.chauffeur-site:has(.scene-paused) .cs-nav .cs-brand>svg{animation-play-state:paused}
+@keyframes brand-icon-turn{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.cs-nav .cs-brand>svg{animation:none}}

@@ -63,3 +63,5 @@
 .hero-signin,.hero-language{font-size:11px;color:#7c7188;margin:13px 0 20px}
 .hero-prompts{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}.hero-prompts a{display:flex;align-items:center;gap:7px;font-size:11px;padding:10px 12px;border:1px solid #e6dfee;background:#ffffffa8;border-radius:30px;min-height:44px}.hero-prompts a:hover{border-color:#80629e}
 @media(max-width:760px){.public-fashion-hero{width:calc(100% - 24px);min-height:690px;margin:0 auto 20px}.public-fashion-hero .scene-center{padding:200px 8px 40px}.public-fashion-hero h1{font-size:51px;margin:18px 0}.hero-kicker{font-size:10px}.hero-description{font-size:13px;margin-bottom:22px}.fashion-entry-search{gap:8px;padding-left:13px}.fashion-entry-search>svg{width:18px}.fashion-entry-search input{font-size:16px}.hero-prompts{gap:6px}.hero-prompts a{font-size:10px;padding:8px 10px}.hero-signin{font-size:10px}.hero-language{margin-bottom:8px}.public-fashion-hero .scene-motion{width:44px;height:44px}}
+
+.public-fashion-hero .hero-prompts{margin-top:24px}
