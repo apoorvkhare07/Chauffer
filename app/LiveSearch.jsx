@@ -22,7 +22,7 @@ export default function LiveSearch(){
   finally{busy.current=false;setSubmitting(false);}
  }
  function reset(){send('reset');}
- async function save(message,option){setSaving(option.url);setNotice('');try{await saveProduct({messageId:message.id,url:option.url});setNotice('Saved to your shortlist below the chat.');}catch(e){setNotice(String(e.message).includes('50 products')?'Your shortlist is full. Remove an item before saving another.':'Could not save this option. Please try again.');}finally{setSaving('');}}
+ async function save(message,option){setSaving(option.url);setNotice('');try{await saveProduct({messageId:message.id,url:option.url});setNotice('Saved. Open Saved items to compare your favourites.');}catch(e){setNotice(String(e.message).includes('50 products')?'Your shortlist is full. Remove an item before saving another.':'Could not save this option. Please try again.');}finally{setSaving('');}}
  return <section className="shopping-chat" aria-labelledby="chat-title">
   <header className="chat-header"><div className="chat-avatar" aria-hidden="true">c</div><div><h1 id="chat-title">Chauffeur</h1><p>{!conversation?'Loading your conversation…':conversation.aiEnabled?'Gemini AI · Your shopping conversation':'Basic chat · AI not connected yet'}</p></div><button className="chat-reset" type="button" onClick={reset} disabled={pending} aria-label="Start a new chat"><RotateCcw size={16}/><span>Start again</span></button></header>
   <div className="chat-thread" ref={thread} role="log" aria-label="Shopping messages" aria-live="polite" aria-relevant="additions">

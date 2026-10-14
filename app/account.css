@@ -118,3 +118,30 @@
 @media(max-width:650px){.photo-setup-grid,.tryon-selection,.tryon-grid{grid-template-columns:1fr}.styling-portrait{height:230px}.onboarding-steps{gap:7px}.onboarding-steps span{font-size:12px;padding:7px 10px}.styling-onboarding header{flex-wrap:wrap}}
 
 .shopping-input{margin:1rem;padding:1rem;background:var(--paper,#faf7f0);border:1px solid #d9d3c4;border-radius:12px}.shopping-input summary{cursor:pointer;font-weight:600}.shopping-input label{display:block;margin:12px 0}.shopping-input select,.shopping-input input:not([type=checkbox]){display:block;max-width:100%;padding:8px}.shopping-input button,.price-history button{margin:8px 8px 8px 0;padding:8px 12px}.price-history label{display:block;margin:12px 0}.price-history label input{display:block;width:100%;max-width:100%;padding:8px}
+
+/* One destination at a time, with chat as the everyday home. */
+.signed-in-shell {max-width:1240px;padding-top:22px;}
+.signed-in-shell .account-nav {margin-bottom:26px;}
+.app-workspace {display:grid;grid-template-columns:180px minmax(0,1fr);gap:28px;align-items:start;}
+.app-menu {position:sticky;top:24px;display:flex;flex-direction:column;gap:7px;}
+.app-menu a {display:flex;gap:12px;align-items:center;padding:14px 16px;border-radius:12px;color:var(--muted);font-size:14px;text-decoration:none;white-space:nowrap;}
+.app-menu a:hover {background:#efedf8;color:var(--ink);}
+.app-menu a[aria-current=page] {background:var(--accent);color:white;}
+.app-menu a:focus-visible {outline:3px solid #b1b9ee;outline-offset:2px;}
+.app-page {min-width:0;display:grid;gap:20px;}
+.app-page > *, .app-page .shopping-library {width:100%;min-width:0;}
+.app-page [hidden] {display:none!important;}
+.app-page .account-card h1 {font-size:28px;margin:0 0 12px;}
+.app-page .account-card > .chat-chip {display:inline-block;margin:8px 0 28px;}
+.setup-page {max-width:760px;margin:20px auto;}
+.setup-page .shopping-library {width:100%;}
+@media(max-width:760px){
+ .signed-in-shell {padding:16px 14px 32px;}
+ .signed-in-shell .account-nav {margin-bottom:18px;}
+ .app-workspace {grid-template-columns:minmax(0,1fr);gap:16px;}
+ .app-menu {position:static;flex-direction:row;overflow-x:auto;padding:3px 2px 9px;gap:5px;}
+ .app-menu a {padding:11px 13px;font-size:12px;gap:7px;flex-shrink:0;}
+ .app-page .chat-thread {height:55dvh;min-height:300px;}
+ .app-page .chat-header {padding:16px;}
+ .setup-page {margin:0;}
+}
