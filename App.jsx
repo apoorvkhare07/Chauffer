@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import ShoppingJourney from './ShoppingJourney.jsx';
+import WardrobeSpiral from './WardrobeSpiral.jsx';
 import FashionHero from './FashionHero.jsx';
-import { Asterisk, ArrowUpRight, ArrowRight, Plus, Check, SlidersHorizontal, MessageCircle, ShoppingBag } from 'lucide-react';
+import { Asterisk, ArrowUpRight, Plus, SlidersHorizontal, MessageCircle, ShoppingBag } from 'lucide-react';
 
 const scenarios = [
   { name: 'Find my next look', request: 'Help me find an understated outfit for the office, under ₹1,500. I like clean lines and easy fits.', reply: 'Let’s start with your occasion, usual size and budget. We can explore options, then refine the colours and details together.', tags: ['Office style', 'Your budget', 'Your fit'], art: 0 },
@@ -10,12 +11,6 @@ const scenarios = [
 ];
 const liveLink = text => text ? `/app/?q=${encodeURIComponent(text)}` : '/app/';
 function Brand() { return <a className="cs-brand" href="/" aria-label="Chauffeur home"><Asterisk aria-hidden="true" size={26}/><span>chauffeur</span><small>AI</small></a>; }
-const editorialPhotos = {
-  0: {src: '/images/office-kurta.jpg', alt: 'Pink floral kurta photographed in a neutral studio'},
-  1: {src: '/images/patterned-kurta.jpg', alt: 'Close-up of a colourful printed cotton kurta'},
-  4: {src: '/images/mens-shirt.jpg', alt: 'Menswear inspiration with a striped shirt'},
-};
-function Artwork({index=0,className=''}) { const photo=editorialPhotos[index] || editorialPhotos[0]; return <img className={`cs-art ${className}`} src={photo.src} alt={photo.alt} width={1400} height={2100} loading={index===4?'lazy':'eager'} decoding="async"/>; }
 export default function App() {
   const [selected,setSelected]=useState(0);
   const example=scenarios[selected];
@@ -34,7 +29,7 @@ export default function App() {
       ].map(([label,prompt])=><a key={label} href={liveLink(prompt)}>{label}<ArrowUpRight size={15}/></a>)}</div><p>For women and men. Clothing, footwear and the finishing touches—one fashion assistant. Search live options on Flipkart and Amazon; available results depend on store access.</p></section>
       <ShoppingJourney/>
       <section className="cs-discovery" id="discovery"><div className="cs-wrap cs-discovery-inner"><div className="cs-discovery-copy"><h2>Shop by talking.<br/>Find more of<br/>what you like.</h2><p>Shopping for something new or deciding what to wear? Start with your day, your style or a piece you own. Explore options, ask for outfit ideas, and tell your assistant what feels right.</p><div className="cs-scenario-tabs" role="group" aria-label="Conversation examples">{scenarios.map((s,i)=><button key={s.name} type="button" aria-pressed={selected===i} onClick={()=>setSelected(i)}>{s.name}</button>)}</div><a className="cs-text-link" href={liveLink(example.request)}>Try this request <ArrowUpRight size={17}/></a></div><div className="cs-conversation"><div className="cs-conversation-top"><Brand/><span>Example shopping chat</span></div><div className="cs-example-user"><span>You</span><p>{example.request}</p></div><div className="cs-example-assistant" aria-live="polite"><span><Asterisk size={15}/>Chauffeur</span><p>{example.reply}</p><div className="cs-tags">{example.tags.map(t=><span key={t}>{t}</span>)}</div></div><div className="cs-example-feedback"><SlidersHorizontal size={16}/><span>“Less formal. Something with a small print.”</span></div><p className="cs-example-caption">An example of the flow. Live results vary by request and store access.</p></div></div></section>
-      <section className="cs-memory cs-wrap"><div className="cs-memory-art"><Artwork index={4}/><span>A wardrobe<br/>that feels like you.</span></div><div className="cs-memory-copy"><h2>Your wardrobe. Your taste.<br/>Your personal stylist.</h2><p>Add clothes, shoes and accessories you already own. Get outfit ideas for your day, and review how a saved purchase could work with your wardrobe. Keep your size, budget and style preferences ready for next time.</p><ul><li><Check size={17}/>Feedback guides the current conversation.</li><li><Check size={17}/>“Remember my preferences” saves your taste.</li><li><Check size={17}/>“Forget my remembered preferences” clears your taste.</li></ul><p className="cs-memory-note">Your saved size and budget can be changed in account settings.</p><a className="cs-text-link" href="/app/">Make it your own <ArrowUpRight size={17}/></a></div></section>
+      <WardrobeSpiral/>
       <section className="cs-status cs-wrap"><div><h2>Shop with us today.<br/>See what’s next.</h2><p>One place for discovering fashion, styling your wardrobe and thinking through your next purchase.</p></div><div className="cs-status-list"><article><span className="cs-status-pill cs-status-live">Available now</span><h3>Shopping and styling on the web</h3><p>AI clothing discovery, product previews, saved preferences, wardrobe outfits and buying reviews. Photo and voice inputs help draft your request.</p></article><article><span className="cs-status-pill">In the plan</span><h3>More fashion. More ways to shop.</h3><p>Verified delivered-price comparisons, WhatsApp and assisted checkout remain in the plan.</p></article></div></section>
       <section className="cs-faq cs-wrap" id="the-details"><div><h2>Before you<br/>start shopping.</h2><p>Clear answers, from the first conversation.</p><a className="cs-text-link" href="/demo/">Try the shopping demo <ArrowUpRight size={17}/></a><small>The separate demo uses fictional products.</small></div><div>{[
         ['Can I actually buy something here?','Chauffeur helps you discover clothing and opens the product on the store. You choose the size, check the details and buy directly there. Chauffeur does not take payments or place orders.'],
