@@ -218,3 +218,6 @@ Chauffeur adapts these patterns with its own typography, violet palette and pers
 
 ## Floating home composition — supplied references
 The builder supplied https://mobbin.com/screens/cfb5f163-40cf-438f-a57a-99624e6120a9 (Shop iOS welcome) and https://mobbin.com/screens/d2e173a4-6aea-45f9-be74-d58ea757ffd6 (Shop desktop search home). Both were visually inspected. Adapted the surrounding fashion imagery, clear central message/search and gentle movement with Chauffeur's existing licensed photos. Desktop imagery surrounds the search; phone imagery gathers above it so the input remains unobstructed. A pause button and reduced-motion styles stop decorative animation. Personalised continuation/preferences stay below the hero; decorative images do not claim live recommendations.
+
+### Public banner and signed-in home
+The public homepage carries the floating real-fashion photo composition, motion pause control and central request field. Signed-in home keeps the same conversational centre with quieter typography and no floating photos, followed by actual preferences and shortcuts. Public requests go through account access and remain editable in chat; finishing onboarding returns a pending request to chat.

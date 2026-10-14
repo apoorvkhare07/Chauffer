@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import {useAuthActions} from '@convex-dev/auth/react';
 export default function SignIn() {
  const {signIn} = useAuthActions();
+ const pendingRequest=new URLSearchParams(window.location.search).get('q')?.trim().slice(0,1000);
  const [flow,setFlow] = useState('signIn');
  const [busy,setBusy] = useState(false);
  const [error,setError] = useState('');
@@ -17,7 +18,7 @@ export default function SignIn() {
   catch {setError(flow === 'signIn' ? 'Could not sign in. Check your email and password, then try again.' : 'Could not create your account. If you already have one, try signing in.');}
   finally {setBusy(false);}
  }
- return <><h2>{flow==='signIn'?'Welcome back':'Create your account'}</h2><p className="account-note">{flow==='signIn'?'Sign in to your saved preferences.':'Save your preferences with Chauffeur.'}</p><form className="account-form" onSubmit={submit} key={flow}>
+ return <>{pendingRequest&&<div className="account-feedback"><strong>Your request is ready</strong><p>{pendingRequest}</p><small>Sign in to review it in chat. New here? We’ll help you set up first.</small></div>}<h2>{flow==='signIn'?'Welcome back':'Create your account'}</h2><p className="account-note">{flow==='signIn'?'Sign in to your saved preferences.':'Save your preferences with Chauffeur.'}</p><form className="account-form" onSubmit={submit} key={flow}>
  <input type="hidden" name="flow" value={flow}/>
  <label className="account-field">Email<input name="email" type="email" autoComplete="email" required maxLength={254} disabled={busy}/></label>
  <label className="account-field">Password<input name="password" type="password" autoComplete={flow==='signUp'?'new-password':'current-password'} minLength={flow==='signUp'?8:undefined} required disabled={busy}/></label>

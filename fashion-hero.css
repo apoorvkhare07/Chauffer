@@ -1,0 +1,65 @@
+/* Floating fashion composition, inspired by the supplied Shop welcome screens. */
+.fashion-scene{position:relative;isolation:isolate;min-height:600px;display:flex;align-items:center;justify-content:center;margin:-15px -10px 0;overflow:hidden;border-radius:28px;background:radial-gradient(ellipse at 50% 45%,#fff 0%,#faf9fd90 45%,transparent 75%)}
+.scene-center{position:relative;z-index:2;width:min(100%,570px);padding:45px 0 25px}
+.fashion-scene .personal-greeting{max-width:410px;margin:0 auto 24px}
+.fashion-scene .personal-greeting h1{font-size:clamp(40px,4.8vw,59px);margin:20px 0 16px}
+.fashion-scene .personal-greeting p{font-size:14px;line-height:1.7}
+.fashion-scene .personal-search{max-width:490px}
+.fashion-scene .personal-search-note{font-size:10px}
+.fashion-floats{position:absolute;inset:0;pointer-events:none;z-index:0}
+.fashion-float{position:absolute;width:135px;padding:8px;background:#ffffffdb;border:1px solid #fff;border-radius:22px;box-shadow:0 15px 35px #42324e13;transform:rotate(var(--tilt));animation:fashion-drift 7s ease-in-out infinite;animation-delay:var(--delay,0s)}
+.fashion-float img{width:100%;height:150px;object-fit:cover;border-radius:16px;display:block}
+.fashion-float span{display:block;font-size:9px;text-align:center;padding:10px 0 4px;letter-spacing:.02em;color:#70647c}
+.float-shirt{left:4%;top:27px;--tilt:-11deg;--delay:-2s}
+.float-shirt img{object-position:50% 73%}
+.float-shoes{right:10%;top:15px;--tilt:9deg;--delay:-5s;width:157px}
+.float-shoes img{object-position:50% 90%;height:120px}
+.float-bag{right:1%;bottom:43px;--tilt:10deg;--delay:-1s;width:125px}
+.float-bag img{object-position:50% 65%;height:137px}
+.float-kurta{left:8%;bottom:19px;--tilt:-8deg;--delay:-4s;width:127px}
+.float-kurta img{height:120px}
+.scene-spark{position:absolute;color:#9782c5;font-size:35px;font-weight:300}
+.spark-one{left:29%;top:45px}.spark-two{right:24%;bottom:56px;font-size:26px;color:#bfa787}
+.scene-caption{position:absolute;bottom:4px;left:0;right:0;text-align:center;font-size:9px;color:#8c8295}
+.scene-motion{position:absolute;right:10px;top:8px;z-index:3;border:1px solid #e6e1ec;border-radius:50%;width:44px;height:44px;display:grid;place-items:center;background:#ffffffbd;color:#746587;cursor:pointer}
+.scene-paused .fashion-float{animation-play-state:paused}
+@keyframes fashion-drift{0%,100%{transform:translateY(0) rotate(var(--tilt))}50%{transform:translateY(-12px) rotate(calc(var(--tilt) + 3deg))}}
+@media(min-width:761px) and (max-width:1100px){.fashion-float{opacity:.85;width:110px}.float-shirt{left:1%}.float-kurta{left:2%}.float-shoes{right:2%}.float-bag{right:0}.scene-center{width:75%}.fashion-scene{min-height:650px}.float-shirt img{height:115px}}
+@media(max-width:760px){
+ .personal-home{padding-top:0}
+ .fashion-scene{min-height:570px;margin:-8px -3px 0;border-radius:0;align-items:flex-start}
+ .scene-center{width:100%;padding:200px 5px 38px}
+ .fashion-scene .personal-greeting{text-align:center;margin:0 auto 22px;max-width:330px}
+ .fashion-scene .personal-greeting h1{font-size:45px;margin:15px 0 14px}
+ .fashion-scene .personal-greeting p{font-size:13px;max-width:300px;margin:auto}
+ .fashion-scene .personal-kicker{font-size:9px}
+ .fashion-scene .personal-search{padding:8px 8px 8px 14px}
+ .fashion-scene .personal-search-note{text-align:center;line-height:1.5;margin:11px auto 0;max-width:280px}
+ .fashion-float{width:99px;padding:5px;border-radius:18px}
+ .fashion-float img{height:112px;border-radius:13px}
+ .fashion-float span{display:none}
+ .float-shirt{left:6%;top:33px;--tilt:-13deg}
+ .float-shoes{width:118px;right:8%;top:22px;--tilt:13deg}
+ .float-shoes img{height:93px;object-position:50% 100%}
+ .float-bag{right:34%;bottom:auto;top:99px;width:80px;--tilt:5deg}
+ .float-bag img{height:78px}
+ .float-kurta{display:none}
+ .spark-one{left:41%;top:28px;font-size:24px}.spark-two{right:8%;bottom:auto;top:145px;font-size:21px}
+ .scene-motion{right:0;top:0;width:36px;height:36px}
+ .scene-caption{font-size:8px;bottom:9px;padding:0 10px}
+ .personal-prompts{margin:8px -3px 25px}
+}
+@media(prefers-reduced-motion:reduce){.fashion-float{animation:none!important}.scene-motion{display:none}}
+
+.public-fashion-hero{margin:0 auto 35px;min-height:680px;background:radial-gradient(ellipse at center,#fff 10%,#f3effa80 65%,transparent);border-radius:32px}
+.public-fashion-hero .scene-center{text-align:center;width:min(100%,600px);padding:55px 12px}
+.hero-kicker{display:flex;align-items:center;justify-content:center;gap:8px;color:#76618f;font-size:12px;letter-spacing:.08em}
+.public-fashion-hero h1{font-size:clamp(52px,5.5vw,76px);line-height:1.05;margin:24px 0;letter-spacing:-.05em}
+.public-fashion-hero h1 em{font-family:Georgia,serif;font-weight:400;color:#80629e}
+.hero-description{font-size:15px;line-height:1.8;color:#70687b;margin-bottom:27px}
+.fashion-entry-search{display:flex;gap:12px;align-items:center;background:white;border:1px solid #ded5e8;border-radius:100px;padding:8px 8px 8px 20px;box-shadow:0 8px 30px #45334f0d}
+.fashion-entry-search>svg{color:#806990;flex-shrink:0}.fashion-entry-search input{width:100%;min-width:0;border:0;background:none;outline:none;font:inherit;font-size:16px;padding:12px 0}.fashion-entry-search:focus-within{outline:3px solid #d8c9ed;outline-offset:3px}
+.fashion-entry-search button{border:0;border-radius:50%;width:46px;height:46px;flex-shrink:0;background:#7956a3;color:white;display:grid;place-items:center;cursor:pointer}.fashion-entry-search button:disabled{opacity:.45;cursor:default}
+.hero-signin,.hero-language{font-size:11px;color:#7c7188;margin:13px 0 20px}
+.hero-prompts{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}.hero-prompts a{display:flex;align-items:center;gap:7px;font-size:11px;padding:10px 12px;border:1px solid #e6dfee;background:#ffffffa8;border-radius:30px;min-height:44px}.hero-prompts a:hover{border-color:#80629e}
+@media(max-width:760px){.public-fashion-hero{width:calc(100% - 24px);min-height:690px;margin:0 auto 20px}.public-fashion-hero .scene-center{padding:200px 8px 40px}.public-fashion-hero h1{font-size:51px;margin:18px 0}.hero-kicker{font-size:10px}.hero-description{font-size:13px;margin-bottom:22px}.fashion-entry-search{gap:8px;padding-left:13px}.fashion-entry-search>svg{width:18px}.fashion-entry-search input{font-size:16px}.hero-prompts{gap:6px}.hero-prompts a{font-size:10px;padding:8px 10px}.hero-signin{font-size:10px}.hero-language{margin-bottom:8px}.public-fashion-hero .scene-motion{width:44px;height:44px}}

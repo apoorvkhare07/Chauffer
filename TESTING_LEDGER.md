@@ -231,3 +231,10 @@ Checks: 86 tests and the frontend build passed. Browser verified hero photos/fra
 - Inspected both supplied Shop welcome/home screens and added a floating fashion-photo composition around the home message/search. Existing licensed photos, no invented product recommendations. Phone layout gathers imagery above the search; desktop surrounds it.
 - Pause control verified through the rendered animation play state. Reduced-motion CSS removes decorative movement. Home request handoff verified with an unsent draft. All four images loaded; no horizontal overflow at 390px and no captured console errors. Desktop checked at 1280px.
 - 90 automated tests and build passed; npm run deploy completed in 47.1 seconds. Screenshots: /tmp/chauffeur-floating-home-phone.png and /tmp/chauffeur-floating-home-desktop.png.
+
+### Website banner / app home handoff
+- Public banner now uses floating real photos, a central search, pause control and phone layout; authenticated home is a quieter search-first page.
+- Checked local phone and desktop banner, pause control, and a website request reaching the signed-out screen with the exact text intact.
+- All 90 automated tests passed; production build passed.
+- Still needs a fresh-user walkthrough: website request → account creation → onboarding → chat. Existing authentication is unchanged; onboarding return now selects chat when a request is present.
+- Production verified after deployment: cleaner signed-in home on desktop and 390px phone layout; public website search while already signed in opens chat with the exact draft intact (no automatic message sent).
