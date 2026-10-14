@@ -1,7 +1,7 @@
 import React,{useEffect,useState} from 'react';
 import {useConvexAuth,useQuery} from 'convex/react';
 import {api} from '../convex/_generated/api';
-import {Asterisk,MessageCircle,Shirt,Heart,Sparkles,ScanFace,Settings,History} from 'lucide-react';
+import {Asterisk,MessageCircle,Shirt,Heart,Sparkles,ScanFace,Settings,History,MoreHorizontal,ArrowUpRight} from 'lucide-react';
 import Preferences from './Preferences.jsx';
 import SignIn from './SignIn.jsx';
 import LiveSearch from './LiveSearch.jsx';
@@ -14,7 +14,7 @@ import ConversationHistory from './ConversationHistory.jsx';
 import FeatureReadiness from './FeatureReadiness.jsx';
 import AccountSupport from './AccountSupport.jsx';
 const pages=[['chat','Chat',MessageCircle],['daily','Daily picks',Sparkles],['wardrobe','Wardrobe',Shirt],['saved','Saved items',Heart],['try-on','Try-on',ScanFace],['history','Past chats',History],['settings','Settings',Settings]];
-function pageFromUrl(){const page=window.location.hash.replace('#/','');return pages.some(([id])=>id===page)||page==='setup'?page:'chat';}
+function pageFromUrl(){const page=window.location.hash.replace('#/','');return pages.some(([id])=>id===page)||page==='setup'||page==='more'?page:'chat';}
 function SignedIn(){
  const setup=useQuery(api.styling.get);
  const [page,setPage]=useState(pageFromUrl);
@@ -23,14 +23,16 @@ function SignedIn(){
  if(!setup)return <main id="account-content"><p role="status">Loading your account…</p></main>;
  const onboarding=setup.onboarding==='active'||page==='setup';
  if(onboarding)return <main id="account-content" className="setup-page"><p className="account-kicker">Welcome to your fashion assistant</p><Onboarding forceOpen onDone={()=>go('chat')} onWardrobe={()=>go('wardrobe')}/><p className="account-note">Photos and wardrobe setup are optional. You can return to these from Settings.</p></main>;
- return <div className="app-workspace"><nav className="app-menu" aria-label="Your assistant">{pages.map(([id,label,Icon])=><a href={`#/${id}`} key={id} aria-current={page===id?'page':undefined}><Icon size={19}/><span>{label}</span></a>)}</nav><main id="account-content" className="app-page" tabIndex={-1}>
+ return <div className={`app-workspace ${page==='chat'?'chat-workspace':''}`}><nav className="app-menu" aria-label="Your assistant">{pages.map(([id,label,Icon])=><a href={`#/${id}`} key={id} aria-current={page===id?'page':undefined}><Icon size={19}/><span>{label}</span></a>)}</nav><nav className="phone-menu" aria-label="Main navigation">{[...pages.slice(0,4),['more','More',MoreHorizontal]].map(([id,label,Icon])=><a href={`#/${id}`} key={id} aria-current={(page===id||(id==='more'&&['try-on','history','settings'].includes(page)))?'page':undefined}><Icon size={21}/><span>{label}</span></a>)}</nav><main id="account-content" className="app-page" tabIndex={-1}>
  <div hidden={page!=='chat'}><LiveSearch/></div>
- {page==='daily'&&<DailyFeed/>}{page==='wardrobe'&&<Wardrobe/>}{page==='saved'&&<ShoppingLibrary/>}{page==='try-on'&&<VirtualTryOn/>}
+ {page==='more'&&<section className="account-card more-page"><h1>Your assistant</h1><p className="account-note">Your style tools and account, in one place.</p>{pages.slice(4).map(([id,label,Icon])=><a href={`#/${id}`} key={id}><Icon size={22}/><span>{label}</span><ArrowUpRight size={18}/></a>)}</section>}
+ {page==='daily' &&<DailyFeed/>}{page==='wardrobe'&&<Wardrobe/>}{page==='saved'&&<ShoppingLibrary/>}{page==='try-on'&&<VirtualTryOn/>}
  {page==='history'&&<section className="account-card"><h1>Past chats</h1><p className="account-note">Revisit previous searches. Your current conversation is in Chat.</p><ConversationHistory/></section>}
  {page==='settings'&&<><section className="account-card"><h1>Settings</h1><p className="account-note">Manage your style, account and privacy.</p><a className="chat-chip" href="#/setup">Edit styling setup</a><Preferences/></section><AccountSupport/><FeatureReadiness/></>}
  </main></div>;
 }
 export default function Account(){
  const {isLoading,isAuthenticated}=useConvexAuth();
+ useEffect(()=>{const viewport=window.visualViewport;const update=()=>{document.documentElement.style.setProperty('--app-height',`${viewport?.height??window.innerHeight}px`);document.documentElement.classList.toggle('keyboard-open',Boolean(viewport&&window.innerHeight-viewport.height>120));};update();viewport?.addEventListener('resize',update);window.addEventListener('resize',update);return()=>{viewport?.removeEventListener('resize',update);window.removeEventListener('resize',update);document.documentElement.style.removeProperty('--app-height');document.documentElement.classList.remove('keyboard-open');};},[]);
  return <div className={`account-shell ${isAuthenticated?'signed-in-shell':''}`}><a className="skip-link" href="#account-content">Skip to content</a><header className="account-nav"><a href="/" className="brand" aria-label="Chauffeur home"><Asterisk aria-hidden="true"/><span>chauffeur</span><span className="brand-ai">AI</span></a><span className="account-note">Your Fashion AI assistant</span></header>{isLoading?<main id="account-content"><p role="status">Checking your sign-in…</p></main>:isAuthenticated?<SignedIn/>:<main id="account-content" className="account-layout"><section className="account-intro"><span className="account-kicker">Your Fashion AI assistant</span><h1>Let’s find your<br/>next outfit.</h1><p>Find a new look, style what you own, and keep your favourites together.</p><div className="account-art" role="img" aria-label="Printed kurta style inspiration"/><p className="account-note">Live fashion searches on Flipkart and Amazon. Clothing for women and men, shoes, accessories and styling for what you own.</p></section><section className="account-card" aria-label="Your account"><SignIn/></section></main>}</div>;
 }

@@ -14,7 +14,7 @@ export default function LiveSearch(){
  const [draft,setDraft]=useState(()=>new URLSearchParams(window.location.search).get('q')?.slice(0,1000)??''),[submitting,setSubmitting]=useState(false),[error,setError]=useState(''),[saving,setSaving]=useState(''),[notice,setNotice]=useState('');
  const pending=submitting||!conversation||conversation.pending;
  const thread=useRef(null),input=useRef(null),busy=useRef(false);
- useEffect(()=>{if(!pending)input.current?.focus();const el=thread.current;if(el){const last=el.lastElementChild;el.scrollTop=messages.at(-1)?.result&&last?last.offsetTop-16:el.scrollHeight;}},[conversation,pending]);
+ useEffect(()=>{if(!pending&&window.matchMedia('(min-width: 761px)').matches)input.current?.focus();const el=thread.current;if(el){const last=el.lastElementChild;el.scrollTop=messages.at(-1)?.result&&last?last.offsetTop-16:el.scrollHeight;}},[conversation,pending]);
  async function send(text,rejectUrl,reference){
   text=text.trim();if(!text||busy.current||pending||!conversation)return;
   busy.current=true;setSubmitting(true);setError('');setDraft('');

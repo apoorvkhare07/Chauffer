@@ -145,3 +145,76 @@
  .app-page .chat-header {padding:16px;}
  .setup-page {margin:0;}
 }
+
+/* Phone-first app frame: content scrolls above a reachable five-item dock. */
+.phone-menu{display:none}
+.more-page>a{display:flex;align-items:center;gap:14px;padding:20px 0;border-bottom:1px solid var(--line);text-decoration:none;min-height:60px}
+.more-page>a span{flex:1}
+@media(max-width:760px){
+ .account-shell{padding:20px 16px 32px}
+ .account-layout{grid-template-columns:minmax(0,1fr);gap:20px}
+ .account-intro h1{font-size:36px;margin:12px 0}
+ .account-intro p{font-size:14px;line-height:1.6}
+ .account-intro .account-note,.account-art{display:none}
+ .account-card{padding:20px}
+ .signed-in-shell{padding:0 0 calc(88px + env(safe-area-inset-bottom));max-width:none}
+ .signed-in-shell .account-nav{height:56px;margin:0;padding:10px 16px;border-bottom:1px solid var(--line);background:var(--canvas,#faf9f6)}
+ .signed-in-shell .account-nav>.account-note{display:none}
+ .signed-in-shell .brand{font-size:25px}
+ .app-workspace{display:block}
+ .app-menu{display:none}
+ .phone-menu{position:fixed;z-index:30;bottom:0;left:0;right:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));padding:6px 6px calc(6px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid #dedee9;box-shadow:0 -4px 20px #25223c08;min-height:70px}
+ .phone-menu a{min-width:0;min-height:54px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border-radius:12px;text-decoration:none;font-size:10px;font-weight:600;color:var(--muted)}
+ .phone-menu a[aria-current=page]{color:var(--accent);background:#eeedff}
+ .phone-menu a:focus-visible{outline:3px solid var(--accent);outline-offset:-3px}
+ .app-page{display:block;padding:14px 12px}
+ .app-page>details,.app-page>.account-card{margin-bottom:16px}
+ .chat-workspace .app-page{padding:0}
+ .chat-workspace .shopping-chat{height:calc(var(--app-height,100dvh) - 126px - env(safe-area-inset-bottom));min-height:250px;display:flex;flex-direction:column;border:0;border-radius:0;box-shadow:none}
+ .app-page .chat-header{padding:10px 14px;gap:9px;flex-shrink:0}
+ .chat-avatar{width:34px;height:34px;font-size:28px;flex-shrink:0}
+ .chat-header h1{font-size:16px}
+ .chat-header p{font-size:10px}
+ .chat-reset{min-width:44px;min-height:44px;padding:10px}
+ .chat-reset span{display:none}
+ .app-page .chat-thread{flex:1;min-height:0;height:auto;padding:14px 10px;overflow-y:auto}
+ .chat-message{max-width:97%;padding:12px;margin-bottom:12px}
+ .chat-text{font-size:14px;line-height:1.6}
+ .chat-product{padding:12px}
+ .chat-product-preview{height:185px}
+ .chat-suggestions{flex-shrink:0;flex-wrap:nowrap;overflow-x:auto;padding:8px 12px 2px;gap:7px}
+ .chat-suggestions .chat-chip{flex-shrink:0;white-space:nowrap}
+ .chat-chip,.chat-product-link{min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+ .chat-composer{flex-shrink:0;padding:8px 10px;gap:8px}
+ .chat-composer input{font-size:16px;padding:12px;min-height:46px}
+ .chat-footer{flex-shrink:0;font-size:9px;padding:0 8px 5px}
+ .shopping-chat .shopping-input{flex-shrink:0;margin:4px 10px 0;padding:0 10px;font-size:12px}
+ .shopping-input summary{min-height:44px;display:list-item;align-content:center}
+ .shopping-chat .shopping-input[open]{overflow-y:auto;max-height:38vh;padding-bottom:10px}
+ .account-field input,.account-field select,.account-field textarea,.shopping-input select,.shopping-input input,.price-history input,.wardrobe-today textarea{font-size:16px;min-width:0;max-width:100%}
+ input[type=file]{width:100%;font-size:13px}
+ .account-field{min-width:0}
+ .account-switch,.library-actions button,.library-actions a,.shopping-library summary{min-height:44px;align-content:center}
+ .library-actions{gap:8px 16px}
+ .shopping-library{padding:16px;border-radius:14px;overflow-wrap:anywhere}
+ .shopping-library header{flex-wrap:wrap}
+ .shopping-library header span{white-space:normal}
+ .shopping-library h2{font-size:23px;line-height:1.2}
+ .wardrobe-form,.photo-setup-grid,.tryon-selection,.tryon-grid,.library-grid,.daily-grid{grid-template-columns:minmax(0,1fr)}
+ .daily-product,.library-item{padding:14px}
+ .daily-feed-header{flex-direction:column;align-items:flex-start}
+ .daily-context{flex-direction:column}
+ .setup-page{padding:22px 14px;margin:0}
+ .onboarding-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+ .onboarding-steps span{padding:9px 5px;font-size:11px;text-align:center}
+ .setup-actions{display:grid;grid-template-columns:1fr;gap:10px}
+ .styling-onboarding .account-switch{display:block;width:100%;margin-top:16px}
+ .keyboard-open .phone-menu{display:none}
+ .keyboard-open .chat-workspace .shopping-chat{height:calc(var(--app-height,100dvh) - 56px);min-height:180px}
+ .keyboard-open .chat-suggestions,.keyboard-open .chat-footer{display:none}
+}
+@media(max-width:760px){
+ .signed-in-shell:has(.chat-workspace){padding-bottom:0}
+ .chat-suggestions{scrollbar-width:none}
+ .chat-suggestions::-webkit-scrollbar{display:none}
+}
