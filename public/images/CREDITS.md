@@ -14,3 +14,9 @@ Additional free Unsplash photographs, downloaded at 1,000 pixels wide:
 - `white-floral-kurta.jpg`: Shahenaz India, [source photograph](https://unsplash.com/photos/a-woman-is-wearing-a-floral-white-outfit-BnYctNPLV20). https://images.unsplash.com/photo-1752653425039-cf1ff22d61bc
 - `kurta-palazzo.jpg`: Shahenaz India, [source photograph](https://unsplash.com/photos/woman-wears-a-printed-kurti-with-matching-palazzo-pants-0xoVzPFGpd0). https://images.unsplash.com/photo-1754391851702-e5275cf80e34
 - `green-floral-kurta.jpg`: Shahenaz India, [source photograph](https://unsplash.com/photos/woman-models-a-white-floral-kurta-pajama-Yci8aYzkjpk). https://images.unsplash.com/photo-1745313452052-0e4e341f326c
+
+- `mens-shirt.jpg`: Brock Wegner, [source photograph](https://unsplash.com/photos/man-in-white-and-black-striped-dress-shirt-_bUWdwSrjQ4), free under the Unsplash License. Image source: https://images.unsplash.com/photo-1615945524151-d41b869675ec (downloaded 14 October 2026).
+
+- `sneakers.jpg`: Maria Fernanda Pissioli, [source photograph](https://unsplash.com/photos/a-pair-of-white-and-black-sneakers-on-a-white-surface-i8OruGmFXtw), free under the Unsplash License. Image source: https://images.unsplash.com/photo-1680204101400-aeac783c9d87 (downloaded 14 October 2026).
+
+- `leather-bag.jpg`: Irene Kredenets, [source photograph](https://unsplash.com/photos/brown-leather-bag-pSVYyO-XlJk), free under the Unsplash License. Image source: https://images.unsplash.com/photo-1575032617751-6ddec2089882 (downloaded 14 October 2026).

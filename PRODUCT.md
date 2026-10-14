@@ -9,7 +9,7 @@ web
 Vite + React, requested by the user. Convex is the only authorized backend, authentication and hosting provider. Changes are checked locally and deployed to the existing Convex static host.
 
 ## Users
-People shopping for women's clothing across Indian marketplaces. More specific audience research is open.
+People shopping for women’s and men’s fashion across Indian marketplaces, including clothing, shoes and accessories, and seeking help styling their existing wardrobe. Wider live discovery categories are still being built. More specific audience research is open.
 
 ## Product Purpose
 Build a WhatsApp-first, voice-first AI shopping agent that understands requests, personalises recommendations, remembers user preferences, helps compare prices and offers, and follows orders through tracking and return reminders. A voice-led app is part of the vision, not a confirmed release.
@@ -93,3 +93,7 @@ Built in the requested order:
 4. Account support includes a partial shopping-data snapshot and sign-out on all devices using Convex Auth session invalidation. The snapshot discloses its limits: latest 100 web messages, seven daily edits, preferences, wardrobe metadata and saved products; no image files, older history or AI logs. Password recovery/email verification remain pending an approved email-delivery connection. Full account deletion is still pending comprehensive application, file, authentication and AI-history cleanup; no unsafe partial deletion is presented as complete removal.
 
 Known gaps: Amazon access is intermittent, exact manufacturer codes often absent, readable offer extraction is limited by merchant markup and location/account context. Exact-price/offer arithmetic remains conservative until verified checkout evidence exists. Real virtual try-on remains pending the separate Gemini image-generation quota. WhatsApp delivery/account linking and voice replies remain unconnected.
+
+## Fashion assistant positioning — 14 October 2026
+
+The homepage now presents Chauffeur as a Fashion AI assistant for women and men: shopping, wardrobe styling, shoes and accessories. Hero inspiration includes real menswear, sneakers, a bag and existing clothing photography. Copy, examples, journey and page metadata reflect broader fashion assistance. This is a website positioning update: wider live store categories remain clearly marked as next; existing live discovery categories and the fictional demo are unchanged.

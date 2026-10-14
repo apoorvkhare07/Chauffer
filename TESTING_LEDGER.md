@@ -189,3 +189,9 @@ Joint checks pending: real advertised terms across both stores, manufacturer-cod
 Development fixture cleanup: the test trousers and saved product/report/history were removed successfully. Real shopper wardrobe and favourites were preserved.
 
 Final production browser check: asset `account-DSc9obO9.js` loaded successfully. Empty wardrobe disables buying review, photo/voice selection works, and draft creation remains disabled without file/consent. Account data preparation produced an explicit “Save my data file” link. The extension still timed out capturing the download after that direct click, so actual file saving remains a joint check; no successful file capture is claimed. All-device sign-out confirmation and cancel were checked without ending the actual shopper’s session. Screenshot: `/tmp/chauffeur-buying-intelligence-live.png`. Final `npm run deploy` completed successfully in 106.4 seconds.
+
+## Fashion assistant positioning — 14 October 2026
+
+The homepage now presents Chauffeur as a Fashion AI assistant for women and men: shopping, wardrobe styling, shoes and accessories. Hero inspiration includes real menswear, sneakers, a bag and existing clothing photography. Copy, examples, journey and page metadata reflect broader fashion assistance. This is a website positioning update: wider live store categories remain clearly marked as next; existing live discovery categories and the fictional demo are unchanged.
+
+Checks: 86 tests and the frontend build passed. Browser verified hero photos/framing, pause controls, switching to the wardrobe-styling example, and the expanded fashion-scope FAQ. Production deployment `662d4088-d4da-49e5-bfa9-205a6a932e29` completed; live homepage asset `website-Z5TbhEHu.js` and the new heading were checked. Screenshot: `/tmp/chauffeur-fashion-homepage-live.png`.
