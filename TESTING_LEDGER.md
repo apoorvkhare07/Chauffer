@@ -226,3 +226,8 @@ Checks: 86 tests and the frontend build passed. Browser verified hero photos/fra
 - Product results now use a compact image grid, save controls, expandable evidence/actions and subtle motion with reduced-motion support. No new ratings, sale labels or availability claims.
 - 90 automated tests passed; production build passed. Browser checks follow below. Phone keyboard and actual upload picker remain real-device checks.
 - Production deployed (54.2 seconds). Browser verified the personalised home on desktop and at 390px, the home request transfer into an unsent chat draft, three-column desktop/two-column phone result grids, and expanded product evidence/actions. Phone content had no horizontal overflow and composer remained above bottom navigation. No captured console errors. Screenshots: /tmp/chauffeur-personal-home-desktop.png and /tmp/chauffeur-personal-home-phone.png. No new search or purchase was submitted from Chauffeur during these UI checks.
+
+## 2026-10-15 — supplied Mobbin home references
+- Inspected both supplied Shop welcome/home screens and added a floating fashion-photo composition around the home message/search. Existing licensed photos, no invented product recommendations. Phone layout gathers imagery above the search; desktop surrounds it.
+- Pause control verified through the rendered animation play state. Reduced-motion CSS removes decorative movement. Home request handoff verified with an unsent draft. All four images loaded; no horizontal overflow at 390px and no captured console errors. Desktop checked at 1280px.
+- 90 automated tests and build passed; npm run deploy completed in 47.1 seconds. Screenshots: /tmp/chauffeur-floating-home-phone.png and /tmp/chauffeur-floating-home-desktop.png.
