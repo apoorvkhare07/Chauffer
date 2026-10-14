@@ -210,3 +210,8 @@ The homepage leads with a direct clothing-shopping promise and an example assist
 
 ### Assistant and options in the first screen
 The hero combines six distinct clothing inspiration photos with a visible AI shopper. A four-stage animation demonstrates understanding a request, searching stores, matching taste and highlighting a shortlist. All six options remain visible. Visitors can pause, select a stage or try less-busy feedback, which highlights three lighter prints. This is an explicitly labelled animation, not fabricated live inventory. On phones the banner appears before the request form; reduced-motion users see the completed shortlist without automatic movement. Animation pauses off screen and in hidden tabs. Additional photo credits are in public/images/CREDITS.md.
+
+## Signed-in assistant reference — 2026-10-15
+Inspected the signed-in Shop website at https://shop.com/ on desktop and a phone-sized viewport, including its search suggestions and blue-hoodie results. Useful patterns: prominent rounded search entry, restrained sidebar/bottom navigation, image-first product grid, saved-item controls on images, compact expandable search context and short easing transitions.
+
+Chauffeur adapts these patterns with its own typography, violet palette and personal home. The default signed-in destination is For you: current search, explicitly saved preferences, wardrobe and shortlist counts, and practical next actions. It does not invent a personalised product feed or merchant offers. The public marketing homepage remains separate. Home requests open an editable chat draft; they are not silently sent. Existing store evidence and uncertainty disclosures remain accessible under each result's Details & actions.
