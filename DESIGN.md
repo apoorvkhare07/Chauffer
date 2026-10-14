@@ -224,3 +224,6 @@ The public homepage carries the floating real-fashion photo composition, motion 
 
 ### Wardrobe spiral and centred shopping story
 Inspired by the public Grail reference (https://grail-app.com/), wardrobe photos turn through a CSS 3D spiral with patterned backs. Original Chauffeur assets and colours are used. The section is centred, with optional motion, a static reduced-motion view, and animation paused outside the viewport. The five-step shopping story uses native horizontal scroll snapping, step buttons, previous/next and arrow keys; it no longer captures long vertical scrolling. Illustrative prices and planned checkout remain labelled.
+
+### One centred homepage system
+All marketing sections now share centred introductions, a consistent heading scale with serif emphasis, lavender accents, rounded controls and a 90px desktop / 60px phone section rhythm. Conversation examples sit below their introduction; available/planned features form a balanced card pair that stacks on phones. The FAQ has a centred heading with left-aligned answers for reading. Store discovery, shopping prompts, closing invitation and footer follow the same axis. Existing hero, spiral and swipe interactions are preserved; account and demo layouts are untouched.

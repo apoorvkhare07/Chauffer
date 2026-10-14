@@ -244,3 +244,8 @@ Checks: 86 tests and the frontend build passed. Browser verified hero photos/fra
 - Checked desktop and 390px phone layouts. Verified step selection, next, keyboard previous (5 → 4), and the discovery slide's plain/print toggle. All five scenes render in the horizontal scroll-snap track; vertical page scrolling stays free.
 - Website/demo: 4 tests pass. Backend: 86 tests pass with `npx vitest run --maxWorkers=1`. Parallel runs hit 5-second limits in three workflow tests under local load; no assertions failed in the successful serial run. Production build passes.
 - Still needs a real-phone finger swipe check; browser checks covered responsive layout, buttons and keyboard navigation.
+
+### Coherent centred marketing page
+- Checked desktop conversation and expanded FAQ, plus 390px conversation and feature cards. No horizontal page overflow at phone width.
+- Switched conversation examples and verified the corresponding messages update; expanded a FAQ answer.
+- All 90 tests passed and build passed. Signed-in app and separate demo layouts unchanged.
