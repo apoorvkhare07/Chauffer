@@ -4,7 +4,7 @@ import {createThread} from '@convex-dev/agent';
 import {components} from './_generated/api';
 import {emptyTaste} from './taste';
 import {nextRequest,type Requirements} from './discoveryRules';
-export const welcome="Hi! I'm Chauffeur. Tell me what you're looking for and I'll check Flipkart and Amazon. A kurta, dress, top or saree?";
+export const welcome="Hi! I'm Chauffeur. Tell me what you're looking for and I'll check Flipkart and Amazon. Clothing, shoes or accessories—for women, men or unisex?";
 export async function getConversation(ctx:MutationCtx,key:string,defaults:Requirements={}):Promise<Doc<'conversations'>>{
  const existing=await ctx.db.query('conversations').withIndex('by_key',q=>q.eq('key',key)).unique();if(existing)return existing;
  const id=await ctx.db.insert('conversations',{key,requirements:defaults,revision:0,session:0,pending:false,updatedAt:Date.now(),shownUrls:[],rejectedUrls:[]});

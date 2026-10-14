@@ -97,3 +97,6 @@ Known gaps: Amazon access is intermittent, exact manufacturer codes often absent
 ## Fashion assistant positioning — 14 October 2026
 
 The homepage now presents Chauffeur as a Fashion AI assistant for women and men: shopping, wardrobe styling, shoes and accessories. Hero inspiration includes real menswear, sneakers, a bag and existing clothing photography. Copy, examples, journey and page metadata reflect broader fashion assistance. This is a website positioning update: wider live store categories remain clearly marked as next; existing live discovery categories and the fictional demo are unchanged.
+
+## 2026-10-14 — broader store discovery
+Live search now accepts clothing for women and men, footwear (including sneakers, boots, loafers and heels), bags, belts, watches and sunglasses. The same category vocabulary is used by chat, editable photo requests, price-check candidates and daily picks. Search audience follows explicit requests; it is not inferred from photos or names. Shoe sizes require their size system and do not reuse clothing sizes. Store readability, actual size stock, fit and checkout totals remain limitations. Real store searches verified men's shirts, sneakers and bags; Gemini free-text end-to-end testing was blocked by provider high demand on two attempts.

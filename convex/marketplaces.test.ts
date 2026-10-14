@@ -26,7 +26,7 @@ test('search attempts only Flipkart and Amazon; one blocked store does not disca
  const result=await discoverAcrossStores(r);
  expect(result.failed).toBe(false);expect(result.options).toHaveLength(1);
  expect(result.stores.map(s=>[s.store,s.status])).toEqual([['Flipkart','unavailable'],['Amazon','matched']]);
- expect(new URL(result.stores[1].searchUrl).searchParams.get('k')).toBe('blue cotton kurta women');
+ expect(new URL(result.stores[1].searchUrl).searchParams.get('k')).toBe('blue cotton kurta');
  expect(fetch.mock.calls.map(([url])=>new URL(String(url)).hostname).sort()).toEqual(['www.amazon.in','www.flipkart.com']);
 });
 test('chat accumulates separate answers, clears refinements explicitly and does not search on thanks',()=>{

@@ -1,4 +1,5 @@
 "use node";
+import {detectCategory} from './fashionRules';
 import {action} from './_generated/server';
 import {internal} from './_generated/api';
 import {v} from 'convex/values';
@@ -21,7 +22,7 @@ export const check=action({args:{id:v.id('savedProducts')},returns:v.union(v.lit
   try{
    if(saved.store==='Flipkart'){
     const url=new URL('https://www.amazon.in/s');url.searchParams.set('k',query);
-    const category=/saree|sari/i.test(base.title)?'saree':/dress/i.test(base.title)?'dress':/top|tunic/i.test(base.title)?'top':'kurta';
+    const category=detectCategory(base.title);
     const links=amazonOptions(await page(url.href),{category,budget:50000},Date.now(),[],3);
     const results=await Promise.allSettled(links.map(async link=>{const detail=productOption(await page(link.url),link.url,Date.now());return detail?{...detail,store:'Amazon' as const,source:'product' as const}:link;}));
     for(const result of results)if(result.status==='fulfilled')candidates.push(result.value);

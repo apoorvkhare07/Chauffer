@@ -31,10 +31,10 @@ export const apply=internalMutation({args:{conversationId:v.id('conversations'),
   const owner=c.key.startsWith('web:')?c.key.slice(4):null;
   if(owner){const profile=await ctx.db.query('profiles').withIndex('by_owner',q=>q.eq('owner',owner)).unique();const preferences=profile?.preferences??{language:'en' as const};
    if(decision.intent==='remember'){
-    if(decision.requirements.size)preferences.size=decision.requirements.size;
+    if(decision.requirements.size&&/^(XXXS|XXS|XS|S|M|L|XL|XXL|XXXL|[2-4]XL)$/.test(decision.requirements.size))preferences.size=decision.requirements.size;
     if(decision.requirements.budget)preferences.budgetPaise=Math.round(decision.requirements.budget*100);
    }
-   if(profile)await ctx.db.patch(profile._id,{taste,preferences,updatedAt:Date.now()});else await ctx.db.insert('profiles',{owner,preferences,taste,updatedAt:Date.now()});reply=decision.intent==='forget'?'I’ve cleared your remembered taste preferences. Your saved size and budget stay in account settings.':'I’ll remember your current size, budget and taste preferences for future visits.';}
+   if(profile)await ctx.db.patch(profile._id,{taste,preferences,updatedAt:Date.now()});else await ctx.db.insert('profiles',{owner,preferences,taste,updatedAt:Date.now()});reply=decision.intent==='forget'?'I’ve cleared your remembered taste preferences. Your saved size and budget stay in account settings.':'I’ll remember your budget, taste and any letter-based clothing size. Shoe and waist sizes stay in this conversation.';}
   else reply=decision.intent==='remember'?'I’ll keep these preferences for this WhatsApp conversation. Linking your account for memory across channels isn’t connected yet.':'I’ve cleared the taste preferences for this WhatsApp conversation.';
  }
  if(!search&&claimId)await ctx.db.patch(claimId,{finishedAt:Date.now()});

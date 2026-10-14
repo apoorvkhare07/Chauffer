@@ -1,3 +1,4 @@
+import {fashionCategories,validSize,sizeQuestion,sizeKind} from './fashionRules';
 import {z} from 'zod';
 import {v,type Infer} from 'convex/values';
 import {requirementsValidator,type Requirements} from './discoveryRules';
@@ -7,7 +8,7 @@ const nullable=z.string().max(80).nullable();
 export const decisionSchema=z.object({
  intent:z.enum(['search','refine','more','feedback','chat','remember','forget']),
  reply:z.string().min(1).max(600),
- requirements:z.object({category:z.enum(['kurta','dress','top','saree']).nullable(),budget:z.number().min(100).max(50000).nullable(),size:z.enum(['XXXS','XXS','XS','S','M','L','XL','XXL','XXXL','2XL','3XL','4XL']).nullable(),colour:nullable,fabric:nullable,occasion:nullable,style:nullable,fit:nullable,pattern:nullable,sleeve:nullable,length:nullable,mustHave:z.array(z.string().min(2).max(40)).max(5)}),
+ requirements:z.object({category:z.enum(fashionCategories).nullable(),audience:z.enum(['men','women','unisex']).nullable().optional(),budget:z.number().min(100).max(50000).nullable(),size:z.string().max(30).nullable(),colour:nullable,fabric:nullable,occasion:nullable,style:nullable,fit:nullable,pattern:nullable,sleeve:nullable,length:nullable,mustHave:z.array(z.string().min(2).max(40)).max(5)}),
  taste:z.object({prefer:z.array(z.string().min(2).max(40)).max(10),avoid:z.array(z.string().min(2).max(40)).max(10)}),
  referenceOption:z.number().int().min(1).max(6).nullable(),
  feedbackKind:z.enum(['like','dislike','refine']).nullable(),
@@ -16,6 +17,8 @@ export const decisionValidator=v.object({intent:v.union(v.literal('search'),v.li
 export type Decision=Infer<typeof decisionValidator>;
 export function normalizeDecision(raw:unknown,previous:Requirements,taste:Taste,text=""):Decision{
  const value=decisionSchema.parse(raw);const requirements=Object.fromEntries(Object.entries(value.requirements).filter(([,v])=>v!==null)) as Requirements;
+ if(requirements.category&&sizeKind(requirements.category)!==sizeKind(previous.category)&&requirements.size===previous.size)delete requirements.size;
+ if(requirements.audience&&previous.audience&&requirements.audience!==previous.audience&&requirements.size===previous.size&&!/\bsize\b/i.test(text))delete requirements.size;
  const avoid=cleanTerms([...value.taste.avoid,...value.taste.prefer.map(negativeStyle).filter((x):x is string=>Boolean(x)),...(requirements.mustHave??[]).map(negativeStyle).filter((x):x is string=>Boolean(x)),...[requirements.style,requirements.pattern].map(x=>x?negativeStyle(x):null).filter((x):x is string=>Boolean(x))].map(term=>negativeStyle(term)??canonicalStyle(term)));
  const explicitMust=/\b(only|must|has to|needs to|compulsory|sirf)\b|सिर्फ|केवल|ज़रूर/i.test(text.replace(/not (?:a )?must|not mandatory|not compulsory|don.t have to|do not have to/gi,''));
  const onlyCotton=/(?:only|sirf|सिर्फ|केवल)\s+(?:cotton\b|कॉटन|कपास|सूती)(?!\s*(?:blend|mix))|\bcotton only\b/i.test(text);
@@ -47,9 +50,9 @@ export function normalizeDecision(raw:unknown,previous:Requirements,taste:Taste,
  return {intent:value.intent,reply:value.reply,requirements:planned,taste:plannedTaste,...(value.referenceOption!==null?{referenceOption:value.referenceOption}:{}),...(value.feedbackKind?{feedbackKind:value.feedbackKind}:{})};
 }
 export function missingQuestion(r:Requirements):string|null{
- if(!r.category)return 'What would you like: a kurta, dress, top or saree?';
+ if(!r.category)return 'What would you like: clothing, shoes or accessories?';
  if(!r.budget)return 'What is your maximum budget in rupees?';
- if(!r.size&&r.category!=='saree')return 'What size should I look for?';
+ if(!validSize(r.category,r.size))return sizeQuestion(r.category);
  return null;
 }
 export function memoryConsent(text:string,intent:string):boolean{

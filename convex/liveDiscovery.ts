@@ -1,4 +1,5 @@
 "use node";
+import {fashionCategories} from './fashionRules';
 import {stores,storeSearchUrl,storeResultValidator,type StoreResult} from './marketplaces';
 import {chooseBatch} from './ranking';
 import {tasteValidator,emptyTaste,type Taste} from './taste';
@@ -24,12 +25,12 @@ export function productOption(html:string,url:string,observedAt:number):Option|n
  const price=Number(offers?.price);if(offers?.priceCurrency!=='INR'||!Number.isFinite(price)||price<=0||!String(offers.availability??'').endsWith('/InStock'))return null;
  const $=load(html);let state:any;try{const script=$('#is_script').text();state=JSON.parse(script.replace(/^\s*window\.__INITIAL_STATE__\s*=\s*/,'').replace(/;\s*$/,''));}catch{state=null;}
  let fabric='';const attributes:string[]=[];
- const labels=new Set(['Pattern','Type','Fit','Style','Sleeve','Sleeve Style','Sleeve Length','Length','Occasion','Fabric']);
- function readLabels(node:any){if(!node||typeof node!=='object')return;const label=node.label_0?.value?.text;const value=node.label_1?.value?.text;const detail=Array.isArray(value)?value.join(', '):typeof value==='string'?value:'';if(label==='Fabric'&&!fabric)fabric=detail;if(labels.has(label)&&detail&&attributes.length<15)attributes.push(`${label}: ${detail.slice(0,120)}`);for(const child of Object.values(node))readLabels(child);}
+ const labels=new Set(['Pattern','Type','Fit','Style','Sleeve','Sleeve Style','Sleeve Length','Length','Occasion','Fabric','Material','Outer Material']);
+ function readLabels(node:any){if(!node||typeof node!=='object')return;const label=node.label_0?.value?.text;const value=node.label_1?.value?.text;const detail=Array.isArray(value)?value.join(', '):typeof value==='string'?value:'';if(['Fabric','Material','Outer Material'].includes(label)&&!fabric)fabric=detail;if(labels.has(label)&&detail&&attributes.length<15)attributes.push(`${label}: ${detail.slice(0,120)}`);for(const child of Object.values(node))readLabels(child);}
  function scopedDetails(node:any){if(!node||typeof node!=='object')return;if(node.tracking?.productId===p.sku&&/PRODUCT_DETAILS/i.test(node.tracking?.widgetType??''))readLabels(node);else for(const child of Object.values(node))scopedDetails(child);}
  scopedDetails(state);
  // Older product pages expose their specifications as an ordinary table.
- if(!fabric)$('tr').each((_i,el)=>{const cells=$(el).find('td');if(cells.first().text().trim()==='Fabric')fabric=cells.last().text().trim();});
+ if(!fabric)$('tr').each((_i,el)=>{const cells=$(el).find('td');if(['Fabric','Material','Outer Material'].includes(cells.first().text().trim()))fabric=cells.last().text().trim();});
  const rawImage=Array.isArray(p.image)?p.image[0]:typeof p.image==='object'?p.image?.url:p.image;
  const imageUrl=allowedImageUrl(rawImage)?rawImage:undefined;
  const brand=typeof p.brand==='string'?p.brand:typeof p.brand?.name==='string'?p.brand.name:undefined;
@@ -84,7 +85,7 @@ export const search=internalAction({args:{requirements:requirementsValidator,exc
 export const webSearch=action({args:{requirements:requirementsValidator},returns:searchResultValidator,handler:async(ctx,{requirements}):Promise<{options:Option[];failed:boolean;stores:StoreResult[]}>=>{
  const owner=await getAuthUserId(ctx);if(!owner)throw new Error('Please sign in.');
  const budget=requirements.budget;
- if(!['kurta','dress','top','saree'].includes(requirements.category??'')||typeof budget!=='number'||!Number.isFinite(budget)||budget<100||budget>50000)throw new Error('Choose clothing and a budget between ₹100 and ₹50,000.');
+ if(!(fashionCategories as readonly string[]).includes(requirements.category??'')||typeof budget!=='number'||!Number.isFinite(budget)||budget<100||budget>50000)throw new Error('Choose a fashion category and a budget between ₹100 and ₹50,000.');
  for(const field of ['size','colour','fabric'] as const)if(requirements[field]&&(requirements[field]!.length>40||/[\r\n]/.test(requirements[field]!)))throw new Error('Invalid search preference.');
  const id=await ctx.runMutation(internal.webDiscovery.claim,{owner});
  try{return await discoverAcrossStores(requirements);}finally{await ctx.runMutation(internal.webDiscovery.finish,{id});}
