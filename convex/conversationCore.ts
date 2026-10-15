@@ -29,7 +29,7 @@ export async function beginTurn(ctx:MutationCtx,conversation:Doc<'conversations'
  const useAI=Boolean(process.env.GEMINI_API_KEY)&&!answer&&!reset&&!rejectUrl&&!bareRejection&&!sameSearchMore&&text!=='[unsupported message]';
  if(useAI){plan.requirements=previous;plan.search=false;}
  let discoveryQuestion;
- if(!useAI&&!answer&&plan.search&&shouldClarifyBefore(plan.requirements)&&!/no questions|don.t ask|just (?:search|show)/i.test(text)){discoveryQuestion=nextDiscoveryQuestion(plan.requirements);if(discoveryQuestion){plan.search=false;plan.reply=discoveryQuestion.question;plan.requirements.askedDiscoveryFields=[discoveryQuestion.field];}}
+ if(!useAI&&!answer&&plan.search&&shouldClarifyBefore(plan.requirements)&&!/no questions|don.t ask|just (?:search|show)/i.test(text)){discoveryQuestion=nextDiscoveryQuestion(plan.requirements,[],conversation.taste??emptyTaste);if(discoveryQuestion){plan.search=false;plan.reply=discoveryQuestion.question;plan.requirements.askedDiscoveryFields=[discoveryQuestion.field];}}
  const revision=conversation.revision+1,session=conversation.session+(reset?1:0);
  const rejectedUrls=reset?[]:[...new Set([...conversation.rejectedUrls,...(rejectUrl?[rejectUrl]:[])])].slice(-120);
  let shownUrls=reset?[]:conversation.shownUrls;

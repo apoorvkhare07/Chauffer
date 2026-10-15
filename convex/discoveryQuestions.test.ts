@@ -20,3 +20,9 @@ test('answers alter retrieval and ranking while keeping the spending ceiling',()
  expect(rankOptions([base,{...base,url:'https://www.amazon.in/dp/B000000002',title:'Men Training Sneakers',price:4200}],r)[0].title).toContain('Training');
  expect(rankOptions([{...base,price:6000}],r)).toEqual([]);
 });
+test('confirmed taste is used as context without inventing hard constraints or asking it again',()=>{
+ const r={category:'sneakers',budget:5000,occasion:'everyday',askedDiscoveryFields:[]};
+ expect(nextDiscoveryQuestion(r,[],{prefer:['classic'],avoid:[]})?.field).toBe('brand');
+ expect(r).not.toHaveProperty('style');
+ expect(nextDiscoveryQuestion({category:'jeans',budget:2000},[],{prefer:['relaxed fit'],avoid:[]})?.field).toBe('occasion');
+});

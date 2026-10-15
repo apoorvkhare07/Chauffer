@@ -42,7 +42,7 @@ export const apply=internalMutation({args:{conversationId:v.id('conversations'),
  }
  let discoveryQuestion;
  if(search&&!missing&&decision.intent==='search'&&!c.discoveryQuestion&&shouldClarifyBefore(decision.requirements)&&!/no questions|don.t ask|just (?:search|show)|show (?:me )?options/i.test(c.inputText??'')){
-  discoveryQuestion=nextDiscoveryQuestion(decision.requirements);if(discoveryQuestion){search=false;reply=discoveryQuestion.question;decision.requirements.askedDiscoveryFields=[discoveryQuestion.field];}
+  discoveryQuestion=nextDiscoveryQuestion(decision.requirements,[],taste);if(discoveryQuestion){search=false;reply=discoveryQuestion.question;decision.requirements.askedDiscoveryFields=[discoveryQuestion.field];}
  }
  if(!search&&claimId)await ctx.db.patch(claimId,{finishedAt:Date.now()});
  await ctx.db.patch(conversationId,{discoveryQuestion:discoveryQuestion??undefined,requirements:decision.requirements,taste,rejectedUrls:rejected,shownUrls:[...new Set([...recent.slice().reverse().flatMap(m=>m.result?.options.map(o=>o.url)??[]),...c.shownUrls])].slice(-120),pending:search,aiTurn:false,updatedAt:Date.now()});
