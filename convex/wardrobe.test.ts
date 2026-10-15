@@ -103,3 +103,32 @@ test('unclear or multiple-item photos cannot become confirmation drafts',async()
  expect(await alice.query(api.wardrobe.list,{})).toEqual([]);
  await t.run(async ctx=>{const rows=await ctx.db.query('wardrobePhotoDrafts').collect();expect(rows[0].state).toBe('failed');expect(rows[0].photoId).toBeUndefined();});
 });
+
+test('clean photos preserve originals, enforce ownership and discard stale output',async()=>{
+ const {t,alice,bob}=setup();const jpeg=readFileSync(new URL('../public/images/sneakers.jpg',import.meta.url)).toString('base64');
+ const id=await alice.action(api.wardrobePhoto.add,{details:top,jpegBase64:jpeg});
+ const item=await t.run(ctx=>ctx.db.get(id));expect(item?.cleanPhotoState).toBe('building');
+ await expect(bob.mutation(api.wardrobeImages.request,{id})).rejects.toThrow('own piece');
+ const outputId=await t.run(ctx=>ctx.storage.store(new Blob(['clean'])));
+ await t.mutation(internal.wardrobeImages.finish,{id,version:item!.cleanPhotoVersion!,photoId:item!.photoId!,outputId});
+ await t.run(async ctx=>{expect((await ctx.db.get(id))?.cleanPhotoId).toBe(outputId);expect(await ctx.storage.get(item!.photoId!)).not.toBeNull();});
+ await alice.mutation(api.wardrobe.updateDetails,{id,details:{...top,colour:'green'}});
+ await t.run(async ctx=>{expect(await ctx.storage.get(outputId)).toBeNull();expect(await ctx.storage.get(item!.photoId!)).not.toBeNull();});
+ const stale=await t.run(ctx=>ctx.storage.store(new Blob(['late'])));
+ await t.mutation(internal.wardrobeImages.finish,{id,version:item!.cleanPhotoVersion!,photoId:item!.photoId!,outputId:stale});
+ await t.run(async ctx=>{expect(await ctx.storage.get(stale)).toBeNull();});
+ await alice.mutation(api.wardrobe.remove,{id});await t.run(async ctx=>{expect(await ctx.storage.get(item!.photoId!)).toBeNull();});
+});
+test('clean photo timeout permits retry and duplicate requests do not spend attempts',async()=>{
+ const {t,alice}=setup();const jpeg=readFileSync(new URL('../public/images/sneakers.jpg',import.meta.url)).toString('base64');
+ const id=await alice.action(api.wardrobePhoto.add,{details:top,jpegBase64:jpeg});await alice.mutation(api.wardrobeImages.request,{id});
+ let item=await t.run(ctx=>ctx.db.get(id));expect(item!.cleanPhotoAttempts).toBe(1);
+ for(let i=1;i<=3;i++){item=await t.run(ctx=>ctx.db.get(id));await t.mutation(internal.wardrobeImages.timeout,{id,version:item!.cleanPhotoVersion!});if(i<3)await alice.mutation(api.wardrobeImages.request,{id});}
+ await expect(alice.mutation(api.wardrobeImages.request,{id})).rejects.toThrow('Three');expect((await alice.query(api.wardrobe.list,{}))[0].photoUrl).toBeTruthy();
+});
+test('image generation sends the original and stores a separate generated image',async()=>{
+ const {t,alice}=setup();const bytes=readFileSync(new URL('../public/images/sneakers.jpg',import.meta.url)),jpeg=bytes.toString('base64');
+ const id=await alice.action(api.wardrobePhoto.add,{details:top,jpegBase64:jpeg});const item=await t.run(ctx=>ctx.db.get(id));
+ const fetcher=vi.spyOn(globalThis,'fetch').mockImplementation(async(_url,init)=>{const body=JSON.parse(init!.body as string);expect(body.contents[0].parts[1].inlineData.data).toBe(jpeg);expect(body.generationConfig.responseModalities).toContain('IMAGE');return new Response(JSON.stringify({candidates:[{content:{parts:[{inlineData:{mimeType:'image/jpeg',data:jpeg}}]}}]}));});
+ await t.action(internal.wardrobeImageAI.generate,{id,version:item!.cleanPhotoVersion!});expect(fetcher).toHaveBeenCalledOnce();const saved=await t.run(ctx=>ctx.db.get(id));expect(saved!.cleanPhotoState).toBe('ready');expect(saved!.photoId).toBe(item!.photoId);expect(saved!.cleanPhotoId).not.toBe(item!.photoId);
+});
