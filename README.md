@@ -242,3 +242,6 @@ See [DISCOVERY.md](DISCOVERY.md) for the current discovery agent and planned spe
 
 
 Live verification: the brand question → Nike flow returned six Nike choices at ₹3,497–4,248 under ₹5,000, preserving UK 8. Women's dresses under ₹3,000 now put five ₹1,840–2,948 picks before a cheaper fallback; men's casual shirts under ₹2,500 returned six ₹1,565–1,869 choices. All 136 tests, backend types and build pass. The changed flow is deployed and checked in Chrome; detailed evidence is in TESTING_LEDGER.md. This establishes budget/brand relevance, not product quality, authenticity or size stock.
+
+
+Contextual question verification: Chrome now asks fit for a broad jeans request and intended use for a broad sneaker request. Choosing relaxed fit changes retrieval and ranking while retaining budget/size; a focused relaxed-jeans request searches directly and then offers an occasion question. Known or previously offered fields are skipped, and “No preference, show options” searches without inventing a preference. Confirmed intent evidence precedes store variety. Final suite: 141 tests, backend types/build pass; live evidence and limitations are in TESTING_LEDGER.md.
