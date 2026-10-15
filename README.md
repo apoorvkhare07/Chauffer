@@ -220,3 +220,12 @@ The combined policy above is expanded to seven eligible stores. Direct requests 
 
 
 Local combined verification reached eight sneaker sources in 13.8 seconds, with six real product cards/photos checked in Chrome. All 129 tests, backend type checking and build passed. Publication is intentionally waiting for the concurrent analytics release at the builder’s request; this India recovery is not yet live.
+
+### Basic PostHog analytics
+Set the public project key as `VITE_POSTHOG_KEY` in `.env.local` and region endpoint as `VITE_POSTHOG_HOST` (`https://us.i.posthog.com` or `https://eu.i.posthog.com`) before `npm run deploy`. These are public browser settings, not a personal API key. Set the same values in production Convex as `POSTHOG_KEY` and `POSTHOG_HOST` for confirmed account-creation events. Without configuration, tracking stays off; localhost is excluded.
+
+Events: `$pageview`, `landing_page_viewed`, `button_clicked`, `form_submitted`, `login_completed`, `signup_completed`, `onboarding_step_completed`, `onboarding_completed`. Signups are emitted only when Convex Auth creates a new account. Returning logins do not increment signups. Buttons use static action tags where supplied; other controls are counted as generic buttons/links without recording their text. App page changes count as pageviews; homepage section anchors do not.
+
+Recording, heatmaps, automatic form capture, performance and exception capture are disabled. URL search terms, referrers and initial URL properties are removed before sending. No phone, name, profile details, photos or conversation text are sent. Signed-in activity uses the opaque Convex user ID. Existing visits/signups cannot be backfilled by this setup. Browser blockers may prevent client events; server signup delivery is best effort.
+
+Suggested PostHog dashboard: pageviews by page, unique landing visitors, button clicks grouped by action, daily `signup_completed`, and an onboarding completion trend. Verify incoming events in PostHog after enabling the project key.

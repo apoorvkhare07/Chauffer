@@ -11,6 +11,7 @@
 import type * as accountSupport from "../accountSupport.js";
 import type * as aiConversations from "../aiConversations.js";
 import type * as aiDecision from "../aiDecision.js";
+import type * as analytics from "../analytics.js";
 import type * as auth from "../auth.js";
 import type * as browserPages from "../browserPages.js";
 import type * as commerce from "../commerce.js";
@@ -84,6 +85,7 @@ declare const fullApi: ApiFromModules<{
   accountSupport: typeof accountSupport;
   aiConversations: typeof aiConversations;
   aiDecision: typeof aiDecision;
+  analytics: typeof analytics;
   auth: typeof auth;
   browserPages: typeof browserPages;
   commerce: typeof commerce;

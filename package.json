@@ -30,6 +30,7 @@
     "cheerio": "^1.2.0",
     "convex": "^1.46.0",
     "lucide-react": "^1.52.0",
+    "posthog-js": "^1.438.10",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "zod": "^4.6.5"

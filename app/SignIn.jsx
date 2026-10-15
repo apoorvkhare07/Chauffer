@@ -1,3 +1,4 @@
+import {track} from '../analytics';
 import React,{useEffect,useRef,useState} from 'react';
 import {useAuthActions} from '@convex-dev/auth/react';
 import {useAction,useMutation} from 'convex/react';
@@ -25,10 +26,10 @@ export default function SignIn(){
  }catch(e){fail(e);}finally{setBusy(false);}}
  async function verify(event){event.preventDefault();setBusy(true);setError('');try{
   if(!providerToken.current){const result=await widgetCall('verifyOtp',code,attempt.current.requestId);providerToken.current=result['access-token']??result.message;}const token=providerToken.current;
-  const secret=await verifyToken({id:challenge,token});await signIn('msg91',{challenge,secret});
+  const secret=await verifyToken({id:challenge,token});await signIn('msg91',{challenge,secret});track('login_completed',{method:'phone_otp'});
  }catch(e){fail(e);}finally{setBusy(false);}}
  return <><h2>{challenge?'Check your messages':'Continue with your phone'}</h2><p className="account-note">{challenge?`Enter the SMS code sent to +91 ${phone}.`:'Sign in or create your account with a one-time SMS code.'}</p>
- <form className="account-form" onSubmit={challenge?verify:request}>
+ <form data-analytics={challenge?'verify_otp':'send_otp'} className="account-form" onSubmit={challenge?verify:request}>
  {!challenge?<label className="account-field">Mobile number (+91)<input type="tel" inputMode="numeric" autoComplete="tel-national" maxLength={10} placeholder="10-digit mobile number" required value={phone} onChange={e=>setPhone(e.target.value.replace(/\D/g,''))} disabled={busy}/></label>:<label className="account-field">SMS code<input type="text" inputMode="numeric" autoComplete="one-time-code" autoFocus maxLength={8} required value={code} onChange={e=>setCode(e.target.value.replace(/\D/g,''))} disabled={busy}/></label>}
  <div id="chauffeur-captcha" aria-label="Security check" hidden={!!challenge}/>
  {!challenge&&!widgetReady&&<p className="account-note" role="status">Loading security check…</p>}

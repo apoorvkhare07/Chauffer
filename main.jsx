@@ -1,3 +1,4 @@
+import {initAnalytics} from './analytics';
 import React from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.jsx";
@@ -8,6 +9,7 @@ import "./brand-fonts.css";
 import "./marketing-typography.css";
 import "./brand-header.css";
 
+initAnalytics();
 createRoot(document.getElementById("app")).render(
   <React.StrictMode>
     <App />

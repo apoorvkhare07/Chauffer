@@ -1,3 +1,4 @@
+import {track} from '../analytics';
 import React,{useState,useRef,useEffect} from 'react';
 import {useMutation,useQuery} from 'convex/react';
 import {ArrowRight,Check} from 'lucide-react';
@@ -16,9 +17,9 @@ function Setup({profile,initialStyle,status,forceOpen,onDone}){
  async function next(e){e.preventDefault();setBusy(true);setError('');try{
   const preferences={...profile,language:profile?.language??'en',name:details.name.trim(),age:Number(details.age),gender:details.gender,audience:details.gender==='male'?'men':details.gender==='female'?'women':'unisex'};
   if(step===2){preferences.size=details.size||undefined;preferences.jeansSize=details.jeansSize?.trim()||undefined;preferences.heightCm=details.heightCm?Number(details.heightCm):undefined;}
-  await save({preferences,style});setStep(step+1);
+  await save({preferences,style});track('onboarding_step_completed',{step});setStep(step+1);
  }catch{setError('Could not save. Check your details and try again.');}finally{setBusy(false);}}
- async function finish(){setBusy(true);setError('');try{await mark({state:'complete'});setOpen(false);onDone?.();}catch{setError('Could not finish setup. Please try again.');}finally{setBusy(false);}}
+ async function finish(){setBusy(true);setError('');try{await mark({state:'complete'});track('onboarding_completed');setOpen(false);onDone?.();}catch{setError('Could not finish setup. Please try again.');}finally{setBusy(false);}}
  function toggleLook(look){const selected=style.stylePreferences.split(',').map(s=>s.trim()).filter(Boolean);setStyle({...style,stylePreferences:(selected.includes(look)?selected.filter(s=>s!==look):[...selected,look]).join(', ')});}
  if(!open)return <section className="onboard"><h2>Your style, remembered.</h2><button className="button primary" onClick={()=>{setOpen(true);setStep(1);}}>Edit my setup</button></section>;
  return <section className="onboard" aria-labelledby="onboarding-title">
