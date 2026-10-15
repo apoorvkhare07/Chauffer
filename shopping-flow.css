@@ -18,13 +18,13 @@
 @media(prefers-reduced-motion:reduce){.flow-scene,.flow-scene *{animation:none!important;transition:none!important}.flow-swipe-deck .swipe-away{display:none}}
 @media(max-height:600px) and (min-width:761px){.flow-visual{top:15px;transform:scale(.8);transform-origin:top center}.flow-copy-step{min-height:600px}}
 
-/* One screen per chapter; native proximity snapping keeps touch and wheel scrolling natural. */
-html.shopping-scroll-page{scroll-snap-type:y proximity;scroll-padding-top:0}
-.shopping-scroll-page .public-fashion-hero{min-height:calc(100svh - 68px);scroll-snap-align:end;scroll-snap-stop:normal}
+/* Screen-sized chapters with uninterrupted native scrolling. */
+html.shopping-scroll-page{scroll-snap-type:none;scroll-padding-top:0}
+.shopping-scroll-page .public-fashion-hero{min-height:calc(100svh - 68px);scroll-snap-align:none}
 .shopping-scroll-page .shopping-flow{padding-top:0;padding-bottom:0;gap:clamp(28px,5vw,70px);scroll-margin-top:0}
-.shopping-scroll-page .flow-copy-step,.shopping-scroll-page .flow-copy-step:first-child,.shopping-scroll-page .flow-copy-step:last-child{min-height:100svh;padding:40px 0;scroll-snap-align:start;scroll-snap-stop:normal;box-sizing:border-box}
+.shopping-scroll-page .flow-copy-step,.shopping-scroll-page .flow-copy-step:first-child,.shopping-scroll-page .flow-copy-step:last-child{min-height:100svh;padding:40px 0;scroll-snap-align:none;box-sizing:border-box}
 .shopping-scroll-page .flow-visual{height:min(520px,78svh);top:max(20px,calc((100svh - 520px)/2));transform:none}
-.shopping-scroll-page .wardrobe-showcase{min-height:100svh;scroll-snap-align:start;box-sizing:border-box}
+.shopping-scroll-page .wardrobe-showcase{min-height:100svh;scroll-snap-align:none;box-sizing:border-box}
 .shopping-intro .fashion-entry-search{transform-origin:top left;backface-visibility:hidden;will-change:transform}
 @media(max-width:760px){
  .shopping-scroll-page .public-fashion-hero{min-height:calc(100svh - 62px);padding-top:24px;align-items:center}
