@@ -8,6 +8,6 @@ export default function FeatureReadiness(){
  <dt>Order tracking and returns</dt><dd>Not connected. Requires verified order receipts and store access.</dd>
  <dt>Personal styling and virtual try-on</dt><dd>Photo onboarding and editable proportion suggestions are live. The one-piece visual preview flow is built; a real generation test hit the image provider’s quota. AI previews are illustrations; size and fit are not verified.</dd>
  <dt>Voice and photo-based shopping search</dt><dd>Photo and voice inputs create editable shopping drafts in chat with consent. Similar-style search is available after you review/send the draft. Voice recording and recognition still need real-device tests.</dd>
- <dt>Email recovery and account removal</dt><dd>Shopping data downloads and sign-out on all devices are available. Recovery needs email delivery; complete removal needs verified cleanup of chats, images, sign-in records and AI history. Recovery and removal remain unavailable.</dd>
+ <dt>Phone access and account removal</dt><dd>Shopping data downloads and sign-out on all devices are available. Sign in with an SMS code. Complete removal needs verified cleanup of chats, images, sign-in records and AI history. Complete account removal remains unavailable.</dd>
  </dl></details>;
 }

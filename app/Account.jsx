@@ -1,3 +1,4 @@
+import GuestSearch from './GuestSearch.jsx';
 import Brand from '../Brand.jsx';
 import React,{useEffect,useState} from 'react';
 import {useConvexAuth,useQuery} from 'convex/react';
@@ -5,7 +6,6 @@ import {api} from '../convex/_generated/api';
 import {Asterisk,MessageCircle,Shirt,Heart,Sparkles,ScanFace,Settings,History,MoreHorizontal,ArrowUpRight,House} from 'lucide-react';
 import FashionLoader from '../FashionLoader.jsx';
 import Preferences from './Preferences.jsx';
-import SignIn from './SignIn.jsx';
 import LiveSearch from './LiveSearch.jsx';
 import Onboarding from './Onboarding.jsx';
 import VirtualTryOn from './VirtualTryOn.jsx';
@@ -36,5 +36,5 @@ export default function Account(){
  const setup=useQuery(api.styling.get,isAuthenticated?{}:"skip");
  const preparing=isLoading||(isAuthenticated&&setup===undefined);
  useEffect(()=>{const viewport=window.visualViewport;const update=()=>{document.documentElement.style.setProperty('--app-height',`${viewport?.height??window.innerHeight}px`);document.documentElement.classList.toggle('keyboard-open',Boolean(viewport&&window.innerHeight-viewport.height>120));};update();viewport?.addEventListener('resize',update);window.addEventListener('resize',update);return()=>{viewport?.removeEventListener('resize',update);window.removeEventListener('resize',update);document.documentElement.style.removeProperty('--app-height');document.documentElement.classList.remove('keyboard-open');};},[]);
- return <div className={`account-shell ${isAuthenticated?'signed-in-shell':''}`}><a className="skip-link" href="#account-content">Skip to content</a><header className="account-nav"><Brand/><span className="account-note">Your Fashion AI assistant</span></header>{preparing?<main id="account-content"><FashionLoader label="Getting your assistant ready…"/></main>:isAuthenticated?<SignedIn setup={setup}/>:<main id="account-content" className="account-layout"><section className="account-intro"><span className="account-kicker">Your Fashion AI assistant</span><h1>Let’s find your<br/>next outfit.</h1><p>Find a new look, style what you own, and keep your favourites together.</p><div className="account-art" role="img" aria-label="Printed kurta style inspiration"/><p className="account-note">Live fashion searches on Flipkart and Amazon. Clothing for women and men, shoes, accessories and styling for what you own.</p></section><section className="account-card" aria-label="Your account"><SignIn/></section></main>}</div>;
+ return <div className={`account-shell ${isAuthenticated?'signed-in-shell':''}`}><a className="skip-link" href="#account-content">Skip to content</a><header className="account-nav"><Brand/><span className="account-note">Your Fashion AI assistant</span></header>{preparing?<main id="account-content"><FashionLoader label="Getting your assistant ready…"/></main>:isAuthenticated?<SignedIn setup={setup}/>:<GuestSearch/>}</div>;
 }

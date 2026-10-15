@@ -165,3 +165,11 @@ Built in the requested order:
 4. Account support includes a partial shopping-data snapshot and sign-out on all devices using Convex Auth session invalidation. The snapshot discloses its limits: latest 100 web messages, seven daily edits, preferences, wardrobe metadata and saved products; no image files, older history or AI logs. Password recovery/email verification remain pending an approved email-delivery connection. Full account deletion is still pending comprehensive application, file, authentication and AI-history cleanup; no unsafe partial deletion is presented as complete removal.
 
 Known gaps: Amazon access is intermittent, exact manufacturer codes often absent, readable offer extraction is limited by merchant markup and location/account context. Exact-price/offer arithmetic remains conservative until verified checkout evidence exists. Real virtual try-on remains pending the separate Gemini image-generation quota. WhatsApp delivery/account linking and voice replies remain unconnected.
+
+### Phone sign-in and guest discovery (15 October 2026)
+
+The public `/app/` entry is now a discovery-only guest view. A homepage request runs one free-text preview; another message, saving or refining asks for phone sign-in. Other features remain authenticated. Guest request/results expire after 24 hours, retaining only a quota marker. Quotas are per browser capability, not per verified person, plus global hourly/daily limits.
+
+Phone access uses Convex Auth's `msg91` credentials provider. Set `MSG91_WIDGET_ID`, `MSG91_WIDGET_TOKEN`, `MSG91_AUTHKEY` in Convex, never Vite or source control. CAPTCHA and SMS use the official MSG91 browser widget; Convex independently verifies the provider token and phone, then issues a 60-second single-use hashed grant. Send limits: one/minute, five/phone/hour, 100 total/day; five verification attempts and 15-minute challenge expiry. Phone accounts start fresh; legacy email records remain untouched, and password sign-in is disabled. Existing sessions can remain active until sign-out or expiry.
+
+Production SMS and merchant availability must be checked separately: valid sign-in does not guarantee merchant pages are readable. See `TESTING_LEDGER.md`.

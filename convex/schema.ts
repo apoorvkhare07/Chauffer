@@ -13,6 +13,14 @@ export const preferences = v.object({audience:v.optional(v.union(v.literal('men'
 export const quote = v.object({store: v.string(), productUrl: v.string(), title: v.string(), variant: v.string(), quantity: v.number(), itemPaise: v.number(), shippingPaise: v.number(), totalPaise: v.number(), currency: v.literal('INR'), addressReference: v.string(), returnTerms: v.string(), observedAt: v.number(), expiresAt: v.number()});
 export default defineSchema({
  ...authTables,
+  otpChallenges: defineTable({
+    phone:v.string(), createdAt:v.number(), expiresAt:v.number(),
+    requestId:v.optional(v.string()), attempts:v.number(),
+    state:v.union(v.literal("sending"),v.literal("sent"),v.literal("failed"),v.literal("verified"),v.literal("consumed")),
+    verifyingUntil:v.optional(v.number()), grantHash:v.optional(v.string()), grantExpiresAt:v.optional(v.number()),
+  }).index("by_phone",["phone"]).index("by_created",["createdAt"]),
+ guestSearches: defineTable({tokenHash:v.string(),text:v.string(),state:v.union(v.literal('pending'),v.literal('ready'),v.literal('failed')),reply:v.optional(v.string()),result:v.optional(discoveryResultValidator),createdAt:v.number()}).index('by_token',['tokenHash']).index('by_created',['createdAt']),
+
  priceIntelligence: defineTable({owner:v.string(),savedId:v.id('savedProducts'),report:intelligenceValidator}).index('by_saved',['savedId']),
  stylingRequests: defineTable({owner:v.string(),purpose:v.union(v.literal('body'),v.literal('tryon'))}).index('by_owner_purpose',['owner','purpose']),
  stylingProfiles: defineTable({owner:v.string(),onboarding:v.union(v.literal('active'),v.literal('complete'),v.literal('skipped')),photoId:v.optional(v.id('_storage')),photoState:v.union(v.literal('empty'),v.literal('building'),v.literal('ready'),v.literal('failed')),analysis:v.optional(bodyAnalysisValidator),confirmedDescription:v.optional(v.string()),updatedAt:v.number()}).index('by_owner',['owner']),
