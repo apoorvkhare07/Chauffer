@@ -10,13 +10,22 @@ const scenarios = [
   { name: 'Make a smarter choice', request: 'Before I buy this, does it work with my wardrobe? What should I check about the price and offers?', reply: 'Save the product to your shortlist. Check possible wardrobe pairings, refresh the listed price and review any readable offer terms before buying on the store.', tags: ['Wardrobe pairings', 'Price checks', 'Offer terms'], art: 3 },
 ];
 const liveLink = text => text ? `/app/?q=${encodeURIComponent(text)}` : '/app/';
-function Brand() { return <a className="cs-brand" href="/" aria-label="Chauffeur home"><Asterisk aria-hidden="true" size={26}/><span>chauffeur</span><small>AI</small></a>; }
+function Brand({ orbit = false }) {
+  return <a className={`cs-brand${orbit ? ' cs-brand-orbit' : ''}`} href={orbit ? '/?logo=orbit' : '/'} aria-label="Chauffer home">
+    <span className="cs-logo-mark" aria-hidden="true">
+      <Asterisk className="cs-logo-star" size={44} strokeWidth={1.8}/>
+      {orbit && <span className="cs-logo-orbits"><i/><i/><b/></span>}
+    </span>
+    {!orbit && <span className="cs-logo-name">chauffer</span>}
+  </a>;
+}
 export default function App() {
   const [selected,setSelected]=useState(0);
   const example=scenarios[selected];
+  const orbitLogo = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('logo') === 'orbit';
   return <div className="chauffeur-site">
     <a className="skip-link" href="#main-content">Skip to content</a>
-    <header className="cs-nav cs-wrap"><Brand/><nav aria-label="Main navigation"><a href="#how-it-works">How it works</a><a href="#shop-by-occasion">Shopping ideas</a><a href="#the-details">Questions</a></nav><a className="cs-button cs-button-small" href="/app/">Chat to shop <MessageCircle size={16}/></a></header>
+    <header className="cs-nav cs-wrap"><Brand orbit={orbitLogo}/><nav aria-label="Main navigation"><a href="#how-it-works">How it works</a><a href="#shop-by-occasion">Shopping ideas</a><a href="#the-details">Questions</a></nav><a className="cs-button cs-button-small" href="/app/">Chat to shop <MessageCircle size={16}/></a></header>
     <main id="main-content">
       <FashionHero scenarios={scenarios} liveLink={liveLink}/>
       <section className="cs-store-band"><div className="cs-wrap"><p>Your next find could be anywhere.</p><div className="cs-store-names"><span>Flipkart</span><span>amazon<span className="cs-amazon-line"/></span></div><p className="cs-store-note">Live discovery on Flipkart and Amazon. Buy directly on the store.</p></div></section>

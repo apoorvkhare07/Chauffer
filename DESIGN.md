@@ -245,3 +245,6 @@ Primary colour is now #2950B8, with coordinated blue accents and pale surfaces. 
 
 ### Meetup-inspired typography trial
 Reference: https://mobbin.com/screens/f1a261c2-eba3-40dc-a564-89e79621f243 (Meetup). The current Meetup homepage declares NeuSans at weight 700 for the hero and 400 for body copy, with Inter as fallback. NeuSans requires a commercial licence; this trial uses self-hosted, SIL-licensed Inter for website headings, body and controls. Headings use bold upright type instead of decorative serif italics. The Chauffeur wordmark retains its brand face. This supersedes the previous marketing typography; app/demo remain separate.
+
+### Compact header and logo alternatives
+Marketing header is 68px desktop / 62px phone (previously 100px / 80px). Default mark pairs a larger rotating asterisk with the requested “chauffer” text in Inter, without AI. At `/?logo=orbit`, the header uses only the rotating icon with counter-rotating elliptical rings and a satellite dot, inspired by the supplied SVGator Pinterest reference. Reduced-motion settings disable both rotations; hero pause pauses them too.

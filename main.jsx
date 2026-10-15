@@ -6,6 +6,7 @@ import "./homepage.css";
 import "./shopping-journey.css";
 import "./assistant-shopping-banner.css";
 import "./marketing-typography.css";
+import "./brand-header.css";
 
 createRoot(document.getElementById("app")).render(
   <React.StrictMode>

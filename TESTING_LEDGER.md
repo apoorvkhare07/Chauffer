@@ -275,3 +275,6 @@ Verified primary rgb(41,80,184) (#2950B8) and homepage appearance in browser. Al
 - Inspected the Mobbin screenshot and Meetup live heading/body computed font styles.
 - Installed self-hosted Inter with its SIL licence; this is an alternative to commercial NeuSans, not an exact font match.
 - All 90 tests and production build passed. Desktop hero visually reviewed; phone story card and banner reviewed, no horizontal page overflow at 390px.
+
+### Compact header and logo variants
+All 90 tests and build passed. Browser reviewed both desktop versions and the orbit variant at 390px. Confirmed header height of 68px on desktop and changing orbit transforms. Both animations include reduced-motion and existing pause handling.

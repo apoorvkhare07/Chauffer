@@ -1,0 +1,36 @@
+/* Compact masthead, with an optional orbit-only logo at /?logo=orbit. */
+.cs-nav { height: 68px; gap: 24px; }
+.cs-nav .cs-button-small { padding: 10px 18px; }
+.cs-brand { gap: 4px; }
+.cs-brand > .cs-logo-name {
+  font: 600 25px/1 Inter, system-ui, sans-serif;
+  letter-spacing: -.055em;
+}
+.cs-brand > .cs-logo-mark {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+}
+.cs-brand .cs-logo-star { width: 44px; height: 44px; }
+.cs-nav .cs-logo-star { animation: brand-icon-turn 12s linear infinite; }
+.cs-brand-orbit > .cs-logo-mark { width: 52px; height: 52px; flex-basis: 52px; }
+.cs-logo-orbits { position: absolute; inset: 2px; animation: brand-orbit-turn 9s linear infinite; }
+.cs-logo-orbits i { position: absolute; inset: 2px; border: 1px solid #2950b859; border-radius: 50%; transform: rotate(-32deg) scaleX(.58); }
+.cs-logo-orbits i + i { transform: rotate(38deg) scaleX(.66); }
+.cs-logo-orbits b { position: absolute; width: 5px; height: 5px; border-radius: 50%; background: #2950b8; top: 0; left: calc(50% - 2.5px); box-shadow: 0 0 7px #2950b833; }
+.cs-conversation-top .cs-brand > .cs-logo-name { font-size: 22px; }
+.cs-conversation-top .cs-logo-mark { width: 32px; height: 32px; flex-basis: 32px; }
+.cs-conversation-top .cs-logo-star { width: 32px; height: 32px; }
+.chauffeur-site:has(.scene-paused) .cs-nav :is(.cs-logo-star,.cs-logo-orbits) { animation-play-state: paused; }
+@keyframes brand-orbit-turn { to { transform: rotate(-360deg); } }
+@media(max-width:760px) {
+  .cs-nav { height: 62px; gap: 12px; }
+  .cs-nav .cs-brand > .cs-logo-name { font-size: 23px; }
+  .cs-nav .cs-button-small { padding: 9px 12px; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .cs-nav :is(.cs-logo-star,.cs-logo-orbits) { animation: none; }
+}
