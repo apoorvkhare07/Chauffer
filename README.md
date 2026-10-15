@@ -254,3 +254,7 @@ Jeans results now prioritise a colour follow-up once fit is known. A short answe
 ## Additional discovery sources · October 2026
 
 Search now attempts twenty configured destinations. The additional ten, their public readers and access limitations are documented in [STORE_EXPANSION.md](docs/STORE_EXPANSION.md). Uniqlo access remains unverified for automatic discovery; unavailable stores retain a labelled direct search. This expands the candidate pool, keeps the six-card shortlist and retains the seven-page browser limit. New-source browser trials do not enable automatic paid recovery.
+
+## Mobile app planning and parallel build
+
+Read [the mobile readiness audit and handoff](docs/MOBILE_APP_HANDOFF.md) before starting iOS/Android work. The plan is a React Native + Expo frontend under `mobile/`, built in a separate worktree, with the existing shared Convex backend. Backend contracts are developed once; web and mobile screens can progress in parallel. The handoff records reusable code, native adapters, authentication/photo risks, environment mapping, session ownership, acceptance checks and public-release requirements. No mobile app or testing deployment was created by that audit.
