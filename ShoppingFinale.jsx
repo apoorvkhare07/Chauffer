@@ -21,9 +21,13 @@ export default function ShoppingFinale({ liveLink }) {
       const progress = Math.max(0, Math.min(1, -element.getBoundingClientRect().top / Math.max(1, travel)));
       const viewport = element.firstElementChild;
       const copy = element.querySelector('.finale-copy');
-      const footer = element.querySelector('.cs-footer');
-      const room = viewport.offsetHeight - footer.offsetHeight - 40 - copy.offsetTop - copy.offsetHeight;
-      element.style.setProperty('--finale-copy-travel', `${Math.max(0, Math.min(viewport.offsetHeight * .16, room))}px`);
+      const headline = element.querySelector('.finale-next-message');
+      const search = element.querySelector('.finale-search');
+      // Center the visible final headline and search, excluding the outgoing intro.
+      const groupTop = headline.parentElement.offsetTop + headline.offsetTop;
+      const groupBottom = search.offsetTop + search.offsetHeight;
+      const finalShift = viewport.offsetHeight / 2 - copy.offsetTop - (groupTop + groupBottom) / 2;
+      element.style.setProperty('--finale-copy-travel', `${finalShift}px`);
       element.style.setProperty('--finale-progress', String(progress));
     };
     const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
