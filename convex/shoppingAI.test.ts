@@ -137,3 +137,29 @@ test('refining a preference keeps previously shown products excluded',async()=>{
  const next=(await user.query(api.conversations.current,{})).messages.at(-1)!.result!.options;
  expect(next.every(o=>!first.some(p=>p.url===o.url))).toBe(true);expect(next).toEqual([]); // The tiny fixture catalogue was exhausted in the first batch.
 });
+
+test('saved audience survives model drift, while an explicit different audience overrides it',()=>{
+ const prior={category:'shirt',audience:'men' as const,size:'M',budget:1500};
+ const wrong=reply('search',{requirements:{...fullRequirements,category:'shirt',audience:'women'}});
+ const decision=normalizeDecision(wrong,prior,{prefer:[],avoid:[]},'Show me casual shirts');
+ expect(decision.requirements.audience).toBe('men');
+ expect(normalizeDecision(wrong,prior,{prefer:[],avoid:[]},'Find a shirt for my wife').requirements.audience).toBe('women');
+ expect(normalizeDecision(wrong,prior,{prefer:[],avoid:[]},'Find women shirts for a gift').requirements.audience).toBe('women');
+ const options=rankOptions([{title:'Women Casual Shirt',url:'https://www.flipkart.com/test/p/one',price:700,colour:'',fabric:'',observedAt:1},{title:'Men Casual Shirt',url:'https://www.flipkart.com/test/p/two',price:700,colour:'',fabric:'',observedAt:1}],decision.requirements,{prefer:[],avoid:[]});
+ expect(options.map(o=>o.title)).toEqual(['Men Casual Shirt']);
+});
+
+test('settings repair an existing chat and fresh AI context uses saved age, audience and language',async()=>{
+ const {t,user}=setup();
+ const id=await t.run(ctx=>ctx.db.insert('conversations',{key:'web:alice',language:'hi',requirements:{category:'dress',audience:'women',size:'M',budget:1500},revision:7,session:0,pending:false,updatedAt:Date.now(),shownUrls:[],rejectedUrls:[]}));
+ await user.mutation(api.profiles.save,{preferences:{language:'en',audience:'men',age:28,size:'L',budgetPaise:200000}});
+ let c=await t.run(ctx=>ctx.db.get(id));expect(c?.requirements).toEqual({audience:'men',size:'L',budget:2000});expect(c?.language).toBe('en');
+ const generate=vi.spyOn(Agent.prototype,'generateObject').mockImplementation(async(_ctx,_thread,opts:any)=>{
+  const prompt=JSON.parse(opts.prompt);expect(prompt.language).toBe('en');expect(prompt.profile).toMatchObject({age:28,audience:'men'});expect(prompt.requirements.audience).toBe('men');
+  return modelReply(reply('chat',{reply:'What kind of outfit would you like?',requirements:{...fullRequirements,category:null,budget:null,size:null,audience:null}}));
+ });
+ await user.mutation(api.conversations.post,{text:'hi'});await t.finishAllScheduledFunctions(vi.runAllTimers);expect(generate).toHaveBeenCalledOnce();
+ expect((await user.query(api.conversations.current,{})).requirements.audience).toBe('men');
+ expect((await user.query(api.profiles.get,{}))?.age).toBe(28);
+ await expect(user.mutation(api.profiles.save,{preferences:{language:'en',age:28.5}})).rejects.toThrow('age');
+});

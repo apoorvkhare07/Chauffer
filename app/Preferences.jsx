@@ -16,12 +16,14 @@ export default function Preferences() {
   const data = new FormData(event.currentTarget);
   const budget = data.get('budget');
   try {
-   await save({preferences:{language:data.get('language'), ...(data.get('size') ? {size:data.get('size')} : {}), ...(budget ? {budgetPaise:Math.round(Number(budget)*100)} : {})}});
-   setMessage('Your preferences are saved.');
-  } catch {setError('Could not save your preferences. Please try again.');}
+   await save({preferences:{language:data.get('language'),...(data.get('audience')?{audience:data.get('audience')}:{}),...(data.get('age')?{age:Number(data.get('age'))}:{}), ...(data.get('size') ? {size:data.get('size')} : {}), ...(budget ? {budgetPaise:Math.round(Number(budget)*100)} : {})}});
+   setMessage('Your preferences are saved and apply to your next message.');
+  } catch(e) {setError(String(e.message).includes('current search')?'Wait for your current search to finish, then save.':'Could not save your preferences. Please try again.');}
   finally {setBusy(false);}
  }
- return <><h2>Your preferences</h2><p className="account-note">You’re signed in. These preferences stay saved when you return.</p><form className="account-form" onSubmit={submit} key={JSON.stringify(saved)}>
+ return <><h2>Your preferences</h2><p className="account-note">You’re signed in. These preferences stay saved when you return. You can still shop for someone else by telling the assistant.</p><form className="account-form" onSubmit={submit} key={JSON.stringify(saved)}>
+ <label className="account-field">Fashion to shop for<select name="audience" defaultValue={saved?.audience ?? ''}><option value="">Ask me when shopping</option><option value="men">Men’s fashion</option><option value="women">Women’s fashion</option><option value="unisex">Unisex fashion</option></select></label>
+ <label className="account-field">Age (optional)<input name="age" type="number" min="13" max="120" step="1" defaultValue={saved?.age ?? ''} placeholder="Your age"/></label>
  <label className="account-field">Language<select name="language" defaultValue={saved?.language ?? 'en'}><option value="en">English</option><option value="hi">Hindi</option><option value="hinglish">Hinglish</option></select></label>
  <label className="account-field">Usual size<select name="size" defaultValue={saved?.size ?? ''}><option value="">No preference</option>{['XS','S','M','L','XL','XXL'].map(s=><option key={s}>{s}</option>)}</select></label>
  <label className="account-field">Shopping budget (₹100–₹50,000)<input name="budget" type="number" min="100" max="50000" step="1" defaultValue={saved?.budgetPaise ? saved.budgetPaise/100 : ''} placeholder="Optional" /></label>

@@ -37,6 +37,7 @@ import type * as priceIntelligence from "../priceIntelligence.js";
 import type * as priceIntelligenceRules from "../priceIntelligenceRules.js";
 import type * as priceIntelligenceWorker from "../priceIntelligenceWorker.js";
 import type * as productRefresh from "../productRefresh.js";
+import type * as profilePreferences from "../profilePreferences.js";
 import type * as profiles from "../profiles.js";
 import type * as purchases from "../purchases.js";
 import type * as ranking from "../ranking.js";
@@ -100,6 +101,7 @@ declare const fullApi: ApiFromModules<{
   priceIntelligenceRules: typeof priceIntelligenceRules;
   priceIntelligenceWorker: typeof priceIntelligenceWorker;
   productRefresh: typeof productRefresh;
+  profilePreferences: typeof profilePreferences;
   profiles: typeof profiles;
   purchases: typeof purchases;
   ranking: typeof ranking;

@@ -4,11 +4,12 @@ import {evaluateOffer,canStack,type Offer} from './offerRules';
 import {replyLanguage} from './conversationLanguage';
 const now=1000000;
 const item:PriceObservation={store:'Flipkart',url:'https://www.flipkart.com/item/p/one',brand:'Brand',manufacturerCode:'STYLE-1',size:'M',colour:'Blue',quantity:1,itemPaise:100000,shippingPaise:0,mandatoryPaise:0,stock:'in_stock',variantVerified:true,priceFrom:false,observedAt:now,seller:'Store seller',returnTerms:'7 days'};
-test('the current clear request chooses the reply language; brief ambiguous answers use the saved language',()=>{
- expect(replyLanguage('Show me a casual dress under 2000','hinglish')).toBe('en');
- expect(replyLanguage('मुझे नीला कुर्ता चाहिए','en')).toBe('hi');
- expect(replyLanguage('Office ke liye simple kurta chahiye','en')).toBe('hinglish');
+test('saved reply language wins unless the shopper explicitly requests a switch',()=>{
+ expect(replyLanguage('Show me a casual dress under 2000','hinglish')).toBe('hinglish');
+ expect(replyLanguage('मुझे नीला कुर्ता चाहिए','en')).toBe('en');
+ expect(replyLanguage('Office ke liye simple kurta chahiye','en')).toBe('en');
  expect(replyLanguage('M','hi')).toBe('hi');
+ expect(replyLanguage('Please reply in English','hi')).toBe('en');
 });
 test('exact comparison needs the same identity, variant, stock, fresh full totals and conditions',()=>{
  const other={...item,store:'Amazon',url:'https://www.amazon.in/dp/B012345678',itemPaise:95000,shippingPaise:6000};

@@ -1,3 +1,4 @@
+import {profileDefaults} from './profilePreferences';
 import {query,mutation,internalQuery,internalMutation} from './_generated/server';
 import {getAuthUserId} from '@convex-dev/auth/server';
 import {v,type Infer} from 'convex/values';
@@ -20,8 +21,10 @@ export const post=mutation({args:{text:v.string(),rejectUrl:v.optional(v.string(
  const owner=await getAuthUserId(ctx);if(!owner)throw new Error('Please sign in.');
  text=text.trim();if(!text||text.length>1000)throw new Error('Use a message between 1 and 1,000 characters.');
  const profile=await ctx.db.query('profiles').withIndex('by_owner',q=>q.eq('owner',owner)).unique();
- const defaults={...(profile?.preferences.size?{size:profile.preferences.size}:{}),...(profile?.preferences.budgetPaise&&profile.preferences.budgetPaise>=10000&&profile.preferences.budgetPaise<=5000000?{budget:profile.preferences.budgetPaise/100}:{})};
+ const defaults=profileDefaults(profile?.preferences);
  const conversation=await getConversation(ctx,`web:${owner}`,defaults);
+ if(profile){await ctx.db.patch(conversation._id,{language:profile.preferences.language});conversation.language=profile.preferences.language;}
+ if(!conversation.requirements.audience&&defaults.audience)conversation.requirements={...conversation.requirements,audience:defaults.audience};
  let referenceProduct;
  if(reference){
   const message=await ctx.db.get(reference.messageId);

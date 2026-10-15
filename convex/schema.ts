@@ -9,7 +9,7 @@ import {bodyAnalysisValidator,previewSourceValidator} from './stylingRules';
 import {priceDropValidator} from './feedValidators';
 import {intelligenceValidator} from './priceIntelligenceRules';
 import {offerValidator} from './offerValidators';
-export const preferences = v.object({language: v.union(v.literal('en'), v.literal('hi'), v.literal('hinglish')), size: v.optional(v.string()), budgetPaise: v.optional(v.number())});
+export const preferences = v.object({audience:v.optional(v.union(v.literal('men'),v.literal('women'),v.literal('unisex'))),age:v.optional(v.number()),language: v.union(v.literal('en'), v.literal('hi'), v.literal('hinglish')), size: v.optional(v.string()), budgetPaise: v.optional(v.number())});
 export const quote = v.object({store: v.string(), productUrl: v.string(), title: v.string(), variant: v.string(), quantity: v.number(), itemPaise: v.number(), shippingPaise: v.number(), totalPaise: v.number(), currency: v.literal('INR'), addressReference: v.string(), returnTerms: v.string(), observedAt: v.number(), expiresAt: v.number()});
 export default defineSchema({
  ...authTables,

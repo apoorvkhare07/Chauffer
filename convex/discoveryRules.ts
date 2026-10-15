@@ -1,4 +1,4 @@
-import {categoryPatterns,detectCategory,detectAudience,sizeKind,validSize,sizeQuestion} from './fashionRules';
+import {categoryPatterns,detectCategory,detectAudience,requestedAudience,sizeKind,validSize,sizeQuestion} from './fashionRules';
 import { v } from 'convex/values';
 import {positiveStyleTerms,negativeStyle,styleEvidence} from './styleTerms';
 
@@ -13,7 +13,7 @@ export type Option = import('convex/values').Infer<typeof optionValidator>;
 
 export function nextRequest(text: string, previous: Requirements = {}): {requirements:Requirements; reply:string; search:boolean} {
  const trimmed = text.trim().slice(0,1000), lower = trimmed.toLowerCase();
- if (/^(hi|hello|hey|namaste|start|reset)[!.\s]*$/i.test(trimmed)) return {requirements:{},reply:"Hi! I'm Chauffeur. I can find live fashion options, but can't buy anything. What are you looking for: clothing, shoes or accessories?",search:false};
+ if (/^(hi|hello|hey|namaste|start|reset)[!.\s]*$/i.test(trimmed)) return {requirements:/^(reset|start)[!.\s]*$/i.test(trimmed)?{}:previous,reply:"Hi! I'm Chauffeur. I can find live fashion options, but can't buy anything. What are you looking for: clothing, shoes or accessories?",search:false};
  if (/\b(checkout|buy it|place.*order|payment)\b/i.test(trimmed)) return {requirements:previous,reply:"This test version only finds fashion options. You can open a product link to shop on the store yourself.",search:false};
  if (/^(thanks|thank you|thankyou)[!.\s]*$/i.test(trimmed))return {requirements:previous,reply:'You’re welcome! Tell me what to change, or say reset for a new search.',search:false};
  if (/^(none of these|don.t like (any|these)|not interested|no thanks)[!.\s]*$/i.test(trimmed)) return {requirements:previous,reply:'What should I change? Tell me what felt wrong about the style, fit or price, and I’ll adjust the next picks.',search:false};
@@ -21,7 +21,7 @@ export function nextRequest(text: string, previous: Requirements = {}): {require
  const requirements = {...previous};
  if (/\b(any|no preference for) colo[u]?r\b/.test(lower))delete requirements.colour;
  if (/\b(any|no preference for) (fabric|material)\b/.test(lower))delete requirements.fabric;
- const category=detectCategory(lower), audience=detectAudience(lower);
+ const category=detectCategory(lower), audience=requestedAudience(lower);
  if(category){if(previous.category&&category!==previous.category){for(const key of ['colour','fabric','style','fit','pattern','sleeve','length','mustHave'] as const)delete requirements[key];}if(sizeKind(category)!==sizeKind(previous.category))delete requirements.size;requirements.category=category;}
  if(audience){if(previous.audience&&audience!==previous.audience)delete requirements.size;requirements.audience=audience;}
  const money = lower.match(/(?:under|below|budget|upto|up to|less than|within|₹|rs\.?|inr|तक)\s*(?:₹|rs\.?)?\s*([\d,]+(?:\.\d{1,2})?)\s*(k)?\b/) ?? (/^\s*\d[\d,]*(?:\.\d{1,2})?\s*k?\s*$/.test(lower)?lower.match(/([\d,]+(?:\.\d{1,2})?)\s*(k)?/):null);

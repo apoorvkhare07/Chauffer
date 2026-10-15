@@ -20,3 +20,9 @@ export function sizeKind(category?:string){return ['shoes','sneakers','boots','l
 export function validSize(category:string|undefined,size?:string){if(sizeKind(category)==='none')return true;if(!size)return false;return sizeKind(category)==='shoe'?/^(UK|US|EU)\s*\d{1,2}(?:\.5)?$/i.test(size):sizeKind(category)==='waist'?/^(?:XXXS|XXS|XS|S|M|L|XL|XXL|XXXL|[2-4]XL|(?:waist\s*)?\d{2}(?:\s*(?:in|inches|cm))?)$/i.test(size):/^(?:XXXS|XXS|XS|S|M|L|XL|XXL|XXXL|[2-4]XL|\d{2})$/i.test(size);}
 export function sizeQuestion(category?:string){return sizeKind(category)==='shoe'?'What shoe size and system do you wear—for example UK 8, US 9 or EU 42?':sizeKind(category)==='waist'?'What waist size should I look for—for example 32 inches or M?':'What clothing size should I look for—for example M, XL or 40?';}
 export function detectAudience(text:string):'men'|'women'|'unisex'|undefined{return /\bunisex\b/i.test(text)?'unisex':/\b(women|woman|womens|women’s|ladies|female)\b/i.test(text)?'women':/\b(men|man|mens|men’s|male)\b/i.test(text)?'men':undefined;}
+
+export function requestedAudience(text:string):ReturnType<typeof detectAudience>{
+ if(/\bfor (?:my |a |the )?(wife|girlfriend|mother|mum|mom|sister|daughter)\b/i.test(text))return 'women';
+ if(/\bfor (?:my |a |the )?(husband|boyfriend|father|dad|brother|son)\b/i.test(text))return 'men';
+ return detectAudience(text);
+}

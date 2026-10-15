@@ -1,4 +1,4 @@
-import {fashionCategories,validSize,sizeQuestion,sizeKind} from './fashionRules';
+import {requestedAudience,fashionCategories,validSize,sizeQuestion,sizeKind} from './fashionRules';
 import {z} from 'zod';
 import {v,type Infer} from 'convex/values';
 import {requirementsValidator,type Requirements} from './discoveryRules';
@@ -17,6 +17,8 @@ export const decisionValidator=v.object({intent:v.union(v.literal('search'),v.li
 export type Decision=Infer<typeof decisionValidator>;
 export function normalizeDecision(raw:unknown,previous:Requirements,taste:Taste,text=""):Decision{
  const value=decisionSchema.parse(raw);const requirements=Object.fromEntries(Object.entries(value.requirements).filter(([,v])=>v!==null)) as Requirements;
+ const explicitAudience=requestedAudience(text);
+ if(explicitAudience)requirements.audience=explicitAudience;else if(previous.audience)requirements.audience=previous.audience;
  if(requirements.category&&sizeKind(requirements.category)!==sizeKind(previous.category)&&requirements.size===previous.size)delete requirements.size;
  if(requirements.audience&&previous.audience&&requirements.audience!==previous.audience&&requirements.size===previous.size&&!/\bsize\b/i.test(text))delete requirements.size;
  const avoid=cleanTerms([...value.taste.avoid,...value.taste.prefer.map(negativeStyle).filter((x):x is string=>Boolean(x)),...(requirements.mustHave??[]).map(negativeStyle).filter((x):x is string=>Boolean(x)),...[requirements.style,requirements.pattern].map(x=>x?negativeStyle(x):null).filter((x):x is string=>Boolean(x))].map(term=>negativeStyle(term)??canonicalStyle(term)));
