@@ -5,6 +5,7 @@ import { Id } from "./_generated/dataModel";
 import { createAccount, convexAuth } from "@convex-dev/auth/server";
 
 export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
+  callbacks:{afterUserCreatedOrUpdated:async(ctx,{userId,existingUserId})=>{if(!existingUserId)await ctx.scheduler.runAfter(0,internal.analytics.signup,{userId});}},
   providers: [ConvexCredentials({id:"msg91",authorize:async(credentials,ctx)=>{
     if(typeof credentials.challenge!=="string" || typeof credentials.secret!=="string" || credentials.secret.length!==72)return null;
     const phone=await ctx.runMutation(internal.otp.consume,{id:credentials.challenge as Id<"otpChallenges">,hash:await hashSecret(credentials.secret)});
