@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { LoaderPreview } from './FashionLoader.jsx';
 import ShoppingJourney from './ShoppingJourney.jsx';
 import WardrobeSpiral from './WardrobeSpiral.jsx';
-import FashionHero from './FashionHero.jsx';
+import ShoppingIntro from './ShoppingIntro.jsx';
 import { Asterisk, ArrowUpRight, Plus, SlidersHorizontal, MessageCircle, ShoppingBag } from 'lucide-react';
 
 const scenarios = [
@@ -23,15 +23,8 @@ export default function App() {
     <a className="skip-link" href="#main-content">Skip to content</a>
     <header className="cs-nav cs-wrap"><Brand/><nav aria-label="Main navigation"><a href="#how-it-works">How it works</a><a href="#shop-by-occasion">Shopping ideas</a><a href="#the-details">Questions</a></nav><a className="cs-button cs-button-small" href="/app/">Chat to shop <MessageCircle size={16}/></a></header>
     <main id="main-content">
-      <FashionHero liveLink={liveLink}/>
+      <ShoppingIntro liveLink={liveLink}/>
       <section className="cs-store-band"><div className="cs-wrap"><p>Your next find could be anywhere.</p><div className="cs-store-names"><span>Flipkart</span><span>amazon<span className="cs-amazon-line"/></span></div><p className="cs-store-note">Live discovery on Flipkart and Amazon. Buy directly on the store.</p></div></section>
-      <section className="cs-shopping-ideas cs-wrap" id="shop-by-occasion"><div><p className="cs-eyebrow"><ShoppingBag size={15}/> Start with what you need</p><h2>What’s on your<br/><em>shopping list?</em></h2></div><div className="cs-shopping-links">{[
-        ['Find an outfit','Help me find an outfit for the office within my budget'],
-        ['Style my wardrobe','Help me style the clothes I already own'],
-        ['Shop for an occasion','Help me find a look for a celebration'],
-        ['Review a purchase','How can I check a saved product against my wardrobe and budget?'],
-        ['Start with a photo','How can I shop from a clothing photo?'],
-      ].map(([label,prompt])=><a key={label} href={liveLink(prompt)}>{label}<ArrowUpRight size={15}/></a>)}</div><p>Clothing, shoes and finishing touches for women and men. Tell us what you have in mind.</p></section>
       <ShoppingJourney/>
       <section className="cs-discovery" id="discovery"><div className="cs-wrap cs-discovery-inner"><div className="cs-discovery-copy"><p className="cs-eyebrow">Your style, in your own words</p><h2>Shop by talking.<br/><em>Find more of you.</em></h2><p>Start with your day, your style or a piece you own. Your assistant helps you explore—and listens when you change your mind.</p><div className="cs-scenario-tabs" role="group" aria-label="Conversation examples">{scenarios.map((s,i)=><button key={s.name} type="button" aria-pressed={selected===i} onClick={()=>setSelected(i)}>{s.name}</button>)}</div></div><div className="cs-conversation"><div className="cs-conversation-top"><Brand/><span>Example shopping chat</span></div><div className="cs-example-user"><span>You</span><p>{example.request}</p></div><div className="cs-example-assistant" aria-live="polite"><span><Asterisk size={15}/>Chauffeur</span><p>{example.reply}</p><div className="cs-tags">{example.tags.map(t=><span key={t}>{t}</span>)}</div></div><div className="cs-example-feedback"><SlidersHorizontal size={16}/><span>“Less formal. Something with a small print.”</span></div><p className="cs-example-caption">An example of the flow. Live results vary by request and store access.</p></div><a className="cs-button cs-discovery-cta" href={liveLink(example.request)}>Try this conversation <ArrowUpRight size={17}/></a></div></section>
       <WardrobeSpiral/>
