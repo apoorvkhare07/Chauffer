@@ -28,8 +28,10 @@ test("the separate homepage renders its full content without crashing", async ()
     );
     const html = renderToString(React.createElement(Homepage));
     assert.match(html, /More options/);
-    assert.match(html, /Can I actually buy something here/);
-    assert.match(html, /Try the shopping demo/);
+    assert.match(html, /href="\/faq\/"/);
+    assert.doesNotMatch(html, /Can I actually buy something here/);
+    assert.match(html, /href="\/roadmap\/"/);
+    assert.doesNotMatch(html, /Your style, in your own words/);
     assert.doesNotMatch(html, /id="order-size"/);
     assert.doesNotMatch(html, /id="payment"/);
   } finally {

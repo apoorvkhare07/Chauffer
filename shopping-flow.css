@@ -115,3 +115,9 @@ html.shopping-scroll-page{scroll-snap-type:none;scroll-padding-top:0}
  .shopping-scroll-page .hero-description{font-size:12px;line-height:1.5;margin-bottom:14px}
 }
 .shopping-scroll-page .chauffeur-site{overflow-x:clip}
+/* Overlapping grid tracks keep the sticky panel inside the journey's real bounds. */
+@media(max-width:760px){
+ .shopping-scroll-page .shopping-flow{display:grid;grid-template-columns:minmax(0,1fr);gap:0}
+ .shopping-scroll-page .flow-visual{grid-area:1 / 1;align-self:start;margin-bottom:0}
+ .shopping-scroll-page .flow-copy{grid-area:1 / 1;min-width:0}
+}
