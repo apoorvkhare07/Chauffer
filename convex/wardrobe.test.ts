@@ -84,3 +84,22 @@ test('shopping context includes only the signed-in owner wardrobe and styling pr
  const id=await t.run(ctx=>ctx.db.insert('conversations',{key:'web:alice',agentThreadId:'fixture',aiTurn:true,inputText:'A top to wear with my trousers for a birthday',requirements:{category:'top',budget:1500,size:'M'},revision:1,session:1,pending:true,updatedAt:Date.now(),shownUrls:[],rejectedUrls:[]}));
  const context=await t.query(internal.aiConversations.context,{conversationId:id,revision:1});expect(context?.prompt.wardrobe).toHaveLength(1);expect(context?.prompt.wardrobe[0].name).toBe('Blue shirt');expect(context?.prompt.stylePreferences.fitPreferences).toBe('Relaxed');
 });
+
+test('photo tags preserve user label details separately from the original reading',async()=>{
+ const {t,alice}=setup();const jpeg=readFileSync(new URL('../public/images/sneakers.jpg',import.meta.url)).toString('base64');
+ vi.spyOn(Agent.prototype,'generateObject').mockResolvedValue({object:{singleItemVisible:true,details:{name:'Not a user supplied name',category:'shoes',colour:'white',kind:'Sneakers',pattern:'Solid',fabric:'',brand:'',size:'',cut:'Low top',occasion:'Casual',notes:'',attributes:{fastening:'Laces',heel:'Flat sole',sleeve:'Long',neckline:'',length:'',strap:''}},uncertainties:[],brandEvidence:''},usage:{}} as any);
+ const draft=await alice.action(api.wardrobePhoto.analyse,{jpegBase64:jpeg});
+ expect(draft.analysis.details.attributes).toEqual({fastening:'Laces',heel:'Flat sole'});
+ expect(draft.analysis.details.name).toBe('White Solid Sneakers');
+ const id=await alice.mutation(api.wardrobeMetadata.confirm,{id:draft.id,details:{...draft.analysis.details,brand:'Known label',size:'UK 8',fabric:'Leather'}});
+ const item=(await alice.query(api.wardrobe.list,{}))[0];expect(item.id).toBe(id);expect(item.details.size).toBe('UK 8');expect(item.analysis?.details.size).toBe('');expect(item.analysis?.details.brand).toBe('');
+ await expect(alice.mutation(api.wardrobe.updateDetails,{id,details:{...item.details,size:'x'.repeat(41)}})).rejects.toThrow('size');
+ await expect(alice.mutation(api.wardrobe.updateDetails,{id,details:{...item.details,attributes:{sleeve:'Long'}}})).rejects.toThrow('category');
+});
+test('unclear or multiple-item photos cannot become confirmation drafts',async()=>{
+ const {t,alice}=setup();const jpeg=readFileSync(new URL('../public/images/sneakers.jpg',import.meta.url)).toString('base64');
+ vi.spyOn(Agent.prototype,'generateObject').mockResolvedValue({object:{singleItemVisible:false,details:{...top},uncertainties:['Multiple garments'],brandEvidence:''},usage:{}} as any);
+ await expect(alice.action(api.wardrobePhoto.analyse,{jpegBase64:jpeg})).rejects.toThrow('single-item');
+ expect(await alice.query(api.wardrobe.list,{})).toEqual([]);
+ await t.run(async ctx=>{const rows=await ctx.db.query('wardrobePhotoDrafts').collect();expect(rows[0].state).toBe('failed');expect(rows[0].photoId).toBeUndefined();});
+});
