@@ -1,4 +1,5 @@
-import {brandQuestion,explicitDiscovery,namedBrands} from './discoveryPolicy';
+import {discoveryFields} from './discoveryQuestions';
+import {explicitDiscovery,namedBrands} from './discoveryPolicy';
 import {requestedAudience,fashionCategories,validSize,sizeQuestion,sizeKind} from './fashionRules';
 import {z} from 'zod';
 import {v,type Infer} from 'convex/values';
@@ -29,6 +30,8 @@ export function normalizeDecision(raw:unknown,previous:Requirements,taste:Taste,
   }
   requirements.mustHave=(requirements.mustHave??[]).filter(term=>!(previous.mustHave??[]).includes(term)||text.toLowerCase().includes(term.toLowerCase()));
  }
+ if(previous.askedDiscoveryFields&&(!requirements.category||requirements.category===previous.category))requirements.askedDiscoveryFields=previous.askedDiscoveryFields;
+ if(/no (?:more )?questions|don.t ask (?:me )?(?:any |more )?questions/i.test(text))requirements.askedDiscoveryFields=discoveryFields;
  delete requirements.brand;delete requirements.pricePreference;Object.assign(requirements,explicitDiscovery(text,previous,value.requirements as Requirements));
  const explicitAudience=requestedAudience(text);
  if(explicitAudience)requirements.audience=explicitAudience;else if(previous.audience)requirements.audience=previous.audience;
@@ -82,7 +85,7 @@ export function missingQuestion(r:Requirements):string|null{
  if(!r.category)return 'What would you like: clothing, shoes or accessories?';
  if(!r.budget)return 'What is your maximum budget in rupees?';
  if(!validSize(r.category,r.size))return sizeQuestion(r.category);
- return brandQuestion(r);
+ return null;
 }
 export function memoryConsent(text:string,intent:string):boolean{
  if(intent==='remember'&&/(?:do not|don't|dont|never|not)\s+(?:save|remember)|nahi\s*(?:save|yaad)|याद\s*मत|मत\s*(?:रख|याद)/i.test(text))return false;

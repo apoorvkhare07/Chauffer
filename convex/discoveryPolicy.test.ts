@@ -11,7 +11,7 @@ test('a budget is a spending range, with cheaper fallback below every verified i
  expect(rankOptions([option(700),option(6000)],r).map(o=>o.price)).toEqual([700]);
 });
 test('brand clarification is one question after size, explicit brand is hard evidence and never an inferred quality claim',()=>{
- expect(missingQuestion(r)).toContain('Nike');expect(missingQuestion({...r,size:undefined})).toContain('size');
+ expect(missingQuestion(r)).toBeNull();expect(missingQuestion({...r,size:undefined})).toContain('size');
  expect(missingQuestion({...r,brand:'any'})).toBeNull();
  const request=nextRequest('Puma',r);expect(request.search).toBe(true);expect(request.requirements.brand).toBe('Puma');
  expect(searchTerms({...r,brand:'Puma'})).toBe('Puma sneakers men');

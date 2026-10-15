@@ -1,3 +1,4 @@
+import {questionAnswer,nextDiscoveryQuestion,shouldClarifyBefore} from './discoveryQuestions';
 import type {MutationCtx} from './_generated/server';
 import type {Doc,Id} from './_generated/dataModel';
 import {createThread} from '@convex-dev/agent';
@@ -18,18 +19,22 @@ export async function beginTurn(ctx:MutationCtx,conversation:Doc<'conversations'
  }
  const reset=/^(reset|start)[!.\s]*$/i.test(text);
  const previous=reset?defaults:conversation.requirements;
- const plan=text==='[unsupported message]'?{requirements:previous,reply:'Please send your clothing request as a text message for this test.',search:false}:reset?{requirements:defaults,reply:welcome,search:false}:nextRequest(text,previous);
+ const answer=reset?null:questionAnswer(text,conversation.discoveryQuestion);
+ let plan=text==='[unsupported message]'?{requirements:previous,reply:'Please send your clothing request as a text message for this test.',search:false}:reset?{requirements:defaults,reply:welcome,search:false}:nextRequest(text,previous);
+ if(answer)plan=nextRequest('show more options',{...previous,...answer});
  if(rejectUrl){plan.requirements=previous;plan.search=false;plan.reply='Got it. I’ll skip that product. What should I change: colour, fabric or budget? Or ask for more options.';}
  // A bare batch rejection needs clarification, not a paid/model-dependent search.
  const bareRejection=/^(none of these|don.t like (any|these)|not interested|no thanks)[!.\s]*$/i.test(text);
  const sameSearchMore=/^(show (me )?more( options)?|more( options)?|try again|search again|another (set|batch))[!.\s]*$/i.test(text);
- const useAI=Boolean(process.env.GEMINI_API_KEY)&&!reset&&!rejectUrl&&!bareRejection&&!sameSearchMore&&text!=='[unsupported message]';
+ const useAI=Boolean(process.env.GEMINI_API_KEY)&&!answer&&!reset&&!rejectUrl&&!bareRejection&&!sameSearchMore&&text!=='[unsupported message]';
  if(useAI){plan.requirements=previous;plan.search=false;}
+ let discoveryQuestion;
+ if(!useAI&&!answer&&plan.search&&shouldClarifyBefore(plan.requirements)&&!/no questions|don.t ask|just (?:search|show)/i.test(text)){discoveryQuestion=nextDiscoveryQuestion(plan.requirements);if(discoveryQuestion){plan.search=false;plan.reply=discoveryQuestion.question;plan.requirements.askedDiscoveryFields=[discoveryQuestion.field];}}
  const revision=conversation.revision+1,session=conversation.session+(reset?1:0);
  const rejectedUrls=reset?[]:[...new Set([...conversation.rejectedUrls,...(rejectUrl?[rejectUrl]:[])])].slice(-120);
  let shownUrls=reset?[]:conversation.shownUrls;
  // Keep seen products excluded throughout this chat, including refinements.
- await ctx.db.patch(conversation._id,{requirements:plan.requirements,revision,session,pending:plan.search||useAI,aiTurn:useAI,inputText:text,updatedAt:Date.now(),shownUrls,rejectedUrls,...(reset?{taste:emptyTaste,agentThreadId:undefined}:{})});
+ await ctx.db.patch(conversation._id,{discoveryQuestion:discoveryQuestion??(useAI?conversation.discoveryQuestion:undefined),requirements:plan.requirements,revision,session,pending:plan.search||useAI,aiTurn:useAI,inputText:text,updatedAt:Date.now(),shownUrls,rejectedUrls,...(reset?{taste:emptyTaste,agentThreadId:undefined}:{})});
  if(reset)await ctx.db.insert('messages',{conversationId:conversation._id,session,role:'assistant',text:plan.reply});
  else{
   if(conversation.revision===0)await ctx.db.insert('messages',{conversationId:conversation._id,session,role:'assistant',text:welcome});

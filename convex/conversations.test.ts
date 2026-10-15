@@ -20,6 +20,9 @@ test('saved profile seeds discovery; shared workflow saves results privately and
  await alice.mutation(api.profiles.save,{preferences:{size:'L',budgetPaise:200000,language:'en'}});
  await alice.mutation(api.conversations.post,{text:'kurta'});
  expect((await alice.query(api.conversations.current,{})).requirements).toMatchObject({category:'kurta',size:'L',budget:2000});
+ const clarification=await alice.query(api.conversations.current,{});expect(clarification.pending).toBe(false);expect(clarification.discoveryQuestion?.field).toBe('occasion');
+ await alice.mutation(api.conversations.post,{text:'For everyday wear'});
+ expect((await alice.query(api.conversations.current,{})).requirements).toMatchObject({occasion:'everyday',size:'L',budget:2000});
  expect((await alice.query(api.conversations.current,{})).pending).toBe(true);
  await expect(alice.mutation(api.conversations.post,{text:'show more options'})).rejects.toThrow('already running');
  await t.finishAllScheduledFunctions(vi.runAllTimers);
@@ -52,4 +55,11 @@ test('product previews stay attached to their own result; unrelated image hosts 
  expect(amazonOptions(html,{category:'kurta',budget:1000},1,['https://www.amazon.in/dp/B012345678'])).toEqual([]);
  const product=(image:string)=>`<script type="application/ld+json">${JSON.stringify({'@type':'Product',name:'Kurta',image,offers:{price:500,priceCurrency:'INR',availability:'https://schema.org/InStock'}})}</script>`;
  expect(productOption(product('https://unrelated.example/image.jpg'),urls[0],1)?.imageUrl).toBeUndefined();
+});
+test('skipping a discovery question searches without inventing the skipped preference and offers a different refinement',async()=>{
+ vi.useFakeTimers();mockStores();const t=convexTest(schema,modules);workflow.register(t);const user=t.withIdentity({subject:'skip-user',issuer:'https://test.chauffeur'});
+ await user.mutation(api.conversations.post,{text:'kurta under 2000 size M'});
+ let current=await user.query(api.conversations.current,{});expect(current.discoveryQuestion?.field).toBe('occasion');expect(current.pending).toBe(false);
+ await user.mutation(api.conversations.post,{text:'No preference, show options'});await t.finishAllScheduledFunctions(vi.runAllTimers);
+ current=await user.query(api.conversations.current,{});expect(current.requirements.occasion).toBeUndefined();expect(current.requirements).toMatchObject({budget:2000,size:'M'});expect(current.messages.at(-1)?.result?.options.length).toBeGreaterThan(0);expect(current.discoveryQuestion?.field).toBe('pattern');
 });

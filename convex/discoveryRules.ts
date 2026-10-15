@@ -1,10 +1,12 @@
 import {storeValidator,productStore,merchantImageHosts} from './storeConfig';
 import {categoryPatterns,detectCategory,detectAudience,requestedAudience,sizeKind,validSize,sizeQuestion} from './fashionRules';
 import { v } from 'convex/values';
-import {brandMatches,brandQuestion,explicitDiscovery,namedBrands} from './discoveryPolicy';
+import {occasionTerms} from './discoveryQuestions';
+import {brandMatches,explicitDiscovery,namedBrands} from './discoveryPolicy';
 import {positiveStyleTerms,negativeStyle,styleEvidence} from './styleTerms';
 
 export const requirementsValidator = v.object({
+ askedDiscoveryFields:v.optional(v.array(v.string())),
  brand:v.optional(v.string()),pricePreference:v.optional(v.union(v.literal('best_within_budget'),v.literal('lowest_price'))),
  audience:v.optional(v.union(v.literal('men'),v.literal('women'),v.literal('unisex'))), category: v.optional(v.string()), budget: v.optional(v.number()), size: v.optional(v.string()),
  colour: v.optional(v.string()), fabric: v.optional(v.string()),
@@ -25,7 +27,7 @@ export function nextRequest(text: string, previous: Requirements = {}): {require
  if (/\b(any|no preference for) colo[u]?r\b/.test(lower))delete requirements.colour;
  if (/\b(any|no preference for) (fabric|material)\b/.test(lower))delete requirements.fabric;
  const category=detectCategory(lower), audience=requestedAudience(lower);
- if(category){if(previous.category&&category!==previous.category){for(const key of ['brand','colour','fabric','style','fit','pattern','sleeve','length','mustHave'] as const)delete requirements[key];}if(sizeKind(category)!==sizeKind(previous.category))delete requirements.size;requirements.category=category;}
+ if(category){if(previous.category&&category!==previous.category){for(const key of ['askedDiscoveryFields','brand','colour','fabric','style','fit','pattern','sleeve','length','mustHave'] as const)delete requirements[key];}if(sizeKind(category)!==sizeKind(previous.category))delete requirements.size;requirements.category=category;}
  if(audience){if(previous.audience&&audience!==previous.audience)delete requirements.size;requirements.audience=audience;}
  Object.assign(requirements,explicitDiscovery(trimmed,requirements,requirements));
  const money = lower.match(/(?:under|below|budget|upto|up to|less than|within|₹|rs\.?|inr|तक)\s*(?:₹|rs\.?)?\s*([\d,]+(?:\.\d{1,2})?)\s*(k)?\b/) ?? (/^\s*\d[\d,]*(?:\.\d{1,2})?\s*k?\s*$/.test(lower)?lower.match(/([\d,]+(?:\.\d{1,2})?)\s*(k)?/):null);
@@ -46,14 +48,13 @@ export function nextRequest(text: string, previous: Requirements = {}): {require
  if (!requirements.budget) return {requirements,reply:'What is your maximum budget in rupees? For example: under ₹1,000.',search:false};
  if (!validSize(requirements.category,requirements.size)) return {requirements,reply:sizeQuestion(requirements.category),search:false};
  const named=namedBrands(trimmed);if(named.length>1)return {requirements,reply:`Which brand should I search first: ${named.join(' or ')}?`,search:false};
- const brandPrompt=brandQuestion(requirements);if(brandPrompt)return {requirements,reply:brandPrompt,search:false};
  const query=searchTerms(requirements);
  return {requirements,reply:`I'll check Flipkart and Amazon plus the other supported fashion stores now for ${query}, under ₹${requirements.budget.toLocaleString('en-IN')}${requirements.size?`, requested size ${requirements.size}`:''}. Size availability will need checking on the store.`,search:true};
 }
 export function searchTerms(r:Requirements,includeSoft=true): string {
  const hard=positiveStyleTerms(r.mustHave??[]);
  // Broad search keeps every hard constraint. Style words only guide candidate retrieval.
- const soft=includeSoft&&(!r.brand||r.brand==='any')?positiveStyleTerms([r.pattern,r.fit,r.sleeve,r.length,r.style]).filter(term=>!hard.includes(term)).slice(0,2):[];
+ const soft=includeSoft?positiveStyleTerms([occasionTerms(r)[0],r.pattern,r.fit,r.sleeve,r.length,r.style]).filter(term=>!hard.includes(term)).slice(0,2):[];
  return [...new Set([r.brand&&r.brand!=='any'?r.brand:undefined,r.colour,r.fabric,...hard,...soft,r.category,r.audience].filter(Boolean))].join(' ');
 }
 export function allowedProductUrl(raw:string): boolean {return Boolean(productStore(raw));}
