@@ -1,0 +1,20 @@
+import {v,type Infer} from 'convex/values';
+export const eventValidator=v.object({timeZone:v.string(),date:v.string(),period:v.union(v.literal('auto'),v.literal('morning'),v.literal('afternoon'),v.literal('evening'),v.literal('night')),setting:v.union(v.literal('unspecified'),v.literal('indoors'),v.literal('outdoors'),v.literal('mixed'))});
+export type OutfitEvent=Infer<typeof eventValidator>;
+export const locationValidator=v.union(v.object({source:v.literal('city'),city:v.string()}),v.object({source:v.literal('device'),latitude:v.number(),longitude:v.number()}));
+export const weatherValidator=v.object({status:v.union(v.literal('ready'),v.literal('unavailable'),v.literal('not_requested')),note:v.string(),location:v.optional(v.string()),timeZone:v.optional(v.string()),date:v.optional(v.string()),hour:v.optional(v.number()),temperatureC:v.optional(v.number()),feelsLikeC:v.optional(v.number()),rainChance:v.optional(v.number()),windKph:v.optional(v.number()),humidity:v.optional(v.number()),condition:v.optional(v.string()),isDay:v.optional(v.boolean()),fetchedAt:v.optional(v.number()),observedAt:v.optional(v.number()),source:v.optional(v.literal('WeatherAPI.com')),kind:v.optional(v.union(v.literal('current'),v.literal('forecast')))});
+export type WardrobeWeather=Infer<typeof weatherValidator>;
+export const shopperValidator=v.object({language:v.string(),audience:v.optional(v.string()),gender:v.optional(v.string()),topSize:v.optional(v.string()),jeansSize:v.optional(v.string()),heightCm:v.optional(v.number()),body:v.object({source:v.union(v.literal('none'),v.literal('self_described'),v.literal('confirmed_photo')),description:v.string(),photoAvailable:v.boolean(),needsReview:v.boolean(),limitations:v.array(v.string())})});
+export const guidanceValidator=v.object({summary:v.string(),tips:v.array(v.string()),question:v.optional(v.string())});
+export function localClock(now:number,timeZone:string){
+ try{const parts=new Intl.DateTimeFormat('en-CA',{timeZone,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23',weekday:'long'}).formatToParts(now);const p=Object.fromEntries(parts.map(x=>[x.type,x.value]));const hour=Number(p.hour);return {date:`${p.year}-${p.month}-${p.day}`,weekday:p.weekday,time:`${p.hour}:${p.minute}`,hour,timeZone,period:hour<6?'night':hour<12?'morning':hour<17?'afternoon':hour<21?'evening':'night'};}
+ catch{throw new Error('Choose a valid time zone.');}
+}
+export function validateEvent(input:OutfitEvent|undefined,now=Date.now()):OutfitEvent{
+ const timeZone=input?.timeZone??'Asia/Kolkata',clock=localClock(now,timeZone),event=input??{timeZone,date:clock.date,period:'auto',setting:'unspecified'};
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(event.date)||Number.isNaN(Date.parse(event.date))||new Date(event.date+'T12:00:00Z').toISOString().slice(0,10)!==event.date)throw new Error('Choose a valid outfit date.');
+ const delta=Date.parse(event.date)-Date.parse(clock.date);if(delta<0||delta>90*86400000)throw new Error('Choose today or a date within 90 days.');return event;
+}
+export function eventHour(event:OutfitEvent,now:number){if(event.period==='auto')return localClock(now,event.timeZone).hour;return {morning:9,afternoon:14,evening:19,night:22}[event.period];}
+export function cleanLocation(input:Infer<typeof locationValidator>){if(input.source==='city'){const city=input.city.trim();if(city.length<2||city.length>100||!/[\p{L}]/u.test(city)||/[\n\r<>:/@]/.test(city))throw new Error('Enter a city and country, for example Pune, India.');return {source:'city' as const,city};}if(!Number.isFinite(input.latitude)||!Number.isFinite(input.longitude)||Math.abs(input.latitude)>90||Math.abs(input.longitude)>180)throw new Error('Location is not valid.');return {source:'device' as const,latitude:Math.round(input.latitude*100)/100,longitude:Math.round(input.longitude*100)/100};}
+export function safeGuidance(value:Infer<typeof guidanceValidator>){return {summary:value.summary.slice(0,500),tips:value.tips.slice(0,4).map(t=>t.slice(0,240)),...(value.question?.trim()?{question:value.question.trim().slice(0,240)}:{})};}
