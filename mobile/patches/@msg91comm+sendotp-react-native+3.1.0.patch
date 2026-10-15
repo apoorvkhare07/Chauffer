@@ -1,0 +1,173 @@
+diff --git a/node_modules/@msg91comm/sendotp-react-native/API/api.url.ts b/node_modules/@msg91comm/sendotp-react-native/API/api.url.ts
+index ceb0993..fd4792d 100644
+--- a/node_modules/@msg91comm/sendotp-react-native/API/api.url.ts
++++ b/node_modules/@msg91comm/sendotp-react-native/API/api.url.ts
+@@ -1,4 +1,4 @@
+-const createEndpoint = (endpoint) => {
++const createEndpoint = (endpoint: string) => {
+     const url = 'https://control.msg91.com/api/v5/widget'
+     return `${url}${endpoint}`;
+   };
+diff --git a/node_modules/@msg91comm/sendotp-react-native/API/rawfetch.ts b/node_modules/@msg91comm/sendotp-react-native/API/rawfetch.ts
+index 28f9052..3331e24 100644
+--- a/node_modules/@msg91comm/sendotp-react-native/API/rawfetch.ts
++++ b/node_modules/@msg91comm/sendotp-react-native/API/rawfetch.ts
+@@ -268,7 +268,6 @@ async function nativeImpl(
+     };
+   } catch (err: any) {
+     // Native module failed — fall back to fetch
+-    console.warn('[rawfetch] native module error, falling back to fetch:', err?.message);
+     return fetchImpl(url, options);
+   }
+ }
+diff --git a/node_modules/@msg91comm/sendotp-react-native/DefaultWidget/components/buttons/PrimaryButton.tsx b/node_modules/@msg91comm/sendotp-react-native/DefaultWidget/components/buttons/PrimaryButton.tsx
+index b387545..5ccc42b 100644
+--- a/node_modules/@msg91comm/sendotp-react-native/DefaultWidget/components/buttons/PrimaryButton.tsx
++++ b/node_modules/@msg91comm/sendotp-react-native/DefaultWidget/components/buttons/PrimaryButton.tsx
+@@ -4,12 +4,15 @@ import {
+   Text,
+   StyleSheet,
+   ActivityIndicator,
++  type StyleProp,
++  type ViewStyle,
++  type TextStyle,
+ } from 'react-native';
+ import { BORDER_RADIUS, SPACING, FONT_SIZE } from '../../constants';
+ import { useTheme } from '../../context';
+ 
+-type ViewStyleType = ReturnType<typeof StyleSheet.flatten>;
+-type TextStyleType = ReturnType<typeof StyleSheet.flatten>;
++type ViewStyleType = StyleProp<ViewStyle>;
++type TextStyleType = StyleProp<TextStyle>;
+ 
+ interface PrimaryButtonProps {
+   title: string;
+diff --git a/node_modules/@msg91comm/sendotp-react-native/DefaultWidget/index.tsx b/node_modules/@msg91comm/sendotp-react-native/DefaultWidget/index.tsx
+index 04186aa..925fb75 100644
+--- a/node_modules/@msg91comm/sendotp-react-native/DefaultWidget/index.tsx
++++ b/node_modules/@msg91comm/sendotp-react-native/DefaultWidget/index.tsx
+@@ -915,7 +915,7 @@ const styles = StyleSheet.create({
+     alignItems: 'center',
+   },
+   backdrop: {
+-    ...StyleSheet.absoluteFillObject,
++    ...StyleSheet.absoluteFill,
+     backgroundColor: COLORS.backdrop,
+   },
+   keyboardAvoid: {
+diff --git a/node_modules/@msg91comm/sendotp-react-native/android/src/main/java/com/biometrics/RawFetch.java b/node_modules/@msg91comm/sendotp-react-native/android/src/main/java/com/biometrics/RawFetch.java
+index 4a8e084..924a33b 100644
+--- a/node_modules/@msg91comm/sendotp-react-native/android/src/main/java/com/biometrics/RawFetch.java
++++ b/node_modules/@msg91comm/sendotp-react-native/android/src/main/java/com/biometrics/RawFetch.java
+@@ -66,7 +66,6 @@ public class RawFetch extends ReactContextBaseJavaModule {
+     @ReactMethod
+     public void request(String urlString, String method, ReadableMap headers,
+                         String body, double maxRedirects, Promise promise) {
+-        Log.d(TAG, "request: " + method + " " + urlString);
+         executor.execute(() -> {
+             try {
+                 performRequest(urlString, method.toUpperCase(),
+@@ -140,7 +139,6 @@ public class RawFetch extends ReactContextBaseJavaModule {
+                 String location = respHeaders.get("location");
+                 if (location != null && !location.isEmpty()) {
+                     String nextUrl = resolveUrl(url, location);
+-                    Log.d(TAG, "redirect " + statusCode + " → " + nextUrl);
+                     performRequest(nextUrl, "GET", null, "", redirectsLeft - 1, promise);
+                     return;
+                 }
+@@ -254,7 +252,6 @@ public class RawFetch extends ReactContextBaseJavaModule {
+                 String location = respHeaders.get("location");
+                 if (location != null && !location.isEmpty()) {
+                     String nextUrl = resolveUrl(url, location);
+-                    Log.d(TAG, "redirect " + statusCode + " → " + nextUrl);
+                     performRequest(nextUrl, "GET", null, "", redirectsLeft - 1, promise);
+                     return;
+                 }
+diff --git a/node_modules/@msg91comm/sendotp-react-native/index.ts b/node_modules/@msg91comm/sendotp-react-native/index.ts
+index ac946f2..b136f72 100644
+--- a/node_modules/@msg91comm/sendotp-react-native/index.ts
++++ b/node_modules/@msg91comm/sendotp-react-native/index.ts
+@@ -201,7 +201,6 @@ export class OTPWidget {
+             const response = await ApiService.sendOTP(payload);
+             return response;
+         } catch (error) {
+-            console.error('Error sending OTP:', error);
+             throw error; // Re-throw the error to propagate it to the caller
+         }
+ 
+@@ -224,7 +223,6 @@ export class OTPWidget {
+             const response = await ApiService.verifyOTP(payload);
+             return response;
+         } catch (error) {
+-            console.error('Error verifying OTP:', error);
+             throw error; // Re-throw the error to propagate it to the caller
+         }
+ 
+@@ -248,7 +246,6 @@ export class OTPWidget {
+             const response = await ApiService.retryOTP(payload);
+             return response;
+         } catch (error) {
+-            console.error('Error sending retry OTP:', error);
+             throw error; // Re-throw the error to propagate it to the caller
+         }
+ 
+@@ -266,7 +263,6 @@ export class OTPWidget {
+             const response = await ApiService.getWidgetProcess(widgetId, tokenAuth);
+             return response;
+         } catch (error) {
+-            console.error('Error getting widget process:', error);
+             throw error; // Re-throw the error to propagate it to the caller
+         }
+ 
+@@ -282,7 +278,6 @@ export class OTPWidget {
+             const response = await ApiService.getTruecallerSession(widgetId, tokenAuth);
+             return response;
+         } catch (error) {
+-            console.error('Error getting Truecaller session:', error);
+             throw error;
+         }
+     }
+diff --git a/node_modules/@msg91comm/sendotp-react-native/ios/RawFetch.mm b/node_modules/@msg91comm/sendotp-react-native/ios/RawFetch.mm
+index c77853e..8cc4f73 100644
+--- a/node_modules/@msg91comm/sendotp-react-native/ios/RawFetch.mm
++++ b/node_modules/@msg91comm/sendotp-react-native/ios/RawFetch.mm
+@@ -49,7 +49,6 @@ + (BOOL)requiresMainQueueSetup { return NO; }
+                   rejecter:(RCTPromiseRejectBlock)reject)
+ {
+   @try {
+-    NSLog(@"[RawFetch] request: %@ %@", method, urlString);
+ 
+     NSURL *url = [NSURL URLWithString:urlString];
+     if (!url || !url.host) {
+@@ -182,7 +181,6 @@ - (void)performRequest:(NSURL *)url
+       @try {
+ 
+       if (state == nw_connection_state_ready) {
+-        NSLog(@"[RawFetch] connected → %@ %@", method, url.absoluteString);
+ 
+         NSData *copy = [requestData copy];
+         dispatch_data_t dispatchData = dispatch_data_create(
+@@ -305,7 +303,6 @@ - (void)performRequest:(NSURL *)url
+                     return;
+                   }
+ 
+-                  NSLog(@"[RawFetch] redirect %d → %@", statusCode, nextUrl.absoluteString);
+                   [self performRequest:nextUrl
+                                 method:@"GET"
+                           extraHeaders:@{}
+@@ -334,7 +331,6 @@ - (void)performRequest:(NSURL *)url
+           });
+ 
+       } else if (state == nw_connection_state_failed) {
+-        NSLog(@"[RawFetch] FAILED: %@", error);
+         nw_connection_cancel(connection);
+         dispatch_once(once, ^{
+           (void)retainedHolder;
+@@ -343,7 +339,6 @@ - (void)performRequest:(NSURL *)url
+         });
+ 
+       } else if (state == nw_connection_state_waiting) {
+-        NSLog(@"[RawFetch] WAITING: %@", error);
+         nw_connection_cancel(connection);
+         dispatch_once(once, ^{
+           (void)retainedHolder;

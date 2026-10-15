@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>Chauffer phone-width checks</title>
+  <style>
+    body {
+      margin: 24px;
+      background: #e7eaf0;
+      color: #242a38;
+      font: 16px system-ui;
+    }
+    h1 {
+      font-size: 22px;
+    }
+    main {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    iframe {
+      height: 760px;
+      border: 1px solid #c5ccda;
+      border-radius: 20px;
+      background: white;
+    }
+    p {
+      max-width: 760px;
+      line-height: 1.5;
+    }
+    label {
+      display: block;
+      margin: 12px 0;
+    }
+  </style>
+  <h1>Chauffer · browser layout checks</h1>
+  <p>
+    This shows the actual app at two phone widths. It does not test native
+    sign-in, cameras, keyboards or device networking. Start the Expo web preview
+    on port 8083 first.
+  </p>
+  <main>
+    <section>
+      <label>320 pixels</label
+      ><iframe
+        title="320-pixel mobile layout"
+        src="http://localhost:8083"
+        width="320"
+      ></iframe>
+    </section>
+    <section>
+      <label>390 pixels</label
+      ><iframe
+        title="390-pixel mobile layout"
+        src="http://localhost:8083"
+        width="390"
+      ></iframe>
+    </section>
+  </main>
+</html>
