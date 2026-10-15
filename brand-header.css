@@ -17,20 +17,42 @@
 .cs-brand .cs-logo-star { width: 44px; height: 44px; }
 .cs-nav .cs-logo-star { animation: brand-icon-turn 12s linear infinite; }
 .cs-brand-orbit > .cs-logo-mark { width: 52px; height: 52px; flex-basis: 52px; }
-.cs-logo-orbits { position: absolute; inset: 2px; animation: brand-orbit-turn 9s linear infinite; }
-.cs-logo-orbits i { position: absolute; inset: 2px; border: 1px solid #2950b859; border-radius: 50%; transform: rotate(-32deg) scaleX(.58); }
-.cs-logo-orbits i + i { transform: rotate(38deg) scaleX(.66); }
-.cs-logo-orbits b { position: absolute; width: 5px; height: 5px; border-radius: 50%; background: #2950b8; top: 0; left: calc(50% - 2.5px); box-shadow: 0 0 7px #2950b833; }
 .cs-conversation-top .cs-brand > .cs-logo-name { font-size: 22px; }
 .cs-conversation-top .cs-logo-mark { width: 32px; height: 32px; flex-basis: 32px; }
 .cs-conversation-top .cs-logo-star { width: 32px; height: 32px; }
-.chauffeur-site:has(.scene-paused) .cs-nav :is(.cs-logo-star,.cs-logo-orbits) { animation-play-state: paused; }
-@keyframes brand-orbit-turn { to { transform: rotate(-360deg); } }
+.chauffeur-site:has(.scene-paused) .cs-nav :is(.cs-logo-star,.cs-bag-body,.cs-bag-handle,.cs-bag-spark) { animation-play-state: paused; }
+
 @media(max-width:760px) {
   .cs-nav { height: 62px; gap: 12px; }
   .cs-nav .cs-brand > .cs-logo-name { font-size: 23px; }
   .cs-nav .cs-button-small { padding: 9px 12px; }
 }
 @media(prefers-reduced-motion:reduce) {
-  .cs-nav :is(.cs-logo-star,.cs-logo-orbits) { animation: none; }
+  .cs-nav :is(.cs-logo-star,.cs-bag-body,.cs-bag-handle,.cs-bag-spark) { animation: none; }
+}
+/* Asterisk-to-bag loop: a deliberate hold lets the shopping silhouette read. */
+.cs-bag-morph {
+  --logo-star: polygon(50% 3%,58% 29%,83% 17%,71% 42%,97% 50%,71% 58%,83% 83%,58% 71%,50% 97%,42% 71%,17% 83%,29% 58%,3% 50%,29% 42%,17% 17%,42% 29%);
+  --logo-bag: polygon(50% 30%,70% 30%,84% 30%,87% 38%,91% 80%,90% 88%,84% 94%,65% 94%,50% 94%,35% 94%,16% 94%,10% 88%,9% 80%,13% 38%,16% 30%,30% 30%);
+  position: relative; display: block; width: 44px; height: 44px;
+}
+.cs-bag-body { position: absolute; inset: 0; background: #2950B8; clip-path: var(--logo-bag); animation: bag-shape 7s cubic-bezier(.65,0,.25,1) infinite; }
+.cs-bag-handle { position: absolute; width: 18px; height: 19px; border: 3px solid #2950B8; border-bottom: 0; border-radius: 12px 12px 0 0; left: 13px; top: 2px; transform-origin: center bottom; animation: bag-handle 7s cubic-bezier(.65,0,.25,1) infinite; }
+.cs-brand .cs-bag-spark { position: absolute; width: 19px; height: 19px; left: 12.5px; top: 19px; color: white; animation: bag-spark 7s ease-in-out infinite; }
+@keyframes bag-shape {
+  0%,15% { clip-path: var(--logo-star); transform: rotate(0deg) scale(.83); }
+  30% { clip-path: var(--logo-star); transform: rotate(180deg) scale(.7); }
+  44%,72% { clip-path: var(--logo-bag); transform: rotate(360deg) scale(1); }
+  90%,100% { clip-path: var(--logo-star); transform: rotate(360deg) scale(.83); }
+}
+@keyframes bag-handle {
+  0%,31%,88%,100% { opacity: 0; transform: translateY(12px) scale(.45); }
+  44%,72% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes bag-spark {
+  0%,36%,85%,100% { opacity: 0; transform: scale(.3) rotate(-45deg); }
+  48%,70% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+@media(prefers-reduced-motion:reduce) {
+  .cs-nav :is(.cs-bag-body,.cs-bag-handle,.cs-bag-spark) { animation: none; }
 }

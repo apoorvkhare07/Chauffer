@@ -248,3 +248,6 @@ Reference: https://mobbin.com/screens/f1a261c2-eba3-40dc-a564-89e79621f243 (Meet
 
 ### Compact header and logo alternatives
 Marketing header is 68px desktop / 62px phone (previously 100px / 80px). Default mark pairs a larger rotating asterisk with the requested “chauffer” text in Inter, without AI. At `/?logo=orbit`, the header uses only the rotating icon with counter-rotating elliptical rings and a satellite dot, inspired by the supplied SVGator Pinterest reference. Reduced-motion settings disable both rotations; hero pause pauses them too.
+
+### Shopping-bag logo trial
+The alternate header at `/?logo=orbit` now replaces orbit rings with a seven-second blue star-to-shopping-bag transformation, inspired by https://in.pinterest.com/pin/946178202959543661/. The bag holds with a white sparkle before returning to the star. The named default logo stays as-is. Reduced motion shows a static bag; the hero pause control pauses all three animated parts.

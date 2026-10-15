@@ -278,3 +278,6 @@ Verified primary rgb(41,80,184) (#2950B8) and homepage appearance in browser. Al
 
 ### Compact header and logo variants
 All 90 tests and build passed. Browser reviewed both desktop versions and the orbit variant at 390px. Confirmed header height of 68px on desktop and changing orbit transforms. Both animations include reduced-motion and existing pause handling.
+
+### Shopping-bag logo trial
+All 90 tests and production build passed. Visually checked both star and bag phases on desktop, phone header at 390px (62px high), and confirmed pause freezes the animation. Reduced-motion styling uses a static bag.

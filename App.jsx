@@ -13,8 +13,7 @@ const liveLink = text => text ? `/app/?q=${encodeURIComponent(text)}` : '/app/';
 function Brand({ orbit = false }) {
   return <a className={`cs-brand${orbit ? ' cs-brand-orbit' : ''}`} href={orbit ? '/?logo=orbit' : '/'} aria-label="Chauffer home">
     <span className="cs-logo-mark" aria-hidden="true">
-      <Asterisk className="cs-logo-star" size={44} strokeWidth={1.8}/>
-      {orbit && <span className="cs-logo-orbits"><i/><i/><b/></span>}
+      {orbit ? <span className="cs-bag-morph"><span className="cs-bag-handle"/><span className="cs-bag-body"/><Asterisk className="cs-bag-spark" size={19} strokeWidth={2.5}/></span> : <Asterisk className="cs-logo-star" size={44} strokeWidth={1.8}/>}
     </span>
     {!orbit && <span className="cs-logo-name">chauffer</span>}
   </a>;
