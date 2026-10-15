@@ -5,6 +5,8 @@ import {chooseBatch} from './ranking';
 import {tasteValidator,emptyTaste,type Taste} from './taste';
 import {amazonOptions,meeshoOptions} from './storeExtractors';
 import {retailOptions} from './retailExtractors';
+import {browserPage} from './browserPages';
+import {renderedOptions} from './renderedRetail';
 import { load } from 'cheerio';
 import { internalAction,action } from './_generated/server';
 import { internal } from './_generated/api';
@@ -112,6 +114,21 @@ export async function discoverAcrossStores(requirements:Requirements,excludeUrls
    }
    return {options,result:{store,status:options.length?'matched':'no_matches',searchUrl} as StoreResult};
   }catch(error){console.warn('Store discovery unavailable',store,error instanceof Error?error.message.slice(0,120):'Unknown response');return {options:[] as Option[],result:{store,status:'unavailable',searchUrl} as StoreResult};}
+ }));
+ // Direct readers stay first. Spend browser calls only on the four sources that
+ // passed real access checks, and only when direct evidence was unreadable.
+ // Two at a time matches the free account's concurrency, max one page per store.
+ const eligible=new Set(['Flipkart','AJIO','Bewakoof','The Souled Store']);
+ const recoveries=process.env.BROWSERLESS_API_KEY?results.filter(x=>x.result.status==='unavailable'&&eligible.has(x.result.store)):[];
+ for(let offset=0;offset<recoveries.length;offset+=2)await Promise.all(recoveries.slice(offset,offset+2).map(async entry=>{
+  try{
+   const {html,targetHttpStatus}=await browserPage(entry.result.store,entry.result.searchUrl);
+   if(targetHttpStatus&&targetHttpStatus>=400)return;
+   const found=renderedOptions(entry.result.store,html,requirements,Date.now(),excludeUrls);
+   if(!found.readable)return;
+   entry.options=found.options;entry.result.status=found.options.length?'matched':'no_matches';
+   console.info('Store browser recovery',entry.result.store,entry.result.status,found.options.length);
+  }catch{/* Preserve the store's unavailable state; no raw provider URLs in logs. */}
  }));
  const options=chooseBatch(results.flatMap(x=>x.options),requirements,taste,perStoreLimit);
  return {options,failed:results.every(x=>x.result.status==='unavailable'),stores:results.map(x=>x.result)};
