@@ -23,6 +23,7 @@ import type * as crons from "../crons.js";
 import type * as dailyFeed from "../dailyFeed.js";
 import type * as dailyFeedWorker from "../dailyFeedWorker.js";
 import type * as dailyFeedWorkflow from "../dailyFeedWorkflow.js";
+import type * as discoveryPolicy from "../discoveryPolicy.js";
 import type * as discoveryRules from "../discoveryRules.js";
 import type * as discoveryWorkflow from "../discoveryWorkflow.js";
 import type * as fashionRules from "../fashionRules.js";
@@ -97,6 +98,7 @@ declare const fullApi: ApiFromModules<{
   dailyFeed: typeof dailyFeed;
   dailyFeedWorker: typeof dailyFeedWorker;
   dailyFeedWorkflow: typeof dailyFeedWorkflow;
+  discoveryPolicy: typeof discoveryPolicy;
   discoveryRules: typeof discoveryRules;
   discoveryWorkflow: typeof discoveryWorkflow;
   fashionRules: typeof fashionRules;

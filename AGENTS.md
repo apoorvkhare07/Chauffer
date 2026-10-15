@@ -63,3 +63,8 @@
 The builder’s current instructions take priority. Idea-lock.md defines the idea; PRODUCT.md defines V1; DESIGN.md defines current visuals. README.md/TESTING_LEDGER.md retain implementation evidence. `docs/history/` and older `design/direction.md`/`style-anchor.md` are historical where they conflict with the current blue/Inter identity or live app.
 
 Adapted from [GrowthX Tech thinking](https://growthx.club/learn/build-sprint#/tech-thinking), all four chapters read 15 October 2026, while preserving the builder’s working rules. No new audit, spending-limit configuration, Shaktimaan approval or production acceptance is claimed.
+
+## Discovery decisions
+- Read DISCOVERY.md when changing discovery. The current Convex Agent plans intent; discoveryPolicy.ts enforces brand consent/questions and spending preference; store readers provide evidence; ranking.ts builds the shortlist. Future discovery/stylist/wardrobe coordination is not connected yet.
+- A maximum budget defaults to a soft 60–100% spending band. In-band evidence ranks before cheaper alternatives, without exceeding the ceiling or claiming higher prices mean higher quality. Explicit cheapest requests change ordering; do not silently change maximum budget. No supplied guest budget means no inferred spending target.
+- A chosen brand is a hard constraint. Ask one brand question for footwear budgets ≥₹3,000 after required fields, and allow open-to-all. Never assume consent to a suggested brand. Keep brand/size/budget in refinements, clear incompatible brand on new category, and use existing bounded store retrieval rather than duplicate agent searches.

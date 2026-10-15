@@ -239,3 +239,6 @@ Signed-in production Chrome sneaker search (men, UK 8, ₹5,000, retained style 
 ### Smarter discovery — 15 October 2026
 
 See [DISCOVERY.md](DISCOVERY.md) for the current discovery agent and planned specialist handoffs. A budget now guides a preferred spending band, rather than always selecting the cheapest readable products: ₹5,000 favours ₹3,000–5,000, with explicitly described cheaper fallbacks. Selected brand is preserved and enforced. High-budget footwear asks one brand question before signed-in search; Nike/Adidas/Puma/open choices are clickable. “Cheapest options” and “best within budget” switch ordering without silently changing the ceiling. Price is not treated as proof of quality; size stock and checkout totals remain unverified.
+
+
+Live verification: the brand question → Nike flow returned six Nike choices at ₹3,497–4,248 under ₹5,000, preserving UK 8. Women's dresses under ₹3,000 now put five ₹1,840–2,948 picks before a cheaper fallback; men's casual shirts under ₹2,500 returned six ₹1,565–1,869 choices. All 136 tests, backend types and build pass. The changed flow is deployed and checked in Chrome; detailed evidence is in TESTING_LEDGER.md. This establishes budget/brand relevance, not product quality, authenticity or size stock.
