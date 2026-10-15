@@ -264,3 +264,6 @@ Checks: 86 tests and the frontend build passed. Browser verified hero photos/fra
 - Story now selects discrete chapters, with 150–180ms transitions and a 130ms scroll-settle snap to the nearest chapter. Background depth movement remains; entry/exit edges are free to leave the section.
 - Verified exact primary button colour rgb(27,153,157), desktop chapter settling and phone banner appearance. All 90 tests and build passed.
 - Teal palette applied to marketing styles only; account/demo styles remain separate.
+
+### Purple palette restoration
+Restored the exact pre-teal marketing styles while retaining chapter snap logic and short transitions. Browser verified primary #7956a3; 90 tests and build passed.

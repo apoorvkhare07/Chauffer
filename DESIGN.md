@@ -236,3 +236,6 @@ The first story scene is an occasion, not another product shortlist: a Monday ca
 
 ### Primary colour and story snap
 Marketing primary is #1b999d, supported by pale teal surfaces and darker teal text. Buttons use dark ink for readability. The shopping story now lands on discrete chapters with short transitions and snaps to the nearest chapter after scrolling pauses, retaining subtle layered movement.
+
+### Purple restored
+The previous purple palette is restored, superseding the teal colour decision above. Snappy chapter transitions and scroll settling remain in place.
