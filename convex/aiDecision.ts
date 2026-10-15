@@ -1,4 +1,4 @@
-import {discoveryFields} from './discoveryQuestions';
+import {discoveryFields,discoveryQuestionValidator} from './discoveryQuestions';
 import {explicitDiscovery,namedBrands} from './discoveryPolicy';
 import {requestedAudience,fashionCategories,validSize,sizeQuestion,sizeKind} from './fashionRules';
 import {z} from 'zod';
@@ -10,15 +10,16 @@ const nullable=z.string().max(80).nullable();
 export const decisionSchema=z.object({
  intent:z.enum(['search','refine','more','feedback','chat','remember','forget']),
  reply:z.string().min(1).max(600),
+ question:z.object({field:z.enum(['occasion','style','pattern','fit','colour','fabric','brand']),question:z.string().min(1).max(240),choices:z.array(z.object({label:z.string().min(1).max(40),text:z.string().min(1).max(100),value:z.string().min(1).max(60)})).min(2).max(4)}).nullable().optional(),
  requirements:z.object({brand:z.string().max(60).nullable().optional(),pricePreference:z.enum(['best_within_budget','lowest_price']).nullable().optional(),category:z.enum(fashionCategories).nullable(),audience:z.enum(['men','women','unisex']).nullable().optional(),budget:z.number().min(100).max(50000).nullable(),size:z.string().max(30).nullable(),colour:nullable,fabric:nullable,occasion:nullable,style:nullable,fit:nullable,pattern:nullable,sleeve:nullable,length:nullable,mustHave:z.array(z.string().min(2).max(40)).max(5)}),
  taste:z.object({prefer:z.array(z.string().min(2).max(40)).max(10),avoid:z.array(z.string().min(2).max(40)).max(10)}),
  referenceOption:z.number().int().min(1).max(6).nullable(),
  feedbackKind:z.enum(['like','dislike','refine']).nullable(),
 });
-export const decisionValidator=v.object({intent:v.union(v.literal('search'),v.literal('refine'),v.literal('more'),v.literal('feedback'),v.literal('chat'),v.literal('remember'),v.literal('forget')),reply:v.string(),requirements:requirementsValidator,taste:tasteValidator,referenceOption:v.optional(v.number()),feedbackKind:v.optional(v.union(v.literal('like'),v.literal('dislike'),v.literal('refine')))});
+export const decisionValidator=v.object({intent:v.union(v.literal('search'),v.literal('refine'),v.literal('more'),v.literal('feedback'),v.literal('chat'),v.literal('remember'),v.literal('forget')),reply:v.string(),question:v.optional(discoveryQuestionValidator),requirements:requirementsValidator,taste:tasteValidator,referenceOption:v.optional(v.number()),feedbackKind:v.optional(v.union(v.literal('like'),v.literal('dislike'),v.literal('refine')))});
 export type Decision=Infer<typeof decisionValidator>;
 export function normalizeDecision(raw:unknown,previous:Requirements,taste:Taste,text=""):Decision{
- const value=decisionSchema.parse(raw);const named=namedBrands(text);if(named.length>1){value.intent='chat';value.reply=`Which brand should I search first: ${named.join(' or ')}?`;}const requirements=Object.fromEntries(Object.entries(value.requirements).filter(([,v])=>v!==null)) as Requirements;
+ const value=decisionSchema.parse(raw);const named=namedBrands(text);if(named.length>1){value.intent='chat';value.reply=`Which brand should I search first: ${named.join(' or ')}?`;value.question={field:'brand',question:value.reply,choices:named.map(brand=>({label:brand,text:brand,value:brand}))};}const requirements=Object.fromEntries(Object.entries(value.requirements).filter(([,v])=>v!==null)) as Requirements;
  // Carry the active chat's confirmed attributes when a short refinement omits them.
  const sameItem=!requirements.category||requirements.category===previous.category;
  for(const field of ['category','budget','size','colour','fabric','occasion','style','fit','pattern','sleeve','length'] as const){if(requirements[field]===undefined&&previous[field]!==undefined&&(sameItem||field==='budget'))(requirements as any)[field]=previous[field];}
@@ -86,7 +87,7 @@ export function normalizeDecision(raw:unknown,previous:Requirements,taste:Taste,
   }
  }
  for(const field of ['fit','pattern','style','occasion'] as const){if(new RegExp(`\\b(?:any ${field}|no ${field} preference|no preference for ${field})\\b`,'i').test(text)){const old=previous[field];delete planned[field];if(old){planned.mustHave=planned.mustHave?.filter(term=>term!==old);plannedTaste.prefer=plannedTaste.prefer.filter(term=>term!==old);}}}
- return {intent:value.intent,reply:value.reply,requirements:planned,taste:plannedTaste,...(value.referenceOption!==null?{referenceOption:value.referenceOption}:{}),...(value.feedbackKind?{feedbackKind:value.feedbackKind}:{})};
+ return {intent:value.intent,reply:value.reply,...(value.intent==='chat'&&value.question?{question:value.question}:{}),requirements:planned,taste:plannedTaste,...(value.referenceOption!==null?{referenceOption:value.referenceOption}:{}),...(value.feedbackKind?{feedbackKind:value.feedbackKind}:{})};
 }
 export function missingQuestion(r:Requirements):string|null{
  if(!r.category)return 'What would you like: clothing, shoes or accessories?';

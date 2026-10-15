@@ -178,3 +178,29 @@ test('a new For you search starts fresh while keeping saved preferences and prio
  expect((await user.query(api.conversations.history,{})).sessions[0].preview).toBe('Old gift search');
  expect((await t.run(ctx=>ctx.db.get(id)))?.session).toBe(1);
 });
+
+
+test('multi-brand refinement supplies selectable choices and keeps new budget and dislikes until an answer',async()=>{
+ const {t,user}=setup();
+ const previous={category:'sneakers',audience:'men' as const,budget:3000,size:'UK 8',occasion:'everyday',askedDiscoveryFields:['occasion','style']};
+ const id=await t.run(ctx=>ctx.db.insert('conversations',{key:'web:alice',requirements:previous,taste:{prefer:[],avoid:[]},revision:1,session:0,pending:true,aiTurn:true,inputText:'Avoid USPA, show Nike and Puma, can go to 4000',shownUrls:[],rejectedUrls:[],updatedAt:Date.now()}));
+ const decision=normalizeDecision(reply('refine',{requirements:{...fullRequirements,...previous,budget:4000,colour:null,fit:null,pattern:null,occasion:'everyday'},taste:{prefer:[],avoid:['U.S. Polo Assn.']}}),previous,{prefer:[],avoid:[]},'Avoid USPA, show Nike and Puma, can go to 4000');
+ expect(decision.question?.choices.map(c=>c.label)).toEqual(['Nike','Puma']);
+ await t.mutation(internal.aiConversations.apply,{conversationId:id,revision:1,decision});
+ let c=await user.query(api.conversations.current,{});
+ expect(c.discoveryQuestion?.field).toBe('brand');expect(c.requirements.budget).toBe(4000);expect(c.requirements.brand).toBeUndefined();
+ expect(c.messages.at(-1)?.text).toContain('₹4,000');expect(c.messages.at(-1)?.text?.toLowerCase()).toContain('u.s. polo assn.');
+ const {beginTurn}=await import('./conversationCore');
+ const turn=await t.run(async ctx=>beginTurn(ctx,(await ctx.db.get(id))!,'Nike'));
+ expect(turn.aiRequested).toBe(false);expect(turn.search).toBe(true);expect(turn.requirements).toMatchObject({brand:'Nike',budget:4000,size:'UK 8',occasion:'everyday'});
+ expect((await t.run(ctx=>ctx.db.get(id)))?.taste?.avoid).toEqual(['u.s. polo assn.']);
+});
+
+test('AI clarification keeps structured colour answers without applying an unchosen suggestion',async()=>{
+ const {t,user}=setup();const previous={category:'sneakers',budget:3000,size:'UK 8',occasion:'everyday'};
+ const id=await t.run(ctx=>ctx.db.insert('conversations',{key:'web:alice',requirements:previous,revision:1,session:0,pending:true,aiTurn:true,inputText:'Help me choose a colour before searching',shownUrls:[],rejectedUrls:[],updatedAt:Date.now()}));
+ const question={field:'colour',question:'Would you prefer black or white?',choices:[{label:'Black',text:'I prefer black',value:'black'},{label:'White',text:'I prefer white',value:'white'}]};
+ const decision=normalizeDecision(reply('chat',{requirements:{...fullRequirements,...previous,colour:null,fit:null,pattern:null},taste:{prefer:[],avoid:[]},reply:question.question,question}),previous,{prefer:[],avoid:[]},'Help me choose a colour before searching');
+ await t.mutation(internal.aiConversations.apply,{conversationId:id,revision:1,decision});
+ const c=await user.query(api.conversations.current,{});expect(c.discoveryQuestion).toEqual(question);expect(c.requirements.colour).toBeUndefined();expect(c.pending).toBe(false);
+});

@@ -1,3 +1,4 @@
+import {discoveryUpdate} from './discoveryUpdate';
 import {nextDiscoveryQuestion,shouldClarifyBefore,discoveryQuestionValidator} from './discoveryQuestions';
 import {preferences} from './schema';
 import {internalQuery,internalMutation} from './_generated/server';
@@ -42,10 +43,13 @@ export const apply=internalMutation({args:{conversationId:v.id('conversations'),
    if(profile)await ctx.db.patch(profile._id,{taste,preferences,updatedAt:Date.now()});else await ctx.db.insert('profiles',{owner,preferences,taste,updatedAt:Date.now()});reply=decision.intent==='forget'?'I’ve cleared your remembered taste preferences. Your saved size and budget stay in account settings.':'I’ll remember your budget, taste and any letter-based clothing size. Shoe and waist sizes stay in this conversation.';}
   else reply=decision.intent==='remember'?'I’ll keep these preferences for this WhatsApp conversation. Linking your account for memory across channels isn’t connected yet.':'I’ve cleared the taste preferences for this WhatsApp conversation.';
  }
- let discoveryQuestion;
+ let discoveryQuestion=!search&&!missing?decision.question:undefined;
  if(search&&!missing&&decision.intent==='search'&&!c.discoveryQuestion&&shouldClarifyBefore(decision.requirements)&&!/no questions|don.t ask|just (?:search|show)|show (?:me )?options/i.test(c.inputText??'')){
-  discoveryQuestion=nextDiscoveryQuestion(decision.requirements,[],taste);if(discoveryQuestion){search=false;reply=discoveryQuestion.question;decision.requirements.askedDiscoveryFields=[discoveryQuestion.field];}
+  discoveryQuestion=nextDiscoveryQuestion(decision.requirements,[],taste)??undefined;if(discoveryQuestion){search=false;reply=discoveryQuestion.question;decision.requirements.askedDiscoveryFields=[discoveryQuestion.field];}
  }
+ if(discoveryQuestion){reply=discoveryQuestion.question;decision.requirements.askedDiscoveryFields=[...new Set([...(decision.requirements.askedDiscoveryFields??[]),discoveryQuestion.field])];}
+ const update=discoveryUpdate(c.requirements,decision.requirements,c.taste??emptyTaste,taste);
+ if(update&&!wantsMemory&&!missing)reply=search?`${update} I’ll search with these changes and keep the other details.`:`${update} ${reply}`;
  if(!search&&claimId)await ctx.db.patch(claimId,{finishedAt:Date.now()});
  await ctx.db.patch(conversationId,{discoveryStatus:search?'refining':c.discoveryStatus??'exploring',discoveryQuestion:discoveryQuestion??undefined,requirements:decision.requirements,taste,rejectedUrls:rejected,shownUrls:[...new Set([...recent.slice().reverse().flatMap(m=>m.result?.options.map(o=>o.url)??[]),...c.shownUrls])].slice(-120),pending:search,aiTurn:false,updatedAt:Date.now()});
  await ctx.db.insert('messages',{conversationId,session:c.session,role:'assistant',text:reply,ai:true});
