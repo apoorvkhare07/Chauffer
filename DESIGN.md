@@ -230,3 +230,6 @@ All marketing sections now share centred introductions, a consistent heading sca
 
 ### Continuous shopping story (replaces the carousel)
 The shopping sequence now follows vertical page scroll, inspired by the layered scene transitions in the supplied Pinterest reference. Four real fashion photos persist across five compositions rather than swapping whole slides. Text and assistant/review overlays fade in as the photos rearrange. No horizontal slider, arrows or placeholder garment drawings remain. The centre alignment, lavender palette, photo framing and typography match the banner and wardrobe section. Reduced-motion preferences and screens under 600px tall receive five normal stacked scenes.
+
+### Distinct occasion opening and parallax depth
+The first story scene is an occasion, not another product shortlist: a Monday calendar and a personal thought sit in front of two real outfit photos. Original five-step labels and narrative are restored, including labelled sample prices and the planned approval review. Parallax offsets move background, foreground photos and notes at different rates while preserving the shared centred design.

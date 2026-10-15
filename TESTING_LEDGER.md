@@ -254,3 +254,8 @@ Checks: 86 tests and the frontend build passed. Browser verified hero photos/fra
 - Inspected the supplied Pinterest animation in browser. Replaced the shopping carousel and garment SVG placeholders with continuously moving real-photo cards and conversation/comparison/buying overlays.
 - Browser checked vertical keyboard scrolling through all five stages in sequence, phone-sized scene layout and the five stacked scenes on a short landscape screen.
 - All 90 existing tests passed; build passed. Real-device finger scrolling and reduced-motion OS setting still need a device check (short-screen fallback uses the same static rendering).
+
+### Original five-step content and parallax restoration
+- Restored the occasion/calendar opening, office-look conversation, discovery, illustrative price comparison and final size/address/total review. Checkout remains explicitly planned; sample comparison prices are fictional.
+- Added different scroll speeds for background, photos, calendar and thought bubble, with continuous offsets (no midpoint position jumps).
+- Checked the distinct first scene at phone size and original chapter text through native page scrolling. Existing 90 tests and build passed; production build also runs during deployment.
