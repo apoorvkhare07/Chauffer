@@ -28,3 +28,8 @@
   .fashion-loader :is(.fashion-loader-orbit,.fashion-loader-node,.fashion-loader-upright,.fashion-loader-core svg) { animation:none; }
   .fashion-loader .fashion-loader-node { transform:translate(var(--x),var(--y)); opacity:1; }
 }
+/* Decorative version opens once, then keeps orbiting without collapsing. */
+.fashion-loader-sustained .fashion-loader-node { animation-name:loader-unfold; animation-duration:1.8s; animation-iteration-count:1; animation-fill-mode:both; }
+.fashion-loader-sustained .fashion-loader-core svg { animation:loader-orbit 8s linear infinite; }
+@keyframes loader-unfold { from { transform:translate(0,0) scale(.2) rotate(-35deg); opacity:0; } to { transform:translate(var(--x),var(--y)) scale(1); opacity:1; } }
+@media(prefers-reduced-motion:reduce) { .fashion-loader-sustained :is(.fashion-loader-node,.fashion-loader-core svg) { animation:none; } }

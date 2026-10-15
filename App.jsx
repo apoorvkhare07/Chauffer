@@ -1,7 +1,8 @@
+import ShoppingFinale from './ShoppingFinale.jsx';
 import BrandAssetsPreview from './brand/BrandAssetsPreview.jsx';
 import Brand from './Brand.jsx';
 import InfoPages from './InfoPages.jsx';
-import { SiteHeader, SiteFooter } from './SiteChrome.jsx';
+import { SiteHeader } from './SiteChrome.jsx';
 import React, { useState } from 'react';
 import { LoaderPreview } from './FashionLoader.jsx';
 import WardrobeSpiral from './WardrobeSpiral.jsx';
@@ -31,7 +32,6 @@ export default function App() {
       <section className="cs-store-band"><div className="cs-wrap"><p>Your next find could be anywhere.</p><div className="cs-store-names"><span>Flipkart</span><span>amazon<span className="cs-amazon-line"/></span></div><p className="cs-store-note">Live discovery on Flipkart and Amazon. Buy directly on the store.</p></div></section>
       {/* Conversation example hidden for now. */}
       {false && (<section className="cs-discovery" id="discovery"><div className="cs-wrap cs-discovery-inner"><div className="cs-discovery-copy"><p className="cs-eyebrow">Your style, in your own words</p><h2>Shop by talking.<br/><em>Find more of you.</em></h2><p>Start with your day, your style or a piece you own. Your assistant helps you explore—and listens when you change your mind.</p><div className="cs-scenario-tabs" role="group" aria-label="Conversation examples">{scenarios.map((s,i)=><button key={s.name} type="button" aria-pressed={selected===i} onClick={()=>setSelected(i)}>{s.name}</button>)}</div></div><div className="cs-conversation"><div className="cs-conversation-top"><Brand/><span>Example shopping chat</span></div><div className="cs-example-user"><span>You</span><p>{example.request}</p></div><div className="cs-example-assistant" aria-live="polite"><span><Asterisk size={15}/>Chauffeur</span><p>{example.reply}</p><div className="cs-tags">{example.tags.map(t=><span key={t}>{t}</span>)}</div></div><div className="cs-example-feedback"><SlidersHorizontal size={16}/><span>“Less formal. Something with a small print.”</span></div><p className="cs-example-caption">An example of the flow. Live results vary by request and store access.</p></div><a className="cs-button cs-discovery-cta" href={liveLink(example.request)}>Try this conversation <ArrowUpRight size={17}/></a></div></section>)}
-      <section className="cs-closing cs-wrap"><Asterisk size={38}/><h2>Your next favourite<br/>starts with <em>a conversation.</em></h2><p>Find your next favourite. Rediscover your wardrobe. Make fashion feel more like you.</p><a className="cs-button" href="/app/">Chat to shop <MessageCircle size={18}/></a></section>
-    </main><SiteFooter/>
+    </main><ShoppingFinale liveLink={liveLink}/>
   </div>;
 }

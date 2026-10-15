@@ -3,12 +3,12 @@ import { Asterisk, ShoppingBag, CreditCard, ScanFace, Tags, Heart, Pause, Play }
 import './fashion-loader.css';
 function Hanger(props) { return <svg {...props} width={props.size} height={props.size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6a3 3 0 1 1 4 2.83V11l8 5a1.1 1.1 0 0 1-.6 2H3.6a1.1 1.1 0 0 1-.6-2l10-6"/></svg>; }
 const symbols = [ShoppingBag, CreditCard, Hanger, ScanFace, Tags, Heart];
-export default function FashionLoader({ label = 'Getting things ready…', compact = false, paused = false }) {
-  return <div className={`fashion-loader${compact?' fashion-loader-compact':''}${paused?' fashion-loader-paused':''}`} role="status" aria-live="polite">
+export default function FashionLoader({ label = 'Getting things ready…', compact = false, paused = false, sustained = false, decorative = false }) {
+  return <div className={`fashion-loader${compact?' fashion-loader-compact':''}${paused?' fashion-loader-paused':''}${sustained?' fashion-loader-sustained':''}`} role={decorative ? undefined : "status"} aria-live={decorative ? undefined : "polite"}>
     <div className="fashion-loader-stage" aria-hidden="true"><div className="fashion-loader-orbit">
       {symbols.map((Icon,index)=>{const angle=(-90+index*60)*Math.PI/180;return <div key={index} className="fashion-loader-node" style={{'--x':`${Math.cos(angle)*102}px`,'--y':`${Math.sin(angle)*102}px`,'--delay':`${index*.11}s`}}><div className="fashion-loader-upright"><div className="fashion-loader-tile"><Icon size={27}/></div></div></div>;})}
     </div><div className="fashion-loader-core"><Asterisk size={68} strokeWidth={1.6}/></div></div>
-    <p className="fashion-loader-label">{label}</p>
+    {label && <p className="fashion-loader-label">{label}</p>}
   </div>;
 }
 export function LoaderPreview() {
