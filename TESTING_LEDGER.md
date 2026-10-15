@@ -284,3 +284,6 @@ All 90 tests and production build passed. Visually checked both star and bag pha
 
 ### Continuous loop and named wordmark
 All 90 tests and build passed. Browser checked original six-spoke and bag phases, Inter wordmark and exact blue dot, and combined header at 390px. Final rotation easing keeps the bag upright during its central phase; reduced-motion/pause handling retained.
+
+### Six-feature loader
+All 90 tests passed. Browser verified six tiles, expanding/collapsing phases, working pause/play, and 390px phone layout without horizontal overflow. Loader replaces existing account/sign-in pending messages without changing account logic or adding delays. Preview is available at `/?preview=loader`. Real account-loading transitions were not manually exercised in this design pass.

@@ -254,3 +254,6 @@ The alternate header at `/?logo=orbit` now replaces orbit rings with a seven-sec
 
 ### Continuous named shopping mark
 The default header now uses the original six-spoke line asterisk flowing into an outlined shopping bag and back on an eight-second repeating loop. The turning motion eases while the bag forms so its silhouette stays readable. The adjacent wordmark reads “chauffer.” in Inter, with the full stop in primary blue #2950B8. This replaces the spiky-star trial and makes the combined mark the main header logo.
+
+### Six-feature fashion loader
+Reusable `FashionLoader.jsx` uses the original rotating six-spoke icon surrounded by six emerging blue/white tiles: shopping bag, payment card, hanger, virtual try-on, offers and favourites. Tiles orbit with upright symbols, then return to the centre in a repeating loop inspired by https://in.pinterest.com/pin/51158145761837698/. Preview at `/?preview=loader` includes pause/play; actual account/sign-in loading uses the component without forced delays. Reduced-motion users see a static composition; accessible status text describes the real pending task. Feature symbols are conceptual and do not claim checkout or virtual try-on completion.

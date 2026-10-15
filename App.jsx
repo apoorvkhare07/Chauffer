@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { LoaderPreview } from './FashionLoader.jsx';
 import ShoppingJourney from './ShoppingJourney.jsx';
 import WardrobeSpiral from './WardrobeSpiral.jsx';
 import FashionHero from './FashionHero.jsx';
@@ -21,6 +22,7 @@ function Brand({ orbit = false }) {
 export default function App() {
   const [selected,setSelected]=useState(0);
   const example=scenarios[selected];
+  if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('preview') === 'loader') return <LoaderPreview/>;
   return <div className="chauffeur-site">
     <a className="skip-link" href="#main-content">Skip to content</a>
     <header className="cs-nav cs-wrap"><Brand orbit/><nav aria-label="Main navigation"><a href="#how-it-works">How it works</a><a href="#shop-by-occasion">Shopping ideas</a><a href="#the-details">Questions</a></nav><a className="cs-button cs-button-small" href="/app/">Chat to shop <MessageCircle size={16}/></a></header>
