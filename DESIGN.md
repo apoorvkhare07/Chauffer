@@ -242,3 +242,6 @@ The previous purple palette is restored, superseding the teal colour decision ab
 
 ### Current primary: blue
 Primary colour is now #2950B8, with coordinated blue accents and pale surfaces. This supersedes the purple palette choice; motion and layout are preserved.
+
+### Meetup-inspired typography trial
+Reference: https://mobbin.com/screens/f1a261c2-eba3-40dc-a564-89e79621f243 (Meetup). The current Meetup homepage declares NeuSans at weight 700 for the hero and 400 for body copy, with Inter as fallback. NeuSans requires a commercial licence; this trial uses self-hosted, SIL-licensed Inter for website headings, body and controls. Headings use bold upright type instead of decorative serif italics. The Chauffeur wordmark retains its brand face. This supersedes the previous marketing typography; app/demo remain separate.

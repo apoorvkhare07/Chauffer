@@ -270,3 +270,8 @@ Restored the exact pre-teal marketing styles while retaining chapter snap logic 
 
 ### Blue palette trial
 Verified primary rgb(41,80,184) (#2950B8) and homepage appearance in browser. All 90 tests and build passed. Only marketing palette styles changed.
+
+### Meetup typography trial
+- Inspected the Mobbin screenshot and Meetup live heading/body computed font styles.
+- Installed self-hosted Inter with its SIL licence; this is an alternative to commercial NeuSans, not an exact font match.
+- All 90 tests and production build passed. Desktop hero visually reviewed; phone story card and banner reviewed, no horizontal page overflow at 390px.

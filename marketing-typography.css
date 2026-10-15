@@ -1,0 +1,35 @@
+/* Meetup-inspired typography. Inter is its open-source fallback, not NeuSans. */
+@font-face {
+  font-family: Inter;
+  src: url('/fonts/inter-variable.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+.chauffeur-site {
+  font-family: Inter, system-ui, sans-serif;
+  font-optical-sizing: auto;
+}
+.chauffeur-site :is(h1,h2,h3,h4) {
+  font-family: Inter, system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: -.035em;
+}
+.chauffeur-site :is(h1,h2) em {
+  font-family: inherit;
+  font-style: normal;
+  font-weight: inherit;
+}
+.chauffeur-site .story-title h3 { font-weight: 700; }
+.chauffeur-site .story-choice h4 {
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+.chauffeur-site .wardrobe-card-back span {
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 23px;
+  font-weight: 600;
+}
+.chauffeur-site .story-chat-head small { font-family: Inter, system-ui, sans-serif; }
