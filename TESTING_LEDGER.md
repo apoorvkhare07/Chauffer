@@ -529,3 +529,8 @@ Production browser check: existing chat request "Find casual shirts using my sav
 - Added bounded structural provider diagnostics (status, finish/block reason, image presence/size; no photo, prompt or credentials). Added clearer no-image, timeout and service-unavailable messages. The daily three-attempt limit now uses a public Convex error so production can display it.
 - Removed the temporary internal repair endpoint after recovery. No automatic retries added and normal quotas remain unchanged.
 - Checks: 178 backend + 4 website/demo tests pass, backend type check and production build pass. New mocked failure tests cover no image, HTTP 503 and 429, original preservation and no automatic retries. Production browser confirms the saved clean shirt after refresh; garment fidelity still needs owner review.
+
+## Catalogue garment presentation — 15 October 2026
+- Updated clean-photo prompt to remove accidental wrinkles/crumpling, straighten the collar/placket/hem/sleeves and present a professionally steamed garment. Preserve fabric grain, gentle drape, intentional pleats/ruching, designed crinkle textures, colour, cut and garment details.
+- Regenerated only the requested beige shirt from its original photo; production browser visibly shows a neater, balanced shirt with linen texture on white. Original remains separately accessible. Screenshot: /tmp/chauffer-shirt-steamed.png.
+- 178 backend + 4 website/demo tests, backend types and deploy build passed. Removed the narrowly guarded one-time rerender endpoint after use; ordinary quotas unchanged.
