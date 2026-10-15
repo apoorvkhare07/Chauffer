@@ -204,3 +204,20 @@ test('AI clarification keeps structured colour answers without applying an uncho
  await t.mutation(internal.aiConversations.apply,{conversationId:id,revision:1,decision});
  const c=await user.query(api.conversations.current,{});expect(c.discoveryQuestion).toEqual(question);expect(c.requirements.colour).toBeUndefined();expect(c.pending).toBe(false);
 });
+test('one coordinator hands discovered products to wardrobe styling; follow-ups keep context and reset clears it',async()=>{
+ const {t,user}=setup();const urls=products();
+ const ownedId=await t.run(ctx=>ctx.db.insert('wardrobeItems',{owner:'alice',details:{name:'Cream trousers',category:'bottom',colour:'Cream'},available:true,createdAt:1}));
+ const generate=vi.spyOn(Agent.prototype,'generateObject').mockImplementationOnce(async()=>modelReply(reply())).mockImplementationOnce(async()=>modelReply({matches:[{productId:urls[1],wardrobeItemIds:[ownedId],reason:'A possible understated office combination.'}]}));
+ await user.mutation(api.conversations.post,{text:'Find office kurtas M under 1500 with my wardrobe. Just search.'});await t.finishAllScheduledFunctions(()=>vi.advanceTimersByTimeAsync(10));
+ let current=await user.query(api.conversations.current,{});
+ expect(generate).toHaveBeenCalledTimes(2);expect(generate.mock.calls[1][1]).toMatchObject({userId:expect.stringMatching(/^discovery:/)});expect(current.messages.at(-1)?.handoff?.styling).toMatchObject({state:'ready',matches:[{productId:urls[1],items:[{id:ownedId,name:'Cream trousers'}]}]});
+ expect(current.messages.at(-1)?.result?.options[0].url).toBe(urls[1]);
+ const c=await t.run(ctx=>ctx.db.query('conversations').withIndex('by_key',q=>q.eq('key','web:alice')).unique());expect(c?.wardrobeContextRequested).toBe(true);
+ await user.mutation(api.conversations.post,{text:'These work for me'});current=await user.query(api.conversations.current,{});expect(current.messages.at(-1)?.handoff?.status).toBe('satisfied');
+ await user.mutation(api.conversations.post,{text:'reset'});expect((await t.run(ctx=>ctx.db.get(c!._id)))?.wardrobeContextRequested).toBe(false);
+});
+test('open choices cannot become material or sleeve restrictions during wardrobe shopping',()=>{
+ const decision=normalizeDecision(reply('refine',{requirements:{...fullRequirements,category:'jeans',size:'32',budget:3000,colour:'blue',fabric:'any brand',sleeve:'none'}}),{category:'sneakers',budget:3000,size:'UK 8'},{prefer:[],avoid:[]},"Find men's blue relaxed-fit jeans under 3000, waist 32, to wear with my black sweater. Any brand. No questions, search now.");
+ const followup=normalizeDecision(reply('refine',{requirements:{...fullRequirements,category:'jeans',size:'32',fabric:null}}),{category:'jeans',budget:3000,size:'32',fabric:'any brand'},{prefer:[],avoid:[]},'show more');expect(followup.requirements.fabric).toBeUndefined();
+ expect(decision.requirements.fabric).toBeUndefined();expect(decision.requirements.sleeve).toBeUndefined();expect(decision.requirements).toMatchObject({category:'jeans',size:'32',budget:3000,colour:'blue',brand:'any'});
+});

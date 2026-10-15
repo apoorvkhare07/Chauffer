@@ -1,3 +1,4 @@
+import {wardrobeIntent} from './shoppingContext';
 import {discoveryUpdate} from './discoveryUpdate';
 import {acceptsDiscovery,questionAnswer,nextDiscoveryQuestion,shouldClarifyBefore} from './discoveryQuestions';
 import type {MutationCtx} from './_generated/server';
@@ -24,7 +25,9 @@ export async function beginTurn(ctx:MutationCtx,conversation:Doc<'conversations'
    const revision=conversation.revision+1;const reply='Got it—these picks work for you. You can keep refining or start a new search.';
    await ctx.db.patch(conversation._id,{revision,discoveryStatus:'satisfied',discoveryQuestion:undefined,pending:false,aiTurn:false,updatedAt:Date.now()});
    await ctx.db.insert('messages',{conversationId:conversation._id,session:conversation.session,role:'user',text});
-   await ctx.db.insert('messages',{conversationId:conversation._id,session:conversation.session,role:'assistant',text:reply});
+   const previousPacket=recent.find(m=>m.result)?.handoff;
+   const sourceKey=recent.find(m=>m.result)?.stylingSourceKey;
+   await ctx.db.insert('messages',{conversationId:conversation._id,session:conversation.session,role:'assistant',text:reply,...(previousPacket?{handoff:{...previousPacket,request:{...previousPacket.request,revision,text},status:'satisfied' as const,nextQuestion:undefined},...(sourceKey?{stylingSourceKey:sourceKey}:{})}:{})});
    return {requirements:conversation.requirements,reply,search:false,aiRequested:false,conversationId:conversation._id,revision,session:conversation.session,excludeUrls:conversation.shownUrls};
   }
  }
@@ -47,7 +50,7 @@ export async function beginTurn(ctx:MutationCtx,conversation:Doc<'conversations'
  const rejectedUrls=reset?[]:[...new Set([...conversation.rejectedUrls,...(rejectUrl?[rejectUrl]:[])])].slice(-120);
  let shownUrls=reset?[]:conversation.shownUrls;
  // Keep seen products excluded throughout this chat, including refinements.
- await ctx.db.patch(conversation._id,{discoveryStatus:reset?'exploring':plan.search?'refining':conversation.discoveryStatus??'exploring',discoveryQuestion:discoveryQuestion??(useAI?conversation.discoveryQuestion:undefined),requirements:plan.requirements,revision,session,pending:plan.search||useAI,aiTurn:useAI,inputText:text,updatedAt:Date.now(),shownUrls,rejectedUrls,...(reset?{taste:emptyTaste,agentThreadId:undefined}:{})});
+ await ctx.db.patch(conversation._id,{wardrobeContextRequested:reset?false:wardrobeIntent(text,conversation.wardrobeContextRequested),discoveryStatus:reset?'exploring':plan.search?'refining':conversation.discoveryStatus??'exploring',discoveryQuestion:discoveryQuestion??(useAI?conversation.discoveryQuestion:undefined),requirements:plan.requirements,revision,session,pending:plan.search||useAI,aiTurn:useAI,inputText:text,updatedAt:Date.now(),shownUrls,rejectedUrls,...(reset?{taste:emptyTaste,agentThreadId:undefined}:{})});
  if(reset)await ctx.db.insert('messages',{conversationId:conversation._id,session,role:'assistant',text:plan.reply});
  else{
   if(conversation.revision===0)await ctx.db.insert('messages',{conversationId:conversation._id,session,role:'assistant',text:welcome});

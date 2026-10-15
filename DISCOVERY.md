@@ -1,6 +1,6 @@
 # Discovery agent
 
-Discovery turns a shopper's intent into verified merchant options. It is the first specialist in the planned shared agent system; coordination with separate stylist and wardrobe agents is future work.
+Discovery turns a shopper's intent into verified merchant options. It is the first specialist in the shared agent flow. Explicit wardrobe shopping requests now receive an additional styling check against available saved clothes.
 
 The current flow uses Convex Agent (`shoppingAI.ts`) for conversation planning, `aiDecision.ts` plus `discoveryPolicy.ts` and `discoveryQuestions.ts` for enforced decisions, `discoveryWorkflow.ts` for the sequence, `liveDiscovery.ts` for retrieval and `ranking.ts` for the shortlist. Retrieval remains responsible for merchant evidence; the model never invents products, prices or stock.
 
@@ -13,11 +13,13 @@ The current flow uses Convex Agent (`shoppingAI.ts`) for conversation planning, 
 - Guest preview stays one search. It follows budget ranking but does not block on optional brand clarification; follow-up requires sign-in. Without a supplied budget it uses the existing broad ceiling and lower-priced ordering, not an inferred spending target.
 - After results, explain the spending range and ask one relevant brand, occasion or feedback question. Never claim a wider search than the bounded catalogues read.
 
-## Future shared agent system
+## Shared agent flow
 
-A coordinator should own conversation intent, permissions, budget and handoffs. Discovery should accept confirmed requirements, taste and excluded URLs, and return verified options, store access states and one useful next question. A stylist can propose explicit search preferences, and a wardrobe specialist can provide confirmed owned-item context; neither should invent stock or silently change budget/brand. Only the coordinator should reply to the shopper and trigger paid retrieval. Keep a shared evidence record and one search budget across specialists rather than allowing each to repeat store searches.
+One conversation planner owns the shopper reply and confirmed requirements. The workflow searches once, then optionally asks the styling specialist to assess possible combinations with confirmed available wardrobe items. Only explicit current-chat requests such as “jeans with my wardrobe” enable that check. Short follow-ups retain this scope; reset/new search clears it; “don't use my wardrobe” disables it. Ordinary searches do not load wardrobe/style data or make a styling model call. The existing standalone outfit picker remains separate.
 
-The existing separate wardrobe functions are not yet this shared coordinator. This change does not launch additional agents or duplicate searches. Existing backend functions already supply the retrieval input/output boundary; a later coordination layer can reuse them.
+Styling receives merchant evidence, known owned IDs, saved style preferences and a bounded current-session brief. It cannot fetch products, change requirements or invent owned pieces. Returned references are checked against the exact supplied products/items. The screen shows possible pairings, not a visual colour, size-stock or body-fit guarantee. A failed styling check leaves real product results intact. Missing inventory asks the shopper to add available clothes. Exact private snapshots are checked before publishing and when displaying results; wardrobe/style changes hide old pairings and request a fresh check.
+
+The versioned format and its limits are documented in [AGENT_HANDOFF.md](docs/AGENT_HANDOFF.md). This is the first connected discovery/wardrobe/styling journey, not a general autonomous agent system or a trained quality score.
 
 Question buttons carry the exact field/value chosen by the shopper, bypassing a second model call. Free-text replies still use the discovery agent. A skip starts retrieval without inventing the missing attribute; “no more questions” disables further optional questions for that item. Occasion words only improve ranking when merchant text supplies evidence (for example training/walking/formal); they are not suitability or comfort guarantees. Bounded merchant queries include confirmed occasion/style terms with broad fallback retaining hard constraints.
 
