@@ -58,3 +58,15 @@ test('readable nonmatches, hard constraints and missing provider configuration d
  fetch.mockClear();vi.stubEnv('BROWSERLESS_API_KEY','');await discoverAcrossStores(r);
  expect(fetch.mock.calls.some(([input])=>new URL(String(input)).hostname==='production-sfo.browserless.io')).toBe(false);
 });
+
+test('verified H&M apparel recovery shares seven browser slots and never enables unproven new stores',async()=>{
+ vi.stubEnv('BROWSERLESS_API_KEY','invented-test-key');const targets:string[]=[];
+ const html=`<script id="__NEXT_DATA__" type="application/json">${JSON.stringify({props:{pageProps:{srpProps:{hits:[{title:'Wide Jeans',locale:'en_in',category:'ladies_jeans',pdpUrl:'https://www2.hm.com/en_in/productpage.1234567890.html',brandName:'H&M',isOutOfStock:false,prices:[{priceType:'whitePrice',price:2499}]}]}}}})}</script>`;
+ vi.spyOn(globalThis,'fetch').mockImplementation(async(input,init)=>{
+  if(new URL(String(input)).hostname!=='production-sfo.browserless.io')return new Response('Unavailable',{status:403});
+  const target=new URL(JSON.parse(init!.body as string).url);targets.push(target.hostname);return new Response(target.hostname==='www2.hm.com'?html:'<h1>Access denied</h1>',{headers:{'x-response-code':'200'}});
+ });
+ const result=await discoverAcrossStores({category:'jeans',audience:'women',budget:3000,size:'32'});
+ expect(result.stores.find(s=>s.store==='H&M')?.status).toBe('matched');expect(result.options.some(p=>p.store==='H&M'&&p.price===2499)).toBe(true);
+ expect(targets).toHaveLength(7);expect(targets[0]).toBe('www2.hm.com');expect(targets).not.toContain('www.nykaafashion.com');expect(targets).not.toContain('www.uniqlo.com');
+});

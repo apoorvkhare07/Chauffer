@@ -40,3 +40,9 @@ test('jeans results ask colour next after fit, and a colour answer keeps the cur
  const q=nextDiscoveryQuestion(r,options)!;expect(q.field).toBe('colour');expect(q.question).toContain('colour');
  const next={...r,...questionAnswer('Black',q)};expect(next).toMatchObject({category:'jeans',budget:2500,size:'32',fit:'relaxed',colour:'black'});expect(searchTerms(next)).toContain('black');
 });
+
+test('a detailed request containing no questions is not mistaken for an answer that drops its other changes',()=>{
+ const q=nextDiscoveryQuestion({category:'sneakers',budget:3500,size:'UK 8',occasion:'everyday',brand:'Puma',askedDiscoveryFields:['occasion','style','brand']})!;
+ expect(questionAnswer("Men's sneakers under 5000, UK 8, any brand. No questions, search now.",q)).toBeNull();
+ expect(questionAnswer('No more questions',q)?.askedDiscoveryFields).toContain('colour');
+});

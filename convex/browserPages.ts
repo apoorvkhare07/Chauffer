@@ -13,7 +13,7 @@ export async function browserPage(store:Store,url:string,token=process.env.BROWS
  if(['Amazon','Myntra','Meesho'].includes(store)){
   endpoint.searchParams.set('proxy','residential');endpoint.searchParams.set('proxyCountry','in');endpoint.searchParams.set('proxySticky','true');
  }
- const selector=store==='Uniqlo'?'a.product-tile__link[href*="/in/en/products/"]':store==='Amazon'?'[data-component-type="s-search-result"]':store==='Myntra'?'a[href*="/buy"]':['SNITCH','NEWME','The Souled Store'].includes(store)?'a[href*="/product/"], a[href*="/buy"]':'a[href*="/p/"]';
+ const selector=store==='H&M'?'a[href*="/en_in/productpage."]':store==='Uniqlo'?'a.product-tile__link[href*="/in/en/products/"]':store==='Amazon'?'[data-component-type="s-search-result"]':store==='Myntra'?'a[href*="/buy"]':['SNITCH','NEWME','The Souled Store'].includes(store)?'a[href*="/product/"], a[href*="/buy"]':'a[href*="/p/"]';
  try{
   const response=await fetch(endpoint.href,{method:'POST',headers:{'Content-Type':'application/json'},signal:AbortSignal.timeout(Math.min(35000,Math.max(1,timeoutMs))),redirect:'error',body:JSON.stringify({url,gotoOptions:{waitUntil:'domcontentloaded',timeout:Math.min(15000,timeoutMs)},waitForSelector:{selector,timeout:Math.min(12000,timeoutMs)},bestAttempt:true,rejectResourceTypes:['image','media','font','stylesheet']})});
   if(!response.ok){await response.body?.cancel();throw new BrowserPageError(response.status===408?'navigation_timeout':response.status===401?'invalid_key':response.status===403?'access_refused':response.status===429?'quota_or_concurrency':'provider_error',response.status);}

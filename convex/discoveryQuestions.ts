@@ -32,7 +32,7 @@ export function nextDiscoveryQuestion(r:Requirements,options:Option[]=[],taste:T
 export function shouldClarifyBefore(r:Requirements){return !(r.askedDiscoveryFields?.length)&&r.pricePreference!=='lowest_price'&&!r.occasion&&!r.colour&&!r.fabric&&!r.pattern&&!r.fit;}
 export function questionAnswer(text:string,q?:DiscoveryQuestion):Partial<Requirements>|null{
  if(!q)return null;
- if(/no (?:more )?questions|don.t ask (?:me )?(?:any |more )?questions/i.test(text))return {askedDiscoveryFields:discoveryFields};
+ if(/^(?:no (?:more )?questions|don.t ask(?: me)?(?: any| more)? questions)(?:[,.;! ]*(?:just )?(?:search(?: now)?|show (?:me )?options))?[.!\s]*$/i.test(text.trim()))return {askedDiscoveryFields:discoveryFields};
  if(/^(?:no preference(?:,? show options)?|skip(?: this)?|show (?:me )?(?:the )?options|you (?:choose|decide))[.!\s]*$/i.test(text.trim()))return {};
  const choice=q.choices.find(c=>[c.label,c.text].some(x=>x.toLowerCase()===text.trim().toLowerCase()));
  return choice?{[q.field]:choice.value}:null;

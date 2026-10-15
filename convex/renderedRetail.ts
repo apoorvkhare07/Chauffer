@@ -1,3 +1,4 @@
+import {expandedRetailOptions} from './expandedRetail';
 import {comparePrices} from './discoveryPolicy';
 import {load} from 'cheerio';
 import {allowedImageUrl,matchesOption,type Option,type Requirements} from './discoveryRules';
@@ -7,6 +8,7 @@ import {amazonOptions} from './storeExtractors';
 function canonical(raw:string,store:Store){try{const url=new URL(raw,storeConfig[store].origin);if(productStore(url.href)!==store)return;const pid=store==='Flipkart'?url.searchParams.get('pid'):null;url.search='';url.hash='';if(pid&&/^[A-Z0-9]{8,30}$/.test(pid))url.searchParams.set('pid',pid);return url.href;}catch{return;}}
 const rupees=(text:string)=>/^₹\s*[\d,]+(?:\.\d{1,2})?$/.test(text.trim())?Number(text.trim().slice(1).replaceAll(',','')):NaN;
 export function renderedOptions(store:Store,html:string,r:Requirements,observedAt:number,excludeUrls:string[]=[]):{options:Option[];readable:boolean}{
+ if(store==='H&M')return expandedRetailOptions(store,html,r,observedAt,excludeUrls);
  if(store==='AJIO'||store==='Bewakoof'||store==='Myntra')return retailOptions(store,html,r,observedAt,excludeUrls);
  if(store==='Amazon')return {options:amazonOptions(html,r,observedAt,excludeUrls,12),readable:load(html)('[data-component-type="s-search-result"]').length>0};
  const $=load(html),options:Option[]=[],seen=new Set<string>(),excluded=new Set(excludeUrls.map(url=>canonical(url,store)));let pricedProducts=0;
