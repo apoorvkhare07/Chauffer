@@ -4,6 +4,7 @@ import {stores,storeSearchUrl,storeResultValidator,type StoreResult} from './mar
 import {chooseBatch} from './ranking';
 import {tasteValidator,emptyTaste,type Taste} from './taste';
 import {amazonOptions} from './storeExtractors';
+import {retailOptions} from './retailExtractors';
 import { load } from 'cheerio';
 import { internalAction,action } from './_generated/server';
 import { internal } from './_generated/api';
@@ -41,7 +42,7 @@ export function productOption(html:string,url:string,observedAt:number):Option|n
 async function page(url:string):Promise<string>{
  const response=await fetch(url,{signal:AbortSignal.timeout(12000),redirect:'error'});
  if(!response.ok)throw new Error(`Store unavailable: HTTP ${response.status}`);
- const html=await response.text();if(html.length>5000000)throw new Error('Unexpected store response');return html;
+ const reader=response.body?.getReader();if(!reader)throw new Error('Empty store response');let size=0;const chunks:Uint8Array[]=[];try{while(true){const {done,value}=await reader.read();if(done)break;size+=value.length;if(size>5000000)throw new Error('Unexpected store response');chunks.push(value);}}finally{await reader.cancel();}return Buffer.concat(chunks).toString('utf8');
 }
 export async function discover(requirements:Requirements,excludeUrls:string[]=[],limit=3):Promise<Option[]>{
  const search=new URL('https://www.flipkart.com/search');search.searchParams.set('q',searchTerms(requirements));
@@ -65,7 +66,7 @@ export async function discoverAcrossStores(requirements:Requirements,excludeUrls
   try{
    let options:Option[];
    if(store==='Flipkart')options=(await discover(requirements,excludeUrls,12)).map(o=>({...o,store,source:'product' as const}));
-   else{
+   else if(store==='Amazon'){
     const broadUrl=storeSearchUrl(store,requirements,false);
     const pages=await Promise.allSettled([page(searchUrl),...(broadUrl!==searchUrl?[page(broadUrl)]:[])]);
     const readable=pages.filter((p):p is PromiseFulfilledResult<string>=>p.status==='fulfilled'&&load(p.value)('[data-component-type="s-search-result"]').length>0);
@@ -74,11 +75,24 @@ export async function discoverAcrossStores(requirements:Requirements,excludeUrls
     const candidates=pools.length>1?[...pools[0].slice(0,6),...pools[1]]:pools[0];
     options=[...new Map(candidates.map(o=>[o.url,o])).values()].slice(0,12);
    }
+   else{
+    const urls=[searchUrl];
+    if(store==='Bonkers Corner'){
+     const url=new URL('https://www.bonkerscorner.com/search/suggest.json');
+     // Brand-specific search need not repeat audience words; strict matching still
+     // checks the requested audience and every hard constraint after retrieval.
+     url.searchParams.set('q',searchTerms({...requirements,audience:undefined}));
+     url.searchParams.set('resources[type]','product');url.searchParams.set('resources[limit]','10');urls[0]=url.href;
+    }
+    const result=retailOptions(store,await page(urls[0]),requirements,Date.now(),excludeUrls);
+    if(!result.readable)throw new Error('No readable public product catalogue');
+    options=result.options;
+   }
    return {options,result:{store,status:options.length?'matched':'no_matches',searchUrl} as StoreResult};
   }catch(error){console.warn('Store discovery unavailable',store,error instanceof Error?error.message.slice(0,120):'Unknown response');return {options:[] as Option[],result:{store,status:'unavailable',searchUrl} as StoreResult};}
  }));
  const options=chooseBatch(results.flatMap(x=>x.options),requirements,taste,perStoreLimit);
- return {options,failed:results.every(x=>x.result.status==='unavailable'),stores:results.map(x=>({...x.result,status:x.result.status==='unavailable'?'unavailable':options.some(o=>o.store===x.result.store)?'matched':'no_matches'}))};
+ return {options,failed:results.every(x=>x.result.status==='unavailable'),stores:results.map(x=>x.result)};
 }
 const searchResultValidator=v.object({options:v.array(optionValidator),failed:v.boolean(),stores:v.array(storeResultValidator)});
 export const search=internalAction({args:{requirements:requirementsValidator,excludeUrls:v.optional(v.array(v.string())),taste:v.optional(tasteValidator)},returns:v.object({options:v.array(optionValidator),failed:v.boolean(),reason:v.optional(v.string()),stores:v.optional(v.array(storeResultValidator))}),handler:async(_ctx,{requirements,excludeUrls,taste})=>discoverAcrossStores(requirements,excludeUrls,taste)});

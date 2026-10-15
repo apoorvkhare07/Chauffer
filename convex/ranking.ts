@@ -16,5 +16,10 @@ export function rankOptions(options:Option[],requirements:Requirements,taste:Tas
 }
 export function chooseBatch(options:Option[],requirements:Requirements,taste:Taste,perStoreLimit=3,priorityUrls:string[]=[]):Option[]{
  const ranked=rankOptions(options,requirements,taste).sort((a,b)=>Number(priorityUrls.includes(b.url))-Number(priorityUrls.includes(a.url)));const counts=new Map<string,number>();const seen=new Set<string>();
- return ranked.filter(o=>{const store=o.store??'Flipkart';const n=counts.get(store)??0;const key=[store,o.title,o.colour,o.fabric].map(x=>x.toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim()).join('|');if(n>=perStoreLimit||seen.has(key))return false;seen.add(key);counts.set(store,n+1);return true;}).slice(0,6);
+ // A first page should not be monopolised by the cheapest stores. Interleave
+ // each store's best evidence-ranked option, then its second/third, max six.
+ const unique=ranked.filter(o=>{const store=o.store??'Flipkart';const n=counts.get(store)??0;const key=[store,o.title,o.colour,o.fabric].map(x=>x.toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim()).join('|');if(n>=perStoreLimit||seen.has(key))return false;seen.add(key);counts.set(store,n+1);return true;});
+ const groups=new Map<string,Option[]>();for(const o of unique){const key=o.store??'Flipkart';groups.set(key,[...(groups.get(key)??[]),o]);}
+ const result:Option[]=[];for(let i=0;i<perStoreLimit&&result.length<6;i++)for(const group of groups.values()){if(group[i])result.push(group[i]);if(result.length===6)break;}
+ return result;
 }

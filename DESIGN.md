@@ -1,272 +1,170 @@
----
-name: Chauffeur
-description: Modern shopping with painterly desi soul and a classical twist.
-colors:
-  canvas: "#f7f8fa"
-  ink: "#242438"
-  muted: "#646576"
-  accent: "#4149cf"
-  accent-hover: "#3138a8"
-  soft: "#e9edfa"
-  line: "#dfe2eb"
-  green: "#176557"
-  white: "#ffffff"
-  focus-soft: "#cbd2f3"
-  memory-band: "#303879"
-  memory-profile: "#384383"
-  memory-text: "#f6f7ff"
-  whatsapp-preview: "#f0f5f1"
-typography:
-  display:
-    fontFamily: "Manrope, sans-serif"
-    fontSize: "clamp(54px, 6.25vw, 88px)"
-    fontWeight: 700
-    lineHeight: 1.06
-    letterSpacing: "-.04em"
-  headline:
-    fontFamily: "Manrope, sans-serif"
-    fontSize: "43px"
-    fontWeight: 700
-    lineHeight: 1.18
-    letterSpacing: "-.04em"
-  body:
-    fontFamily: "Manrope, sans-serif"
-    fontSize: "13px"
-    fontWeight: 400
-    lineHeight: 1.7
-  label:
-    fontFamily: "Manrope, sans-serif"
-    fontSize: "13px"
-    fontWeight: 700
-  wordmark:
-    fontFamily: "Instrument Serif, serif"
-    fontSize: "35px"
-    fontWeight: 400
-    lineHeight: 1
-    letterSpacing: "-.025em"
-rounded:
-  field: "6px"
-  navigation: "10px"
-  message: "12px"
-  card: "14px"
-  conversation: "16px"
-  pill: "100px"
-spacing:
-  compact: "8px"
-  control-gap: "14px"
-  card-padding: "16px"
-  panel-padding: "23px"
-  section-mobile: "65px"
-components:
-  button-primary:
-    backgroundColor: "{colors.accent}"
-    textColor: "{colors.white}"
-    rounded: "{rounded.pill}"
-    typography: "{typography.label}"
-    padding: "14px 22px"
-  button-primary-hover:
-    backgroundColor: "{colors.accent-hover}"
-  button-secondary:
-    backgroundColor: "{colors.white}"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.pill}"
-    padding: "14px 22px"
-  product-card:
-    backgroundColor: "{colors.white}"
-    rounded: "{rounded.card}"
-  conversation-panel:
-    backgroundColor: "{colors.white}"
-    rounded: "{rounded.conversation}"
-    padding: "23px"
-  memory-profile:
-    backgroundColor: "{colors.memory-profile}"
-    textColor: "{colors.memory-text}"
-    rounded: "{rounded.conversation}"
-    padding: "29px 32px"
-  whatsapp-preview:
-    backgroundColor: "{colors.whatsapp-preview}"
-    rounded: "20px"
-  voice-preview:
-    backgroundColor: "#f7f8ff"
-    rounded: "{rounded.conversation}"
-    padding: "25px 30px"
-  active-navigation:
-    backgroundColor: "{colors.soft}"
-    textColor: "{colors.accent}"
-    rounded: "{rounded.navigation}"
-    padding: "13px 12px"
----
+# Chauffeur · Design
 
-# Design System: Chauffeur
+Updated 15 October 2026. Read before changing a screen or message. Follow [PRODUCT.md](PRODUCT.md): discovery, personal styling and smart wardrobe suggestions. Preserve the existing website; this brief does not request a redesign.
 
-## Homepage refresh — 11 October 2026
+The current blue/Inter system below supersedes the old purple/Manrope and teal trials. Earlier detail is preserved in [the previous design record](docs/history/DESIGN-before-growthx.md). Historical painterly/desi/Renaissance direction in design/ remains useful for brand art, not a reason to replace current fashion photos or controls.
 
-The `/` page now uses `homepage.css` and a quieter discovery-first layout, following visual reviews of Phia and Wishi. Preserve the existing porcelain `#f7f8fa`, ink `#242438`, cobalt `#4149cf`, soft blue `#e9edfa`, muted `#646576` and green `#176557` palette, locally served Manrope and Instrument Serif. The serif stays in brand details; main headings and controls stay in Manrope.
+## 1. The feeling, in labels
 
-Desktop layout: restrained navigation → split hero with request field and painterly portrait/bust → store-search strip → three real process steps → interactive illustrative conversation → consented memory → available/planned features → FAQ → closing action and footer. The artwork is the single decorative focal point; there are no fabricated logos of customers, reviews or numerical savings. Primary actions open `/app/`; the sample demo is a secondary, clearly labelled link. Conversation examples are illustrative and never invented live product cards.
+- **Centred request field:** one wide rounded input beneath a two-line promise, with a blue submit action; fashion photos surround it without covering the input.
+- **Image-first browsing:** product photos lead a compact grid, with merchant, dated price and matching evidence close to each result. Keep unknown stock/fit details discoverable.
+- **Personal context in view:** short editable preference chips and actual wardrobe/saved counts, rather than invented personalised products.
+- **Wardrobe as usable clothes:** recognisable garment photos and editable details, availability and outfit combinations; no body scoring.
+- **Motion with a purpose:** small transitions confirm changes; floating photos and the wardrobe spiral explain the brand. Pause, reduced motion and static alternatives keep content usable.
 
-The same 1184px container is retained. At 760px columns stack, navigation anchors hide, the main action stays visible, and request chips wrap. The phone view is checked at 390px. There is no automatic motion; feedback from pressed example controls and expanded FAQ rows is immediate. Focus remains visible and reduced motion is respected. The earlier website component descriptions below are historical; demo styles and behavior remain unchanged.
+## 2. References, one per component
 
-## Overview
+Borrow the named treatment, using our colours, assets and words. These are component references, not instructions to clone whole sites.
 
-**Creative North Star: "Old-school charm. New-school shopping."**
+| Component | Reference | Take | Ignore |
+|---|---|---|---|
+| Headings/body | [Meetup reference](https://mobbin.com/screens/f1a261c2-eba3-40dc-a564-89e79621f243) | Bold upright headings, restrained hierarchy and easy-to-read supporting copy. Current implementation uses licensed self-hosted Inter. | Meetup’s brand colours/content and commercially licensed NeuSans. |
+| Search home | [Shop desktop reference](https://mobbin.com/screens/d2e173a4-6aea-45f9-be74-d58ea757ffd6) | Prominent central search, generous space and small navigation. | Store promotions, offers or recommendations without our own evidence. |
+| Fashion around the entry | [Shop welcome reference](https://mobbin.com/screens/cfb5f163-40cf-438f-a57a-99624e6120a9) | Fashion imagery framing the central message; photos gather above the input on phones. | Other brands’ assets and obstructive movement. |
+| Results and saved controls | [Shop](https://shop.com/) | Image-first grid, save control on the image, compact context and expandable details. | Unverified discounts, ratings, checkout or dense sales banners. |
+| Input-led public story | [Relay Studio](https://relaystudio.ai/) | A central promise and input, visual examples, short step-by-step explanation and a repeated closing invitation. | Orange/cream styling, serif headline, pricing, performance claims and automatic publishing. |
+| Wardrobe presentation | [Existing WardrobeSpiral.jsx](WardrobeSpiral.jsx) | Owned-clothing concept shown through rotating photo cards and patterned backs. Static alternative preserves the explanation. | Treating inspiration photos as a person’s actual wardrobe. |
+| Shopping explanation | [Existing ShoppingFlow.jsx](ShoppingFlow.jsx) | Photos persist between scroll scenes; a need becomes discovery, feedback and a decision. | Making priced examples look live, or planned checkout look completed. |
+| Logo/loading | [Approved brand kit](brand/README.md) | Stationary bag outline with inner rotating six-spoke mark; separate FashionLoader for real waiting. | Prior bag-morph and orbit logo trials; loader icons as proof of working features. |
 
-A spacious modern shopping identity with painterly Indian fashion and a Renaissance twist. Clean Manrope headlines and cobalt controls keep the interface contemporary; the Instrument Serif wordmark and classical bust supply the historical quirk. Art belongs to the brand, while shopping results use explicitly labelled colour illustrations.
+Provenance: the previous DESIGN.md records earlier visual inspection of Meetup/Shop and supplied Mobbin screens. This session read those decisions and re-opened the current Chauffeur and Relay websites in Chrome, including visual inspection; it did not repeat an authenticated Shop trial or capture a new reference gallery. Reference screenshots/assets must retain attribution and must not be reused as our product imagery.
 
-This record describes the implemented code, supported by the completed homepage review; it is not an approved visual comparison image. The separate surfaces at `/` and `/demo/` share this visual language, with spacious storytelling on the website and denser working controls in the demo.
+## 3. Type and colour
 
-**Key Characteristics:**
-- Pale canvas and cobalt actions.
-- Oversized sans-serif headlines with a restrained serif brand voice.
-- Painterly portrait fan and a shawled classical bust.
-- Softly bordered panels, pill controls and honest sample labels.
+**Fonts:** self-hosted Inter for public website and private app headings, body, controls and wordmark. Bold upright headings; no decorative serif italics in the current marketing system. The separate fictional demo retains its legacy type unless specifically changed. Keep script-compatible fallbacks for Hindi.
 
-## Colors
+| Role | Current decision |
+|---|---|
+| Hero | 52–76px responsive desktop treatment; preserve phone-specific rules in fashion-hero.css and inspect wrapping at 320px/390px. Weight 700, line height about 1.05. |
+| Section heading | Use the existing shared heading styles; bold Inter, tight spacing. Avoid adding a new arbitrary size per section. |
+| Body | Existing marketing copy is generally 14–16px; future task/conversation copy should target 16px or larger. |
+| Supporting text | Existing labels vary and some are below 14px. Do not hide essential stock, price, consent or error information in tiny captions. |
 
-### Primary
-Cobalt accent identifies calls to action, selected navigation, icons and keyboard focus. The darker accent supplies hover feedback.
+These describe the existing system and a readability target, not a completed migration to four type sizes. Measure the affected page before claiming compliance.
 
-### Secondary
-Peacock green marks the small brand dot and order status. Pale blue soft surfaces group messages, active navigation and review content; periwinkle highlights selection and search focus.
+| Colour | Role |
+|---|---|
+| #2950B8 | Primary blue: submit/main action, selected states, focus and restrained brand emphasis. |
+| #242a38 | Main ink. |
+| #f7f8fa / #f9fafc | Existing app/public canvas respectively. |
+| #ffffff | Cards, fields and product surfaces. |
+| #646e80 / #6b7180 | Existing app/public supporting text. |
+| #e9eefa | Soft blue grouping/selection. |
+| #dfe4ef | App boundaries; public pages use their existing matching dividers. |
 
-The offerings illustrations add local treatments: the WhatsApp preview uses a pale green conversation surface, and voice uses the existing pale-blue soft band with a lighter preview panel. Their colours describe examples, not connected services. The memory band uses its own indigo surface, lighter indigo profile and pale text; preserve those roles only within that section.
+Reuse existing success/error styles with words and icons; red means a problem, not a sale. Blue may identify selected states and brand details as already implemented; do not copy the handbook’s example palette literally.
 
-### Neutral
-Porcelain canvas supports ink text, muted supporting copy, white cards and subtle cool dividers. Product colour illustrations add local blue, pink, white and green swatches without replacing the core palette.
+**Layout:** retain the existing roughly 1184px public content container and 90px desktop/60px phone section rhythm. Public header is compact, approximately 68px desktop/62px phone. Cards are softly rounded and fields/actions pill-shaped. Use existing component styles before adding new values. Product grids remain two columns on phones and three on desktop; explanatory panels/forms stack on phones.
 
-**The Action Rule.** Reserve solid cobalt fills for actions; keep everyday content panels pale or white. The memory story is a local exception: its indigo band and lighter profile panel form one deliberate contrast section, not a global dark theme.
+**Accessibility targets:** readable contrast (4.5:1 normal text, 3:1 large text), visible keyboard focus, named icon buttons, labelled fields, large touch targets around 44–48px, and no essential action dependent on hover. Check 320px, 390px and desktop widths, long Hindi text and the open keyboard. These are checks to perform, not a claim of a completed audit.
 
-## Typography
+## 4. Screens
 
-Locally served Manrope is the main family; locally served Instrument Serif provides the wordmark, sidebar title and handwritten-feeling brand aside. The regular Manrope file serves weights 400–600, and the bold file serves 650–800 as declared in the source.
+Main journey: need → retained request → account/optional setup → discovery and refinement → save or merchant handoff. Wardrobe journey: confirmed pieces → occasion → outfit suggestions → choose/correct. Waiting, error and correction stay within the relevant task rather than adding screens.
 
-Display uses the frontmatter ramp on desktop, rises to 96px at wide screens, and changes to `clamp(48px, 9.4vw, 65px)` on phones. Section headings vary from 36–43px on desktop. Demo headings use 34px, stepping down to 30px, 28px and 25px across narrower layouts. Main supporting copy ranges from 12–15px; operational card details and disclosures are smaller. Prices use tabular numerals.
+The following state wording is a design specification based on existing behavior; exact copy and every state have not been audited or implemented by this document edit.
 
-**The Serif Rule.** Keep serif type in brand accents; use Manrope for shopping controls and main headings.
+### Public website · start a request
 
-## Layout
+Top to bottom: compact header, fashion-framed headline/input, five-step shopping story, wardrobe section, store-world section and closing input/footer. Main action: **Chat to shop / submit request → /app/**.
 
-The shared centered container is `min(1184px, calc(100% - 88px))`. Side margins narrow to 28px at 1050px and 20px at 760px. Website navigation is 105px tall on desktop and 84px on phones; anchor links hide on phones while the demo action remains.
+- Empty, first visit: existing headline and request placeholder below. Returning: same public entry; do not fabricate personal data.
+- Loading: keep the typed request while navigating; do not pretend a search already ran.
+- Error: explain a missing/invalid request next to the field and retain the text.
+- Done: original request reaches the assistant as an editable draft.
+- Correction: edit before sending. Store logos/inspiration and sample prices do not establish connected inventory or partnerships.
 
-The website has a centered hero and five overlapping art cards, an asymmetric two-column explanation, pale-blue manifesto, split FAQ and centered closing action. Desktop section gaps are generous, around 90–120px; phone sections usually use 65px vertical padding. Below 760px, explanation and FAQ stack. The manifesto retains two columns until 430px, then stacks. The hero clips outer decorative cards while preserving the central art and controls.
+### Account access · preserve the destination
 
-The demo uses a 200px sidebar with a 55px gap; at 1050px these become 165px and 30px. Below 760px navigation becomes a horizontal strip above the content. Product grids use three columns on desktop and two on phones. Review fields collapse from three columns to two, then one below 430px. Marketing links may pass a query into `/demo/?q=...`; the surfaces have independent React roots and shopping state.
+Top to bottom: shopping purpose, existing sign-in/sign-up form and help. Main action: **Send code / verify code → setup or retained request**. The integrated checkout offers one guest preview and MSG91 phone access for continuing or private features.
 
-New capability rows preserve the two-column copy/preview relationship and 110px desktop gap, narrowing to 55px at 1050px and stacking with a 35px gap below 760px. The availability summary uses three columns before stacking on phones. Language tabs and occasion buttons switch illustrative examples without entering the separate demo.
+- Empty: explain account access and private saved clothes/preferences. Returning: sign in to the same account.
+- Loading: “Getting your assistant ready…” with FashionLoader while actual auth/setup resolves.
+- Error: explain failure without losing the destination; preserve safe fields, never echo a password.
+- Done: open the pending request or For you.
+- Correction: edit account fields. Offer code retry/change-number only when supported; never request payment secrets or expose codes.
 
-## Elevation & Depth
+### Styling setup · optional context
 
-Most content depth comes from pale fills and thin borders. Shadows are reserved for artwork, floating notes and primary actions: art cards use `0 14px 35px #30314a25`, notes use `0 6px 24px #30314a12`, and primary actions use `0 5px 15px #4149cf15`. The search field has a very faint `0 7px 20px #30314a05` shadow. Product cards stay flat; selected cards use a cobalt outline.
+Top to bottom: basic preferences, optional body/fit/style context, optional photo consent/review, optional wardrobe step. Main action: **Save preferences → continue**. Current basic setup requires name, age, gender choice and preferred styles; photos and wardrobe steps can be skipped.
 
-## Shapes
+- Empty: explain that photos and body information are optional. Returning: show saved editable preferences.
+- Loading: “Saving your preferences…” or “Reading your photo…” for the actual task.
+- Error: retain entered details and allow manual description or skipping.
+- Done: confirm what was saved and continue the retained need.
+- Wrong AI answer: edit, reject or clear the estimate before it guides advice. No measurement or attractiveness claims.
 
-Pill buttons and search fields contrast with softly rounded rectangular panels. Conversation panels use the largest everyday corner radius; product and review cards use the card radius. Messages have asymmetric corners in the static website sample. Portrait cards use 13px corners and restrained rotation; the manifesto portrait uses a tall arched top. Lucide line icons remain crisp and sparse.
+### For you / discovery · find and refine
 
-## Components
+Top to bottom: request field, brief assistant guidance, preference chips and product grid. Earlier chat can be collapsed; details stay available. Main action: **Send request → sourced results**; results support refinement and opening a product.
 
-- **Buttons:** white bordered secondary controls, cobalt primary controls, underlined text actions and circular icon buttons. Primary hover darkens and lifts 2px over 180ms. Disabled controls lower opacity and remove the active pointer cursor.
-- **Search:** rounded white field with an accessible hidden label and circular submit action. The surrounding field shows periwinkle focus; global interactive focus is a 3px cobalt outline with 5px offset.
-- **Navigation:** serif wordmark with cobalt asterisk; desktop website anchors; demo sidebar with pale-blue active state and order count. Mobile demo navigation becomes a row.
-- **Suggestion chips:** outlined small pills with text and an arrow, pale-blue hover and wrapped layout.
-- **Cards:** white outlined conversation and product panels. Product swatches use garment line art, explicit sample labels and item colour fills. Review panels use pale blue.
-- **Capability previews:** locally coloured, thin-bordered illustrations of planned services. The WhatsApp panel has 20px corners and asymmetric message bubbles; voice uses 16px corners and pill language tabs with cobalt selected state. Occasion pills use a white selected state. The indigo memory profile uses pale text, quiet dividers and a serif follow-up brand note. These examples remain clearly labelled as planned or illustrative.
-- **Comparison and timeline:** white 16px panels, tabular sample totals, understated dividers and cobalt current-state icons. Availability status pills distinguish the working sample demo from services that are not connected.
-- **FAQ:** native details/summary rows with cool dividers and a plus icon rotating 45 degrees when open.
-- **Portrait fan:** five slices of the generated gallery asset fan open over 1.1s with `cubic-bezier(.16,1,.3,1)`, then spread gently on scroll. Hover brightens the artwork. Reduced motion removes transitions and animations and renders the final fan pose; selected demo reviews use automatic rather than smooth scrolling.
+- Empty, first visit: ask what they need with a concrete outfit example. Returning: actual preferences/current need and useful shortcuts, without invented feed items.
+- Loading: “Understanding your request…” then “Looking for options…” only when that phase is known. Preserve the request; no fake cards/progress percentages.
+- Error: “I couldn’t finish that search. Your request is still here.” Deliberate retry; distinguish AI failure from a blocked store.
+- Done: image, merchant, dated listed price and reasons; disclose unknown requested-size stock and store failures.
+- Wrong answer: refine, reject, more like this, or none of these; keep existing hard constraints. Do not quietly turn every preference into a must-have.
 
-Website examples now respond directly to the visitor: replay reveals chat bubbles with a clipped 520ms entrance and staggered delays (250ms, 650ms, 1050ms); language and occasion changes, edited example preferences, price totals and tracking feedback use a 300ms fade with a 5px rise. Both use `cubic-bezier(.16,1,.3,1)`. Voice waveform movement is visual only, starts on explicit activation, pulses over 700ms and stops after 8 seconds or when the example leaves view or the page becomes hidden. Selected price controls use cobalt; selected delivery rows use pale blue and cobalt. Example size/fabric selectors remain local to the illustration, and comparison toggles use fictional catalogue figures.
+### Product detail and Saved items · decide
 
-New example controls use a 2px periwinkle focus outline with 4px offset. State feedback remains visible through selected fills, text updates and pressed/selected attributes. Memory replies and delivery feedback announce updates politely. Reduced motion removes the new keyframe animations and spatial arrow movement while preserving usable controls and their state feedback. These interaction additions do not change the global palette, type, art or separate website/demo boundary.
+Top to bottom: merchant photo/title, dated price, matching evidence and uncertainty, save/feedback, merchant link and available wardrobe review. Main action: **Open on store → merchant product page**; a save action confirms saving only.
 
-- **Care story:** scenario buttons move an illustrated parcel route and swap a care message for delay, wrong fit or return-window examples. This local green stage uses white softly rounded cards and a brief serif detail; route motion takes 600ms with the established entrance curve, while the clipped message reveal takes 420ms. The graphic is decorative, selected buttons expose pressed state, and the message announces changes politely.
-- **Approval story:** a pale-periwinkle band contains a white 16px receipt with fictional item, delivery and total. Its rectangular cobalt approval button switches to replay. A 650ms handoff sweep (second line delayed 250ms) and 350ms shield rotation acknowledge the action, alongside persistent text and green seal feedback. It remains an explicitly labelled visual example with no payment processing or purchase. The receipt reuses an existing brand-art crop with the explicit caption “Brand artwork · not a product photo” directly beneath the item, before totals.
-- **Voice agent graphic:** a cobalt circular asterisk core and two elliptical dotted orbits extend the visual-only voice preview. Activation drives 4s and reverse 5s orbits plus a 1100ms breathing core, bound to the existing explicit activation, 8-second maximum and offscreen/hidden stop behavior. Reduced motion shows static orbits and a colour-changing core.
+- Empty: “No saved items yet. Save something from your results.” Returning: actual saved cards.
+- Loading: “Loading your saved items…” or “Checking wardrobe pairings…”
+- Error: keep dated known information and label failed refresh/review; do not erase it or invent replacements.
+- Done: saved state or owned-piece pairings with clear limits.
+- Wrong answer: edit wardrobe details/preferences, reject the suggestion or remove the saved item.
+- Boundary: listed-price/offer experiments do not become V1 pricing intelligence or cheapest-total claims. Checkout remains on the merchant.
 
-Care and approval stories use equal desktop columns with a 90px gap, narrowed to 45px at 900px and stacked at 650px with a 35px gap. Mobile approval copy precedes the receipt. Reduced motion removes route interpolation, clipped note reveals, handoff sweeps and seal rotation while preserving final positions, selected colours and readable acknowledgements. These graphics extend local story surfaces; core typography, identity and the separate demo remain unchanged.
+### Wardrobe · manage owned pieces
 
-Inputs and selects have programmatic labels, icon-only buttons have accessible names, chat updates use a polite live log, errors use alerts, and both surfaces provide a skip link. These are observed implementation features, not a claim of a full accessibility audit.
+Top to bottom: item grid, Add item, editable garment details/photo review, availability controls and outfit request. Main action: **Add item → review/confirm**, then **Suggest outfits → combinations**.
 
-## Do's and Don'ts
+- Empty: “Add a few pieces you own to start making outfits.” Returning: real pieces and availability.
+- Loading: “Reading this garment…” / “Putting outfits together…”; preserve the photo/request.
+- Error: offer manual entry for failed image reading; explain insufficient available pieces instead of inventing an outfit.
+- Done: confirmed item saved, or up to three combinations referencing actual available pieces.
+- Wrong answer: edit garment details and rerun; remove or mark a piece unavailable. Clothing analysis describes the garment, not the wearer.
 
-### Do:
-- Do keep the marketing website and shopping demo separate and linked.
-- Do use painterly Indian fashion and classical art for brand imagery.
-- Do preserve visible keyboard focus, labelled inputs and reduced-motion final poses.
-- Do label fictional catalogue details and brand illustrations clearly.
+### Settings and past chats · control saved context
 
-### Don't:
-- Don’t present brand artwork as product photography.
-- Don’t imply real store connections, payments or purchases.
-- Don’t make motion necessary to read or operate the page.
+Top to bottom: styling/basic preferences, saved taste, privacy/account controls; history remains its own read-only view. Main action: **Save preferences → confirmed update**; clearing states its exact scope.
 
-### Five-step homepage journey
-The homepage now has a scroll-driven, sticky five-step story: a need, a conversation, discovery, personalised recommendations and price comparison, then purchase approval. Clickable steps also work on smaller screens and with reduced motion. Clothing drawings and comparison prices are illustrative. WhatsApp, exact-product comparison and one-click checkout remain explicitly planned; web discovery and feedback ranking are live.
+- Empty: “No saved preferences yet.” / “No past chats yet.” Returning: the owner’s actual records.
+- Loading: “Loading your preferences…” / “Saving changes…”
+- Error: preserve entered values and explain that changes were not saved.
+- Done: confirm the specific save/clear; do not claim complete account deletion from a partial reset.
+- Correction: edit/clear preferences and photo-derived context; do not expose another account or silently restore cleared taste.
 
-### Photography refresh
-The marketing homepage now uses individual high-resolution clothing photographs, replacing the enlarged five-panel painterly collage. Keep local images sharp with object-fit cropping; retain the original artwork only for the separate demo. Homepage photos are style inspiration, not live products or customer endorsements. Source and license details are in public/images/CREDITS.md.
+### Separate demo and experimental surfaces
 
-### Shopping assistant direction
-The homepage leads with a direct clothing-shopping promise and an example assistant shortlist. Three photo cards start style-specific live chat drafts; photos remain clearly labelled inspiration. Shopping ideas include office kurtas, everyday tops, wedding guest sarees and weekend dresses. Cobalt #4149cf, white #ffffff, porcelain #f7f8fa, ink #242438 and muted #646576 remain; Manrope carries shopping copy, Instrument Serif the brand. Keep the shopping board the main visual, with compact store and category rows, the retained scroll journey and a prominent Chat to shop action.
+/demo/ remains explicitly fictional; reset-on-reload and simulated purchases/returns are visible. Do not merge it with the private app. Daily picks, try-on and pricing tools may already have screens, but do not imply they are required or verified V1 features. Real try-on is pending provider access and end-to-end verification. No “order placed” or working WhatsApp delivery state without corresponding evidence.
 
-### Assistant and options in the first screen
-The hero combines six distinct clothing inspiration photos with a visible AI shopper. A four-stage animation demonstrates understanding a request, searching stores, matching taste and highlighting a shortlist. All six options remain visible. Visitors can pause, select a stage or try less-busy feedback, which highlights three lighter prints. This is an explicitly labelled animation, not fabricated live inventory. On phones the banner appears before the request form; reduced-motion users see the completed shortlist without automatic movement. Animation pauses off screen and in hidden tabs. Additional photo credits are in public/images/CREDITS.md.
+## 5. The first screen’s words
 
-## Signed-in assistant reference — 2026-10-15
-Inspected the signed-in Shop website at https://shop.com/ on desktop and a phone-sized viewport, including its search suggestions and blue-hoodie results. Useful patterns: prominent rounded search entry, restrained sidebar/bottom navigation, image-first product grid, saved-item controls on images, compact expandable search context and short easing transitions.
+Preserve existing website copy as requested:
 
-Chauffeur adapts these patterns with its own typography, violet palette and personal home. The default signed-in destination is For you: current search, explicitly saved preferences, wardrobe and shortlist counts, and practical next actions. It does not invent a personalised product feed or merchant offers. The public marketing homepage remains separate. Home requests open an editable chat draft; they are not silently sent. Existing store evidence and uncertainty disclosures remain accessible under each result's Details & actions.
+- Headline: **More options. More you.**
+- Under it: **Your next find. A fresh way to wear what you own. An AI assistant that shops around your style.**
+- Field: **What do you have in mind?**
+- Main navigation action: **Chat to shop**.
+- Submit accessible name: **Continue to your shopping assistant**.
 
-## Floating home composition — supplied references
-The builder supplied https://mobbin.com/screens/cfb5f163-40cf-438f-a57a-99624e6120a9 (Shop iOS welcome) and https://mobbin.com/screens/d2e173a4-6aea-45f9-be74-d58ea757ffd6 (Shop desktop search home). Both were visually inspected. Adapted the surrounding fashion imagery, clear central message/search and gentle movement with Chauffeur's existing licensed photos. Desktop imagery surrounds the search; phone imagery gathers above it so the input remains unobstructed. A pause button and reduced-motion styles stop decorative animation. Personalised continuation/preferences stay below the hero; decorative images do not claim live recommendations.
+This is current website copy, not a new user-tested claim. Five-second understanding test: not run. Show the page briefly to a shopper and ask what it does and where they would start; do not invent their response. Any new state wording above is a draft for builder review, not a quote from research.
 
-### Public banner and signed-in home
-The public homepage carries the floating real-fashion photo composition, motion pause control and central request field. Signed-in home keeps the same conversational centre with quieter typography and no floating photos, followed by actual preferences and shortcuts. Public requests go through account access and remain editable in chat; finishing onboarding returns a pending request to chat.
+**Assistant voice:** brief practical replies in the chosen language; at most one missing-detail question. Explain a suggestion using confirmed context and distinguish a possibility from verified fit. Never judge bodies, promise attractiveness, fabricate facts or claim shopping completion.
 
-### Wardrobe spiral and centred shopping story
-Inspired by the public Grail reference (https://grail-app.com/), wardrobe photos turn through a CSS 3D spiral with patterned backs. Original Chauffeur assets and colours are used. The section is centred, with optional motion, a static reduced-motion view, and animation paused outside the viewport. The five-step shopping story uses native horizontal scroll snapping, step buttons, previous/next and arrow keys; it no longer captures long vertical scrolling. Illustrative prices and planned checkout remain labelled.
+Draft examples: “These options match your budget and preference for solid colours. Size stock still needs checking on the store.” / “You could pair your white shirt with your available dark trousers. Want a more casual option?” Bad: “This will make your body look perfect, and it’s the cheapest online.” Review real replies before calling this voice validated.
 
-### One centred homepage system
-All marketing sections now share centred introductions, a consistent heading scale with serif emphasis, lavender accents, rounded controls and a 90px desktop / 60px phone section rhythm. Conversation examples sit below their introduction; available/planned features form a balanced card pair that stacks on phones. The FAQ has a centred heading with left-aligned answers for reading. Store discovery, shopping prompts, closing invitation and footer follow the same axis. Existing hero, spiral and swipe interactions are preserved; account and demo layouts are untouched.
+## 6. Principles
 
-### Continuous shopping story (replaces the carousel)
-The shopping sequence now follows vertical page scroll, inspired by the layered scene transitions in the supplied Pinterest reference. Four real fashion photos persist across five compositions rather than swapping whole slides. Text and assistant/review overlays fade in as the photos rearrange. No horizontal slider, arrows or placeholder garment drawings remain. The centre alignment, lavender palette, photo framing and typography match the banner and wardrobe section. Reduced-motion preferences and screens under 600px tall receive five normal stacked scenes.
+- One clear main action for the current task; secondary controls stay easy to find.
+- Current shopper instructions override saved preferences; optional body context never becomes a restriction on what they may wear.
+- Every AI guess has a visible correction path. Confirm clothing/body drafts before treating them as facts.
+- Product evidence and recommendation judgement are distinct; stock, fit and final price uncertainty stay readable.
+- Source photos represent actual products; public inspiration and brand artwork are labelled accordingly.
+- Maintain the shared blue/Inter identity and approved stationary-bag mark. Do not revive old trials or copy a reference’s branding.
+- Motion cannot block reading or input. Respect reduced motion, pause controls and offscreen/hidden states; never delay a real answer for animation.
+- Check phone layout, keyboard, empty/loading/error/done/correction and persistence before claiming a changed flow works.
+- Keep marketing, private app and fictional demo separate. Existing wider website storytelling does not expand the V1 cut.
 
-### Distinct occasion opening and parallax depth
-The first story scene is an occasion, not another product shortlist: a Monday calendar and a personal thought sit in front of two real outfit photos. Original five-step labels and narrative are restored, including labelled sample prices and the planned approval review. Parallax offsets move background, foreground photos and notes at different rates while preserving the shared centred design.
-
-### Primary colour and story snap
-Marketing primary is #1b999d, supported by pale teal surfaces and darker teal text. Buttons use dark ink for readability. The shopping story now lands on discrete chapters with short transitions and snaps to the nearest chapter after scrolling pauses, retaining subtle layered movement.
-
-### Purple restored
-The previous purple palette is restored, superseding the teal colour decision above. Snappy chapter transitions and scroll settling remain in place.
-
-### Current primary: blue
-Primary colour is now #2950B8, with coordinated blue accents and pale surfaces. This supersedes the purple palette choice; motion and layout are preserved.
-
-### Meetup-inspired typography trial
-Reference: https://mobbin.com/screens/f1a261c2-eba3-40dc-a564-89e79621f243 (Meetup). The current Meetup homepage declares NeuSans at weight 700 for the hero and 400 for body copy, with Inter as fallback. NeuSans requires a commercial licence; this trial uses self-hosted, SIL-licensed Inter for website headings, body and controls. Headings use bold upright type instead of decorative serif italics. The Chauffeur wordmark retains its brand face. This supersedes the previous marketing typography; app/demo remain separate.
-
-### Compact header and logo alternatives
-Marketing header is 68px desktop / 62px phone (previously 100px / 80px). Default mark pairs a larger rotating asterisk with the requested “chauffer” text in Inter, without AI. At `/?logo=orbit`, the header uses only the rotating icon with counter-rotating elliptical rings and a satellite dot, inspired by the supplied SVGator Pinterest reference. Reduced-motion settings disable both rotations; hero pause pauses them too.
-
-### Shopping-bag logo trial
-The alternate header at `/?logo=orbit` now replaces orbit rings with a seven-second blue star-to-shopping-bag transformation, inspired by https://in.pinterest.com/pin/946178202959543661/. The bag holds with a white sparkle before returning to the star. The named default logo stays as-is. Reduced motion shows a static bag; the hero pause control pauses all three animated parts.
-
-### Continuous named shopping mark
-The default header now uses the original six-spoke line asterisk flowing into an outlined shopping bag and back on an eight-second repeating loop. The turning motion eases while the bag forms so its silhouette stays readable. The adjacent wordmark reads “chauffer.” in Inter, with the full stop in primary blue #2950B8. This replaces the spiky-star trial and makes the combined mark the main header logo.
-
-### Six-feature fashion loader
-Reusable `FashionLoader.jsx` uses the original rotating six-spoke icon surrounded by six emerging blue/white tiles: shopping bag, payment card, hanger, virtual try-on, offers and favourites. Tiles orbit with upright symbols, then return to the centre in a repeating loop inspired by https://in.pinterest.com/pin/51158145761837698/. Preview at `/?preview=loader` includes pause/play; actual account/sign-in loading uses the component without forced delays. Reduced-motion users see a static composition; accessible status text describes the real pending task. Feature symbols are conceptual and do not claim checkout or virtual try-on completion.
-
-### Shared app branding
-Website and authenticated app now share `Brand.jsx`, Inter font declarations, and the animated asterisk/bag wordmark with blue full stop. App primary colour is #2950B8; legacy purple accents are coordinated blue, with semantic success/error colours preserved. App headings are bold upright Inter. Phone header is 62px with chat height adjusted to keep the composer above navigation. The fictional demo remains separate.
-
-### Approved everyday brand kit
-The main icon is now a stationary outlined shopping bag with only its inner six-spoke asterisk rotating (eight seconds). No morphing, bag rotation or disappearance. Full logo pairs this icon with the established “chauffer.” Inter wordmark and primary-blue dot. Website, app, chat avatar and favicon use this identity. The six-feature Fashion Loader remains separate and unchanged.
-Canonical components and usage notes: `brand/README.md`. Portable static/animated SVGs and ZIP are in `public/brand/`; logo text is outlined for font-independent reuse. Review/download library: `/?preview=brand`.
-
-### Banner simplification and continuous app loading
-Public banner “you.”, submit-button background (including its empty state), and both floating decorative symbols now use exact primary blue #2950B8. Removed the three public banner suggestion chips; retained examples elsewhere. Account loading now uses one persistent FashionLoader while both authentication and account setup resolve, then renders the app directly.
-
-### Shopping-first app discovery
-For you is now the entry point for both personal home and shopping results; the separate Chat navigation item is removed. Submitting the home search opens a new shopping need immediately with saved preferences, while retaining the previous session in history. Old #/chat links continue to open the discovery view. Results emphasize a two-column mobile / three-column desktop product grid, with compact assistant guidance, visible preference chips, in-place refinement, and a sticky request field. Whole product previews open native product-detail dialogs with merchant links, saving, matching evidence and feedback. Earlier conversation text is collapsed by default. Real merchant uncertainty is retained; no sample recommendations, unsupported discounts or ratings are added.
+Method: [GrowthX Design thinking](https://growthx.club/learn/build-sprint#/design-thinking), all four chapters, read 15 October 2026. Saathi’s design brief informed the structure; its garden palette, family roles and WhatsApp-first screens are not Chauffeur requirements. No new usability test or Shaktimaan review is claimed.

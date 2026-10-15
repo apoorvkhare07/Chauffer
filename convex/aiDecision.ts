@@ -17,6 +17,17 @@ export const decisionValidator=v.object({intent:v.union(v.literal('search'),v.li
 export type Decision=Infer<typeof decisionValidator>;
 export function normalizeDecision(raw:unknown,previous:Requirements,taste:Taste,text=""):Decision{
  const value=decisionSchema.parse(raw);const requirements=Object.fromEntries(Object.entries(value.requirements).filter(([,v])=>v!==null)) as Requirements;
+ // A new category is a new item: stale shirt fabric/cut must not filter shoes.
+ // Explicitly restated values (or “keep/same”) can carry over.
+ if(previous.category&&requirements.category&&requirements.category!==previous.category){
+  for(const field of ['colour','fabric','occasion','style','fit','pattern','sleeve','length'] as const){
+   const value=requirements[field];
+   const label=field==='colour'?'colou?r':field;
+   const keepField=new RegExp(`\\b(?:keep|same|retain)\\b[^.!?]{0,20}\\b${label}\\b`,'i').test(text);
+   if(value&&value===previous[field]&&!keepField&&!value.split(/\s+/).every(word=>text.toLowerCase().includes(word.toLowerCase())))delete requirements[field];
+  }
+  requirements.mustHave=(requirements.mustHave??[]).filter(term=>!(previous.mustHave??[]).includes(term)||text.toLowerCase().includes(term.toLowerCase()));
+ }
  const explicitAudience=requestedAudience(text);
  if(explicitAudience)requirements.audience=explicitAudience;else if(previous.audience)requirements.audience=previous.audience;
  if(requirements.category&&sizeKind(requirements.category)!==sizeKind(previous.category)&&requirements.size===previous.size)delete requirements.size;
@@ -47,8 +58,22 @@ export function normalizeDecision(raw:unknown,previous:Requirements,taste:Taste,
  }
  // A shopper can describe preferences while asking us to wait before searching.
  // Greetings with null fields preserve existing requirements rather than clearing them.
- const planned=value.intent==='chat'?{...previous,...requirements,mustHave:requirements.mustHave?.length?requirements.mustHave:previous.mustHave??[]}:requirements;
- const plannedTaste=value.intent==='chat'&&!nextTaste.prefer.length&&!nextTaste.avoid.length?taste:nextTaste;
+ const changedCategory=Boolean(previous.category&&requirements.category&&previous.category!==requirements.category);
+ const chatDefaults=changedCategory?{...(previous.audience?{audience:previous.audience}:{}),...(previous.budget?{budget:previous.budget}:{})}:previous;
+ const planned=value.intent==='chat'?{...chatDefaults,...requirements,mustHave:requirements.mustHave?.length?requirements.mustHave:changedCategory?[]:previous.mustHave??[]}:requirements;
+ const selectedTaste=value.intent==='chat'&&!nextTaste.prefer.length&&!nextTaste.avoid.length?taste:nextTaste;
+ const plannedTaste={prefer:[...selectedTaste.prefer],avoid:[...selectedTaste.avoid]};
+ // “Any colour” must also stop yesterday's colour preference biasing ranking.
+ for(const [field,label,terms] of [
+  ['colour','colou?r',/\b(blue|black|white|red|pink|green|yellow|purple|orange|beige|brown|grey|gray|navy|multicolou?r)\b/i],
+  ['fabric','(?:fabric|material)',/\b(cotton|linen|silk|rayon|viscose|georgette|chiffon|leather|suede|mesh|canvas|polyester)\b/i],
+ ] as const){
+  if(new RegExp(`\\b(?:any ${label}|no preference for ${label}|no ${label} preference)\\b`,'i').test(text)){
+   delete planned[field];planned.mustHave=planned.mustHave?.filter(term=>!terms.test(term)||text.toLowerCase().includes(term.toLowerCase()));
+   plannedTaste.prefer=plannedTaste.prefer.filter(term=>!terms.test(term)||text.toLowerCase().includes(term.toLowerCase()));
+   plannedTaste.avoid=plannedTaste.avoid.filter(term=>!terms.test(term)||text.toLowerCase().includes(term.toLowerCase()));
+  }
+ }
  return {intent:value.intent,reply:value.reply,requirements:planned,taste:plannedTaste,...(value.referenceOption!==null?{referenceOption:value.referenceOption}:{}),...(value.feedbackKind?{feedbackKind:value.feedbackKind}:{})};
 }
 export function missingQuestion(r:Requirements):string|null{

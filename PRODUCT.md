@@ -1,102 +1,155 @@
-# Chauffeur
+# Chauffeur · Product
 
-<!-- impeccable:product-schema 1 -->
+Updated 15 October 2026 from the builder’s decisions, existing website and GrowthX Product thinking. This defines V1; it does not certify that every milestone works. The approved logo reads **chauffer.**; the project remains Chauffeur.
 
-## Platform
-web
+Read [Idea-lock.md](Idea-lock.md), [DESIGN.md](DESIGN.md) and [AGENTS.md](AGENTS.md) together. Earlier implementation notes are preserved in [the previous product record](docs/history/PRODUCT-before-growthx.md). This brief takes priority over older scope statements; README.md and TESTING_LEDGER.md retain historical verification details.
 
-## Stack
-Vite + React, requested by the user. Convex is the only authorized backend, authentication and hosting provider. Changes are checked locally and deployed to the existing Convex static host.
+## 1. The job
 
-## Users
-People shopping for women’s and men’s fashion across Indian marketplaces, including clothing, shoes and accessories, and seeking help styling their existing wardrobe. Wider live discovery categories are still being built. More specific audience research is open.
+**When I’m choosing what to wear for an occasion and still feel unsure after spending time and money shopping, I want to find a look that suits my body, taste and what I already own, so I can feel confident in how I look.**
 
-## Product Purpose
-Build a WhatsApp-first, voice-first AI shopping agent that understands requests, personalises recommendations, remembers user preferences, helps compare prices and offers, and follows orders through tracking and return reminders. A voice-led app is part of the vision, not a confirmed release.
-The current separate web demo turns a shopping request into a comparable shortlist, with price, delivery, size and return information together.
+Other moments: getting ready for work, a wedding or a weekend; seeing something I like but not knowing how to wear it; deciding whether a purchase works with my clothes; feeling I have nothing to wear despite a full wardrobe.
 
-## Capabilities and Constraints
-Existing prototype searches eight fictional products across sample Amazon, Flipkart and Meesho catalogues. English, Hindi and Hinglish keyword requests are supported. Demo approval, cancellation, simulated delivery and return requests work. Size preferences and orders last only for the current session. This fictional demo has no live store connections, real AI, payments, WhatsApp, voice or backend; live discovery and saved accounts are separate at `/app/`.
-The user approved proceeding with a public homepage and a working shopping demo, then clarified that they must remain separate, linked pages. The homepage lives at / and the demo at /demo/, with separate HTML files and React entry points. Preserve the existing shopping behavior while moving the interface to React. No fabricated customer, review, savings or availability claims.
-The user requested the website describe the broader offerings above and use Hermes Agent as a section-structure reference. These are planned capabilities; describing them does not authorize claiming they are connected or building integrations in this website-content iteration. Pricing/offers help is interpreted as shopping price and promotion comparisons. Subscription pricing remains undecided; the sample demo is free.
+**Who, by situation:** an Indian fashion shopper who browses multiple stores, spends on clothes and still struggles to achieve the look they expected. Women’s and men’s clothing, footwear and accessories follow the existing website’s scope. Start trials with a concrete outfit need rather than every category at once.
 
-## Brand Commitments
-Chauffeur. A modern AI website with a desi or Renaissance quirk. Reference videos: Pallet Ross website animation on Pinterest (737183032788146890), Digital Art Website by QClay on Dribbble (25807235), Pinterest pin 341218109286424063. First two observed in Chrome; the third video loaded controls but its pixels remained blank.
+**Today they hire:** marketplace searches, social inspiration, friends’ advice, general AI chats and trial and error with their clothes. Sometimes they abandon the search or repeat a familiar outfit.
 
-## Evidence on Hand
-engine.js and engine.test.js contain the existing working demonstration. Reference videos favor oversized type, spacious modern layouts and animated artwork. No customer evidence or live merchant integrations.
+**The one we serve first:** the shopper choosing their own outfit; no caregiver, seller or professional stylist account.
 
-## Account foundation
+- Practical: a relevant selection and usable combinations.
+- Emotional: confidence, feeling understood and less purchase regret.
+- Social: expressing their own style comfortably for the occasion.
 
-The separate `/app/` page connects Convex Auth email/password account creation, sign-in, sign-out and persistent size, budget and language preferences to Chauffeur's own Convex project, with separate development and production databases. The homepage and fictional demo remain separate. Email verification and password recovery are not connected. Gemini free-text discovery is connected; browser purchasing, payments, real WhatsApp delivery and voice remain planned.
+The core pain is that even after spending a lot of money and time, someone may not look or feel as they expected. Searching across websites adds effort without necessarily solving styling. These are the builder’s problem statements, not validated interview findings.
 
-## WhatsApp discovery v0 backend
+## 2. The switch
 
-A test-only WhatsApp discovery backend now handles greetings, basic requirements and multi-store live discovery attempts without checkout. It uses shared Gemini planning when configured, or labelled rules mode without a key, and returns up to three dated options per reachable store, and does not claim verified size availability. Convex cloud discovery and a simulated full message workflow have been checked. The Meta number connection and real WhatsApp message delivery remain pending; the existing Saathi callback must not be replaced without an explicit choice. This does not change the fictional web demo or establish merchant partnerships.
+**What they’d fire:** repeated browsing, re-entering filters and guessing whether another purchase will work.
 
-## Live web discovery
+| Force | What matters | Product response |
+|---|---|---|
+| Push | Time and money spent still leave me unhappy with the look. | Connect discovery to the occasion, preferences and owned clothes. |
+| Pull | I want outfits that feel like me. | Let me describe, reject and refine in my own words. |
+| Anxiety | Another generic assistant, or one that judges my body. | Explain suggestions, accept correction and keep body context optional. |
+| Habit | I know my stores and ask friends. | Bring sourced options together and retain merchant checkout. |
 
-The signed-in `/app/` page provides a WhatsApp-like discovery conversation, quick replies and typed refinements. It attempts Flipkart and Amazon separately and shows verified merchant data with each store's access status. Flipkart product-page results and Amazon live search-card results were verified in production. Amazon access is intermittent. Meesho is paused and removed from active discovery after cloud access failures. Failed stores fall back to direct store-search links. Reliable Meesho results need another browser connection. Requested size availability remains unverified; checkout and WhatsApp number connection are not enabled. Chat is saved in Convex and survives reload. The separate `/demo/` remains fictional.
+**The one worry onboarding must remove:** “Will this understand what looks right to me, or just show me more clothes?”
 
-## Discovery update — 8 October 2026
+## 3. The core flow
 
-Web and WhatsApp now share saved Convex conversation planning and a discovery workflow. Web chats survive reload; fresh sessions use saved size and budget. Results include store-sourced images where available, and shoppers can reject a product, ask for more without repeats, or say none of these and refine colour/fabric/budget. This records the initial rule-based milestone; Gemini and taste ranking supersede that limitation below. WhatsApp identity linking and real message delivery remain unverified. Price sorting is not exact-product comparison. Price comparison and offer intelligence are planned, not built. See `IMPLEMENTATION_PLAN.md` for the phased discovery plan.
+### Today
 
-## Gemini discovery implementation
+1. I need a look for an occasion and feel unsure what works.
+2. I look for inspiration.
+3. I search one store.
+4. I repeat sizes, budget and filters on another store.
+5. I collect screenshots or links.
+6. I compare across tabs.
+7. I ask someone or a general AI, explaining my context again.
+8. I check my wardrobe and guess what goes together.
+9. I settle on a look, or give up and repeat something familiar.
 
-Convex Agent and Gemini now provide an optional shared free-text planner for web and WhatsApp. It interprets richer preferences and numbered product feedback, with deterministic ranking of real merchant candidates and evidence-backed recommendation reasons. Explicitly remembered size/budget/taste persist in the web profile. GEMINI_API_KEY is configured in development and production. A real Hinglish reply was verified on 11 October; style-search verification is recorded in README.md. Without a key, the app clearly identifies its basic rules mode. Store facts, size availability, price comparison, offer intelligence and real WhatsApp delivery retain their existing limits.
+Buying, trying on and possibly returning clothes follow. They reveal whether expectations were met; a shortlist alone does not prove a better final look.
 
-## Style discovery and website refresh — 11 October 2026
+### With Chauffeur · discovery and styling
 
-Negative requests are kept out of positive search terms. Concise style queries and bounded broad fallbacks run on both stores; hard budget, colour, fabric and explicitly required attributes remain enforced. Merchant synonyms such as plain/solid and embroidery/embroidered are matched when ranking. Ordinary style preferences cannot become mandatory filters without explicit wording. Preferences described while asking to wait before searching are retained. Store details still cannot prove suitability for an occasion or absence of an unmentioned detail.
+1. I describe my outfit need, occasion, budget and preferences in the assistant.
+2. I answer only missing details. Chauffeur uses saved preferences and relevant confirmed wardrobe context, searches supported stores and shows sourced options with reasons and uncertainty.
+3. I review and refine: “less formal”, “not this print” or “something with my white shirt”.
+4. I save a useful choice or choose an outfit, knowing how to wear it or what to check on the merchant site.
 
-The professional homepage prioritises the live `/app/` conversation. Request examples and the hero search carry a draft through sign-in; the shopper sends it themselves. The fictional `/demo/` stays separate. Marketing distinguishes available discovery from planned price comparisons, offers, WhatsApp, voice and checkout. No customer, review, savings or availability claims are invented.
+**Step comparison:** illustrative current journey: 9 actions; intended returning-user journey: 4, including one refinement. First-time sign-in, wardrobe entry and extra questions add actions. This is a hypothesis to measure, not a proven time saving.
 
-### Five-step homepage journey
-The homepage now has a scroll-driven, sticky five-step story: a need, a conversation, discovery, personalised recommendations and price comparison, then purchase approval. Clickable steps also work on smaller screens and with reduced motion. Clothing drawings and comparison prices are illustrative. WhatsApp, exact-product comparison and one-click checkout remain explicitly planned; web discovery and feedback ranking are live.
+**V1 completion:** a look or shortlist I can act on, with an understandable reason it may work for me. Actual fit and how I feel wearing it need follow-up; checkout is separate.
 
+### With Chauffeur · style what I own
 
-## Saved discovery and comparison foundations
+1. I need an outfit for my day and open Wardrobe.
+2. I add relevant pieces manually or confirm details read from clothing photos, and mark unavailable pieces.
+3. I describe my day and get up to three combinations using available owned pieces, guided by my chosen style and body/proportion context.
+4. I choose or revise a combination. If I want something new, I start discovery and can review a saved candidate against my wardrobe.
 
-The live web assistant now supports private saved favourites, side-by-side comparisons, dated price observations and refresh attempts, older-card feedback, visible consented taste and clearing controls, read-only chat history and stopping requests. Exact same-item delivered-price comparison and offer calculations have conservative backend rules and evidence storage; merchant identity/variant/shipping/terms collection is still missing. These foundations must not be marketed as live price comparison or verified savings. WhatsApp photo-message preparation is built but actual delivery remains untested. Recovery, account removal, checkout, order support, voice/photo search and alerts remain placeholders. Joint testing is tracked in TESTING_LEDGER.md.
+These are two routes to the same job; buying something is not required for wardrobe styling.
 
-Daily edit is an opt-in feature on `/app/`: fresh picks for the current shopping need, size, budget and taste, once daily around 9 am India time. It targets 4–6 real options and discloses fewer verified matches. Matching saved Flipkart products can carry dated listed-price-drop evidence; size-specific checkout savings, coupons, bank offers, sale detection and WhatsApp delivery remain unconnected. Pause is available, and needs older than 30 days require another chat.
+### What must not happen
 
-## Wardrobe outfits — 12 October 2026
+- Discovery step 2: invented products, stock, discounts or merchant partnerships; silent budget increases or dropped must-haves; inaccessible stores presented as having no stock.
+- Styling: compulsory body photos/labels, inferred measurements or identity, body shame, attractiveness scores or guaranteed fit.
+- Refinement step 3: forgotten dislikes, ambiguous product references acted on, or durable preference memory claimed without permission.
+- Wardrobe step 3: invented owned pieces, unavailable clothes presented as wearable now, or stale results after inventory changes.
+- Saving: another account’s data exposed, or saved preferences/clothes lost on reload.
+- Handoff: a store link described as an order placed. Size stock, delivery, returns and final totals are checked on the store.
 
-The signed-in web app supports a private wardrobe with optional photos and confirmed clothing details, editing, laundry availability and wear history. Gemini suggests up to three outfits for a free-text daily plan using only available owned pieces; invented items, incomplete outfits and stale inventory results are rejected. Photos are previews, not AI image analysis. Outfit recommendations currently live in their own web section; WhatsApp delivery and wardrobe-aware shopping-feed ranking remain future work.
+## 4. Onboarding
 
-## AI wardrobe photos and styling context — 12 October 2026
+**First value:** relevant options for the shopper’s actual need, with a reason tied to their preferences; or a useful combination from confirmed owned clothes. An account or body label is not first value.
 
-Photo analysis now sends a compressed clothing image to Gemini and stores a private, editable draft. It extracts the garment group and specific type (such as gown, jeans or blouse), colour, pattern, cut and tentative occasion suggestions. Brand is retained only when the model supplies readable label evidence; fabric composition stays unknown without a readable label. AI guesses require shopper review: confirmed details and the original AI reading are stored separately with the clothing photo. Abandoned drafts expire after 24 hours; failed analysis deletes the uploaded image. Manual entry remains available.
+**Smallest useful input:** the current need, category, budget and relevant size when required. Ask audience only when needed and unknown. Photos and wardrobe entry are optional for initial discovery.
 
-Optional self-described body/proportion, fit, style and avoid preferences are saved privately and can be cleared. They guide wardrobe outfit generation and the web shopping conversation together with owned clothing details. Current occasion/size/budget requests take priority; this is not a fit or attractiveness guarantee. No body type is inferred from images. Wardrobe-based daily-feed ranking, visual analysis of merchant candidates, exact purchase-gap detection, automatic cross-channel identity and WhatsApp wardrobe photo intake remain future work.
+Current path in this branch:
 
-## Photo onboarding, proportion estimates and virtual try-on — 12 October 2026
+1. Open the website and type a request: no install and an obvious starting point.
+2. Run one discovery-only guest preview; phone sign-in through Convex Auth is required to continue, refine or save. Retain the request through access.
+3. Complete the current basic setup (name, age, gender choice and preferred styles); photo and wardrobe steps remain optional. This reflects the newer onboarding implementation integrated from main; no compulsory portrait or full inventory.
+4. Review the retained draft, send it and see real options with matching reasons and access limits: demonstrate understanding on this shopper’s case.
+5. Refine or save a choice; ask for extra styling context or wardrobe pieces when useful.
 
-**Pending: real virtual try-on.** Resolve Gemini image-generation quota/access, generate a real preview, and test whether it preserves the shopper’s appearance and garment details. The screens and backend flow are built; this feature is not yet verified working end to end.
+**Login:** one discovery-only guest preview comes before phone sign-in. Private wardrobe, saved history and continued conversation require verified account access. The newer phone/guest implementation was integrated from main before this search release; SMS delivery and store access are separate checks.
 
-Signed-in web onboarding now saves usual size, language, per-item budget and fit/style/avoid preferences, then offers an optional full-length styling photo and a wardrobe step. It can be skipped or reopened. Existing taste and confirmed body descriptions are preserved when basic setup is saved.
+**Not asked on day one:** full wardrobe, compulsory body shape/photo, payment credentials, store accounts, WhatsApp connection, notifications or a tour.
 
-With explicit consent, Gemini can suggest a tentative visible body/proportion description and conventional shape shorthand. The shopper edits and confirms it before recommendations use it. Photo suitability for try-on is separate from whether body proportions are visible: an acceptable photo may have no shape estimate. Pose, camera angle and clothing affect reliability; no measurements, size, health or attractiveness assessment is made. Clothing-only photo analysis continues to describe the garment, not its wearer.
+**Asked later:** optional fit/body/style goals for personal advice; garment details when adding a piece; numeric shoe size plus UK/US/EU system when searching footwear. Clothing sizes cannot substitute for shoe sizes.
 
-The virtual fitting-room flow uses one wardrobe garment with a photo or one owned saved merchant product with an allowlisted image. It queues a Gemini image-editing request through Convex Workflow. Results are labelled AI visual previews, not size/fit verification. Generation is limited to five attempts in 24 hours while testing, without automatic provider retries. Output previews expire after seven days. Removing/replacing the portrait deletes its analysis and previews, clears an unchanged photo-derived description, and discards late output; manually edited preferences remain.
+## 5. V1
 
-**Known gap:** the real development image-generation call returned HTTP 429 (provider quota). No real generated try-on image has been verified; UI and backend integration are built, with success/cleanup checked using controlled image fixtures. Image quota/access must be resolved before live try-on can be called working. Full outfit/layered previews, garment-fidelity evaluation, body-estimate quality across photos, phone upload and WhatsApp photo onboarding remain joint/future work.
+### Does · three core capabilities
 
-## Buying intelligence and request input — 14 October 2026
+1. **AI and chat discovery:** understand English, Hindi and Hinglish requests, search supported Indian marketplaces, show manageable sourced results, explain matches, accept feedback, and save favourites/conversation.
+2. **Personal styling:** use optional editable body/proportion, fit and preferred-style context. Current requests override remembered preferences. Photo descriptions require consent and confirmation and remain tentative; they are not measurements or fit verification.
+3. **Smart wardrobe suggestions:** save/edit confirmed owned pieces and availability, suggest outfits for the day, and review how a saved candidate could work with the wardrobe. Clothing-photo readings remain correctable drafts.
 
-Built in the requested order:
-1. Saved-product price and advertised-offer checks read fresh merchant pages, refresh dated prices, search up to three other-store candidates and separate manufacturer-code identity matches from alternatives. Offer text is linked to its source; cashback and conditional offers are labelled separately. No offer is applied and no cheapest delivered total is claimed without exact variant, shipping, seller, returns and eligibility evidence. Failed checks preserve old dated observations. Missing readable terms do not mean no offers exist.
-2. Wardrobe-aware buying reviews use a saved merchant product, confirmed inventory, optional styling preferences and a supplied occasion. Gemini proposes available owned pairings, flags similar owned pieces and explains possible usefulness or reuse. Invented IDs and unavailable pairings are removed; wardrobe/product changes during generation reject stale advice. This lives in the shortlist, not the daily feed. Photos are not visually compared.
-3. Photo and voice inputs create editable chat drafts with explicit Gemini consent. A shopper reviews and sends the draft before the usual shared discovery flow runs. Photos search similar visible styles, not guaranteed exact products; they do not infer person details, size, brand or fabric composition. Voice supports short WebM/WAV/MP3/M4A uploads and up to 25-second recording on supported browsers. Raw input files and Agent messages are not stored by Chauffeur; sending the edited draft saves the usual text chat.
-4. Account support includes a partial shopping-data snapshot and sign-out on all devices using Convex Auth session invalidation. The snapshot discloses its limits: latest 100 web messages, seven daily edits, preferences, wardrobe metadata and saved products; no image files, older history or AI logs. Password recovery/email verification remain pending an approved email-delivery connection. Full account deletion is still pending comprehensive application, file, authentication and AI-history cleanup; no unsafe partial deletion is presented as complete removal.
+Private accounts, persistence, correction and honest failure states support these three capabilities. Purchases finish on merchant websites.
 
-Known gaps: Amazon access is intermittent, exact manufacturer codes often absent, readable offer extraction is limited by merchant markup and location/account context. Exact-price/offer arithmetic remains conservative until verified checkout evidence exists. Real virtual try-on remains pending the separate Gemini image-generation quota. WhatsApp delivery/account linking and voice replies remain unconnected.
+### After V1 · parked
 
-## Fashion assistant positioning — 14 October 2026
+- **In-app checkout:** payments, automatic spending, one-click ordering, verified tracking and return execution.
+- **Pricing intelligence:** exact same-item comparisons, cheapest delivered totals, coupon/bank/cashback optimisation, verified savings and price alerts.
+- Reliable WhatsApp delivery/account linking and a voice-first conversational channel.
+- Real virtual try-on, full outfit image generation and verified-fit claims.
+- Automatic wardrobe-gap detection and wardrobe-aware daily-feed ranking.
 
-The homepage now presents Chauffeur as a Fashion AI assistant for women and men: shopping, wardrobe styling, shoes and accessories. Hero inspiration includes real menswear, sneakers, a bag and existing clothing photography. Copy, examples, journey and page metadata reflect broader fashion assistance. This is a website positioning update: wider live store categories remain clearly marked as next; existing live discovery categories and the fictional demo are unchanged.
+Listed-price/advertised-offer checks, daily picks, photo/voice drafts and try-on foundations already exist. Preserve these experiments; their presence does not make them V1 requirements or validated promises.
 
-## 2026-10-14 — broader store discovery
-Live search now accepts clothing for women and men, footwear (including sneakers, boots, loafers and heels), bags, belts, watches and sunglasses. The same category vocabulary is used by chat, editable photo requests, price-check candidates and daily picks. Search audience follows explicit requests; it is not inferred from photos or names. Shoe sizes require their size system and do not reuse clothing sizes. Store readability, actual size stock, fit and checkout totals remain limitations. Real store searches verified men's shirts, sneakers and bags; Gemini free-text end-to-end testing was blocked by provider high demand on two attempts.
+**Nice to have:** better explanations, fewer repeated questions and better category relevance after all three loops work.
+
+**How we’ll know it worked:** proposed trial: of five shoppers with a current outfit need, at least three save or choose a relevant option and independently return for another need within two weeks. Ask what they actually wore and how it felt; count questions, browsing effort and rejected suggestions. Sign-ups and compliments alone do not establish success. These are proposed criteria, not results.
+
+## 6. The riskiest guess
+
+**If false, the product is pointless:** taste, optional body context and owned clothes lead to more useful outfit decisions than the shopper’s normal browsing or a general AI chat. More product cards alone do not solve the pain.
+
+Supporting technical risk: merchant pages must provide enough reliable information; access remains intermittent. Working searches do not prove good styling.
+
+**Thirty-minute check, no code:** ask two shoppers about their last disappointing outfit purchase. For one current occasion each, collect constraints and a few owned pieces, then manually prepare three sourced options with a chat tool. Have them choose/reject and explain, comparing effort with their usual process and counting follow-ups. Do not upload personal photos to a new service without permission. Failure means no useful option, generic advice unchanged by context, or extra effort without a better decision.
+
+**What happened:** not run in this documentation task. Historical merchant and generated-outfit checks are implementation evidence, not evidence shoppers look or feel better.
+
+## 7. Milestones
+
+Acceptance checks for the existing build, riskiest first. These are not newly completed milestones.
+
+1. I can describe an occasion and preferences and find a useful sourced option, with an understandable reason.
+2. I can reject/refine it without losing budget, size or must-haves.
+3. I can add, correct or clear optional body/fit/style context and see advice respect it without body judgement or fit guarantees.
+4. I can add/correct owned pieces, mark availability and receive an outfit using only confirmed available clothes.
+5. I can review a saved candidate against my wardrobe and open the merchant knowing what still needs checking.
+6. I can recover from an empty wardrobe, no matches, blocked store or AI failure without lost input or invented results.
+7. I can close and reopen the app and find my saved preferences, clothes, favourites and conversation; another account cannot access them.
+
+## Current implementation and evidence limits
+
+Source review finds separate `/`, `/app/` and `/demo/` entries; Gemini discovery, saved styling context, wardrobe generation and saved-product wardrobe reviews. Readers now cover Flipkart, Amazon, Myntra, AJIO, Bonkers Corner, Bewakoof and NEWME. Meesho, SNITCH and The Souled Store are attempted but currently return unavailable/direct-search links without readable catalogue data. The expansion is locally tested; cloud acceptance is pending. Other website store logos do not prove active connections. The eight-product demo is fictional and resets on reload.
+
+Previous notes record development/production checks; authenticated V1 loops were not rerun for this writing task. Real try-on previously hit provider quota; WhatsApp delivery remains unverified. See [TESTING_LEDGER.md](TESTING_LEDGER.md), [README.md](README.md) and [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md). The older plan includes broader work; this brief controls the V1 cut.
+
+Method: [GrowthX Product thinking](https://growthx.club/learn/build-sprint#/product-thinking), including all five chapters, read in Chrome on 15 October 2026. Saathi’s product brief informed the structure, not Chauffeur’s market or features. No shopper validation or Shaktimaan approval is claimed.

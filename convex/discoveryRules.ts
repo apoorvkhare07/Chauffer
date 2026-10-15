@@ -1,3 +1,4 @@
+import {storeValidator,productStore,merchantImageHosts} from './storeConfig';
 import {categoryPatterns,detectCategory,detectAudience,requestedAudience,sizeKind,validSize,sizeQuestion} from './fashionRules';
 import { v } from 'convex/values';
 import {positiveStyleTerms,negativeStyle,styleEvidence} from './styleTerms';
@@ -8,7 +9,7 @@ export const requirementsValidator = v.object({
  occasion:v.optional(v.string()),style:v.optional(v.string()),fit:v.optional(v.string()),pattern:v.optional(v.string()),sleeve:v.optional(v.string()),length:v.optional(v.string()),mustHave:v.optional(v.array(v.string())),
 });
 export type Requirements = import('convex/values').Infer<typeof requirementsValidator>;
-export const optionValidator = v.object({title:v.string(), url:v.string(), price:v.number(), colour:v.string(), fabric:v.string(), observedAt:v.number(),brand:v.optional(v.string()),manufacturerCode:v.optional(v.string()), store:v.optional(v.union(v.literal('Flipkart'),v.literal('Amazon'),v.literal('Meesho'))), source:v.optional(v.union(v.literal('product'),v.literal('listing'))), priceFrom:v.optional(v.boolean()),imageUrl:v.optional(v.string()),attributes:v.optional(v.array(v.string())),reasons:v.optional(v.array(v.string())),unknownPreferences:v.optional(v.array(v.string()))});
+export const optionValidator = v.object({title:v.string(), url:v.string(), price:v.number(), colour:v.string(), fabric:v.string(), observedAt:v.number(),brand:v.optional(v.string()),manufacturerCode:v.optional(v.string()), store:v.optional(storeValidator), source:v.optional(v.union(v.literal('product'),v.literal('listing'))), priceFrom:v.optional(v.boolean()),imageUrl:v.optional(v.string()),attributes:v.optional(v.array(v.string())),reasons:v.optional(v.array(v.string())),unknownPreferences:v.optional(v.array(v.string()))});
 export type Option = import('convex/values').Infer<typeof optionValidator>;
 
 export function nextRequest(text: string, previous: Requirements = {}): {requirements:Requirements; reply:string; search:boolean} {
@@ -42,7 +43,7 @@ export function nextRequest(text: string, previous: Requirements = {}): {require
  if (!requirements.budget) return {requirements,reply:'What is your maximum budget in rupees? For example: under ₹1,000.',search:false};
  if (!validSize(requirements.category,requirements.size)) return {requirements,reply:sizeQuestion(requirements.category),search:false};
  const query=searchTerms(requirements);
- return {requirements,reply:`I'll check Flipkart and Amazon now for ${query}, under ₹${requirements.budget.toLocaleString('en-IN')}${requirements.size?`, requested size ${requirements.size}`:''}. Size availability will need checking on the store.`,search:true};
+ return {requirements,reply:`I'll check Flipkart and Amazon plus the other supported fashion stores now for ${query}, under ₹${requirements.budget.toLocaleString('en-IN')}${requirements.size?`, requested size ${requirements.size}`:''}. Size availability will need checking on the store.`,search:true};
 }
 export function searchTerms(r:Requirements,includeSoft=true): string {
  const hard=positiveStyleTerms(r.mustHave??[]);
@@ -50,13 +51,16 @@ export function searchTerms(r:Requirements,includeSoft=true): string {
  const soft=includeSoft?positiveStyleTerms([r.pattern,r.fit,r.sleeve,r.length,r.style]).filter(term=>!hard.includes(term)).slice(0,2):[];
  return [...new Set([r.colour,r.fabric,...hard,...soft,r.category,r.audience].filter(Boolean))].join(' ');
 }
-export function allowedProductUrl(raw:string): boolean {try {const u=new URL(raw);return u.protocol==='https:'&&((u.hostname==='www.flipkart.com'&&u.pathname.includes('/p/'))||(u.hostname==='www.meesho.com'&&/^\/[^/]+\/p\/[a-z0-9]+\/?$/.test(u.pathname))||(u.hostname==='www.amazon.in'&&/\/(?:dp|gp\/product)\/[A-Z0-9]{10}(?:\/|$)/.test(u.pathname)))&&!u.username&&!u.password;}catch{return false;}}
+export function allowedProductUrl(raw:string): boolean {return Boolean(productStore(raw));}
 export function matchesOption(o:Option,r:Requirements): boolean {
  if (!allowedProductUrl(o.url)||!Number.isFinite(o.price)||o.price<=0||o.price>(r.budget??0)) return false;
  if (!r.category||!categoryPatterns[r.category]?.test(o.title))return false;
  // A dress shirt is a shirt, not a dress; a T-shirt is not a formal shirt.
  if(r.category==='dress'&&/dress shirts?|dress shoes?/i.test(o.title))return false;
  if(r.category==='shirt'&&categoryPatterns['t-shirt'].test(o.title))return false;
+ if(sizeKind(r.category)==='shoe'&&/\b(t[ -]?shirts?|tees?|shirts?|hoodies?|sweatshirts?|socks?)\b/i.test(o.title))return false;
+ if(r.audience&&r.audience!=='unisex'&&/\b(kids?|children|boys?|girls?|toddlers?|infants?)\b/i.test(o.title))return false;
+ if(/\b(shoe cleaner|shoe rack|shoe bag|shoelaces?|insoles?|shoe polish|shoe cover)\b/i.test(o.title)&&sizeKind(r.category)==='shoe')return false;
  const audience=detectAudience(o.title);
  if(r.audience&&audience&&audience!==r.audience&&audience!=='unisex')return false;
  const evidence=[o.title,o.colour,o.fabric,...(o.attributes??[])].join(' ');
@@ -76,4 +80,4 @@ export function optionsReply(options:Option[],r:Requirements): string {
  return `Here are ${entries.length} live fashion options:\n\n`+entries.join('\n\n')+`\n\nPrices checked just now without signing in; your account or location may show a different price. Shipping and offers can change. Listing prices are starting prices; product details and variants need checking.${r.size?` Requested size ${r.size}: availability hasn't been verified.`:''} Open the store to check size, price, delivery and returns. I won't place orders.\n\nTell me what to change, or say reset.`;
 }
 
-export function allowedImageUrl(raw:unknown): raw is string {if(typeof raw!=='string')return false;try{const u=new URL(raw);return u.protocol==='https:'&&!u.username&&!u.password&&['rukmini1.flixcart.com','rukmini2.flixcart.com','rukminim1.flixcart.com','rukminim2.flixcart.com','m.media-amazon.com','images-eu.ssl-images-amazon.com','images-na.ssl-images-amazon.com'].includes(u.hostname);}catch{return false;}}
+export function allowedImageUrl(raw:unknown): raw is string {if(typeof raw!=='string')return false;try{const u=new URL(raw);return u.protocol==='https:'&&!u.username&&!u.password&&merchantImageHosts.includes(u.hostname)&&!u.port;}catch{return false;}}
