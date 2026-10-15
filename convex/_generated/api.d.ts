@@ -70,6 +70,8 @@ import type * as wardrobe from "../wardrobe.js";
 import type * as wardrobeAI from "../wardrobeAI.js";
 import type * as wardrobeBuying from "../wardrobeBuying.js";
 import type * as wardrobeBuyingAI from "../wardrobeBuyingAI.js";
+import type * as wardrobeImageAI from "../wardrobeImageAI.js";
+import type * as wardrobeImages from "../wardrobeImages.js";
 import type * as wardrobeMetadata from "../wardrobeMetadata.js";
 import type * as wardrobePhoto from "../wardrobePhoto.js";
 import type * as wardrobeRules from "../wardrobeRules.js";
@@ -147,6 +149,8 @@ declare const fullApi: ApiFromModules<{
   wardrobeAI: typeof wardrobeAI;
   wardrobeBuying: typeof wardrobeBuying;
   wardrobeBuyingAI: typeof wardrobeBuyingAI;
+  wardrobeImageAI: typeof wardrobeImageAI;
+  wardrobeImages: typeof wardrobeImages;
   wardrobeMetadata: typeof wardrobeMetadata;
   wardrobePhoto: typeof wardrobePhoto;
   wardrobeRules: typeof wardrobeRules;
