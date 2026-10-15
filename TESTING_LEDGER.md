@@ -318,3 +318,12 @@ Production browser check: existing chat request "Find casual shirts using my sav
 - Browser: initial guest query executes without sign-in; a second message opens phone-only sign-in. No private app navigation shown. Live store attempts currently return no verified Flipkart matches and unavailable Amazon. Explicit store-search links provided; no fictional products substituted.
 - MSG91 server authorization check passes in development without sending an SMS. Real production SMS, CAPTCHA, sign-in, post-login onboarding and preserved follow-up require the builder's phone test (in progress).
 - Production phone test: builder received the SMS and completed the browser code, but server-side access-token verification returned `AuthenticationFailure`. The three copied values were compared without exposing them and match Saathi production. Saathi's internal probe accepts its server credentials; Chauffeur production rejects them, including with MSG91's documented body-auth format and control endpoint. MSG91 dashboard inspection is pending builder sign-in. No token-verification bypass is implemented.
+
+## Onboarding refresh — 2026-10-15
+- Shipped three-step layout using the homepage font, denim palette, soft panel transitions and shared brand loader.
+- Step 1: name, age, gender and styles; general preferences and dislikes optional. Removed budget and language questions (existing language retained; English default).
+- Step 2: optional photo, top/T-shirt size, jeans size with units, approximate height; explains stored fit context and photo limitations. Existing photo consent and confirmed body-description flow retained.
+- Step 3: image-led wardrobe upload, AI draft review and explicit confirmation before saving. Both later steps skippable.
+- Checked: production step-one layout at desktop and 390px phone width; style chip toggle updates free text. No test preferences saved into the builder's account.
+- Automated: 4 website/engine tests plus 99 backend tests pass, backend typecheck and production build pass. Added private fit-detail persistence and invalid-height checks.
+- Test together next: fill actual step-one details; save/skip step two; upload a personal photo with consent and a wardrobe image, confirm analysis, finish setup and revisit Settings. These changed upload screens have not yet been exercised end to end with real personal images.

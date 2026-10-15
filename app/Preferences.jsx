@@ -16,7 +16,7 @@ export default function Preferences() {
   const data = new FormData(event.currentTarget);
   const budget = data.get('budget');
   try {
-   await save({preferences:{language:data.get('language'),...(data.get('audience')?{audience:data.get('audience')}:{}),...(data.get('age')?{age:Number(data.get('age'))}:{}), ...(data.get('size') ? {size:data.get('size')} : {}), ...(budget ? {budgetPaise:Math.round(Number(budget)*100)} : {})}});
+   await save({preferences:{...(saved?.name?{name:saved.name}:{}),...(saved?.gender?{gender:saved.gender}:{}),...(saved?.heightCm?{heightCm:saved.heightCm}:{}),...(saved?.jeansSize?{jeansSize:saved.jeansSize}:{}),language:data.get('language'),...(data.get('audience')?{audience:data.get('audience')}:{}),...(data.get('age')?{age:Number(data.get('age'))}:{}), ...(data.get('size') ? {size:data.get('size')} : {}), ...(budget ? {budgetPaise:Math.round(Number(budget)*100)} : {})}});
    setMessage('Your preferences are saved and apply to your next message.');
   } catch(e) {setError(String(e.message).includes('current search')?'Wait for your current search to finish, then save.':'Could not save your preferences. Please try again.');}
   finally {setBusy(false);}

@@ -6,6 +6,9 @@ import type {Requirements} from './discoveryRules';
 export type Preferences=Infer<typeof preferences>;
 export function profileDefaults(p?:Preferences):Requirements{return {...(p?.audience?{audience:p.audience}:{}),...(p?.size?{size:p.size}:{}),...(p?.budgetPaise?{budget:p.budgetPaise/100}:{})};}
 export async function savePreferences(ctx:MutationCtx,owner:string,next:Preferences){
+ if(next.name!==undefined&&(!next.name.trim()||next.name.length>60))throw new Error('Enter a name under 60 characters.');
+ if(next.jeansSize!==undefined&&next.jeansSize.length>40)throw new Error('Keep jeans size under 40 characters.');
+ if(next.heightCm!==undefined&&(!Number.isFinite(next.heightCm)||next.heightCm<80||next.heightCm>250))throw new Error('Height must be between 80 and 250 cm.');
  if(next.size&&next.size.length>40)throw new Error('Size is too long.');
  if(next.budgetPaise!==undefined&&(!Number.isSafeInteger(next.budgetPaise)||next.budgetPaise<10000||next.budgetPaise>5000000))throw new Error('Budget must be between ₹100 and ₹50,000.');
  if(next.age!==undefined&&(!Number.isInteger(next.age)||next.age<13||next.age>120))throw new Error('Choose an age between 13 and 120.');
