@@ -26,3 +26,11 @@ test('confirmed taste is used as context without inventing hard constraints or a
  expect(r).not.toHaveProperty('style');
  expect(nextDiscoveryQuestion({category:'jeans',budget:2000},[],{prefer:['relaxed fit'],avoid:[]})?.field).toBe('occasion');
 });
+test('store variety cannot displace verified preference matches with an unrelated fit',async()=>{
+ const {chooseBatch}=await import('./ranking');
+ const base={store:'Amazon' as const,title:'Men Relaxed Fit Jeans',url:'https://www.amazon.in/dp/B000000001',price:2000,colour:'',fabric:'',observedAt:1};
+ const matches=Array.from({length:6},(_,i)=>({...base,title:`Men Relaxed Fit Jeans ${i}`,url:`https://www.amazon.in/dp/B00000000${i+1}`}));
+ const other={...base,store:'Myntra' as const,title:'Men Straight Fit Jeans',url:'https://www.myntra.com/jeans/brand/straight/123/buy'};
+ const batch=chooseBatch([...matches,other],{category:'jeans',budget:2500,fit:'relaxed'},{prefer:[],avoid:[]});
+ expect(batch).toHaveLength(6);expect(batch.every(o=>o.title.includes('Relaxed'))).toBe(true);
+});
