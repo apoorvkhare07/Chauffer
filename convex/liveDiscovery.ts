@@ -2,7 +2,7 @@
 import {addedStores,shopifySearchStores,storeConfig} from './storeConfig';
 import {expandedRetailOptions} from './expandedRetail';
 import {comparePrices} from './discoveryPolicy';
-import {fashionCategories,sizeKind} from './fashionRules';
+import {fashionCategories} from './fashionRules';
 import {stores,storeSearchUrl,storeResultValidator,type StoreResult} from './marketplaces';
 import {chooseBatch} from './ranking';
 import {tasteValidator,emptyTaste,type Taste} from './taste';
@@ -140,11 +140,11 @@ export async function discoverAcrossStores(requirements:Requirements,excludeUrls
    return {options,result:{store,status:options.length?'matched':'no_matches',searchUrl} as StoreResult};
   }catch(error){console.warn('Store discovery unavailable',store,error instanceof Error?error.message.slice(0,120):'Unknown response');return {options:[] as Option[],result:{store,status:'unavailable',searchUrl} as StoreResult};}
  }));
- // Direct readers stay first. H&M apparel recovery joins the verified pool,
- // sharing the same seven-page cap; unproven new sources never trigger browsers.
+ // Direct readers stay first. Only production-verified recovery sources use
+ // browser slots. New-source manual trials do not enable automatic recovery.
  // Two at a time matches the free account's concurrency, max one page per store.
- const eligible=new Set(['Flipkart','AJIO','Bewakoof','The Souled Store','Amazon','Myntra','Meesho',...(sizeKind(requirements.category)!=='shoe'?['H&M']:[])]);
- const recoveries=process.env.BROWSERLESS_API_KEY?results.filter(x=>x.result.status==='unavailable'&&eligible.has(x.result.store)).sort((a,b)=>Number(b.result.store==='H&M')-Number(a.result.store==='H&M')).slice(0,7):[];
+ const eligible=new Set(['Flipkart','AJIO','Bewakoof','The Souled Store','Amazon','Myntra','Meesho']);
+ const recoveries=process.env.BROWSERLESS_API_KEY?results.filter(x=>x.result.status==='unavailable'&&eligible.has(x.result.store)).slice(0,7):[];
  for(let offset=0;offset<recoveries.length;offset+=2)await Promise.all(recoveries.slice(offset,offset+2).map(async entry=>{
   try{
    const remaining=browserDeadline-Date.now();if(remaining<1000)return;
