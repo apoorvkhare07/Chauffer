@@ -1,4 +1,4 @@
-import {questionAnswer,nextDiscoveryQuestion,shouldClarifyBefore} from './discoveryQuestions';
+import {acceptsDiscovery,questionAnswer,nextDiscoveryQuestion,shouldClarifyBefore} from './discoveryQuestions';
 import type {MutationCtx} from './_generated/server';
 import type {Doc,Id} from './_generated/dataModel';
 import {createThread} from '@convex-dev/agent';
@@ -17,6 +17,16 @@ export async function beginTurn(ctx:MutationCtx,conversation:Doc<'conversations'
   const recent=await ctx.db.query('messages').withIndex('by_conversation_session',q=>q.eq('conversationId',conversation._id).eq('session',conversation.session)).order('desc').take(80);
   if(!recent.some(m=>m.result?.options.some(o=>o.url===rejectUrl)))throw new Error('Choose a product from this conversation.');
  }
+ if(acceptsDiscovery(text)){
+  const recent=await ctx.db.query('messages').withIndex('by_conversation_session',q=>q.eq('conversationId',conversation._id).eq('session',conversation.session)).order('desc').take(30);
+  if(recent.find(m=>m.result)?.result?.options.length){
+   const revision=conversation.revision+1;const reply='Got it—these picks work for you. You can keep refining or start a new search.';
+   await ctx.db.patch(conversation._id,{revision,discoveryStatus:'satisfied',discoveryQuestion:undefined,pending:false,aiTurn:false,updatedAt:Date.now()});
+   await ctx.db.insert('messages',{conversationId:conversation._id,session:conversation.session,role:'user',text});
+   await ctx.db.insert('messages',{conversationId:conversation._id,session:conversation.session,role:'assistant',text:reply});
+   return {requirements:conversation.requirements,reply,search:false,aiRequested:false,conversationId:conversation._id,revision,session:conversation.session,excludeUrls:conversation.shownUrls};
+  }
+ }
  const reset=/^(reset|start)[!.\s]*$/i.test(text);
  const previous=reset?defaults:conversation.requirements;
  const answer=reset?null:questionAnswer(text,conversation.discoveryQuestion);
@@ -34,7 +44,7 @@ export async function beginTurn(ctx:MutationCtx,conversation:Doc<'conversations'
  const rejectedUrls=reset?[]:[...new Set([...conversation.rejectedUrls,...(rejectUrl?[rejectUrl]:[])])].slice(-120);
  let shownUrls=reset?[]:conversation.shownUrls;
  // Keep seen products excluded throughout this chat, including refinements.
- await ctx.db.patch(conversation._id,{discoveryQuestion:discoveryQuestion??(useAI?conversation.discoveryQuestion:undefined),requirements:plan.requirements,revision,session,pending:plan.search||useAI,aiTurn:useAI,inputText:text,updatedAt:Date.now(),shownUrls,rejectedUrls,...(reset?{taste:emptyTaste,agentThreadId:undefined}:{})});
+ await ctx.db.patch(conversation._id,{discoveryStatus:reset?'exploring':plan.search?'refining':conversation.discoveryStatus??'exploring',discoveryQuestion:discoveryQuestion??(useAI?conversation.discoveryQuestion:undefined),requirements:plan.requirements,revision,session,pending:plan.search||useAI,aiTurn:useAI,inputText:text,updatedAt:Date.now(),shownUrls,rejectedUrls,...(reset?{taste:emptyTaste,agentThreadId:undefined}:{})});
  if(reset)await ctx.db.insert('messages',{conversationId:conversation._id,session,role:'assistant',text:plan.reply});
  else{
   if(conversation.revision===0)await ctx.db.insert('messages',{conversationId:conversation._id,session,role:'assistant',text:welcome});

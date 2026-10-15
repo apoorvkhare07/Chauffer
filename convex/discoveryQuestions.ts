@@ -3,15 +3,19 @@ import type {Taste} from './taste';
 import type {Option,Requirements} from './discoveryRules';
 import {sizeKind} from './fashionRules';
 export const discoveryQuestionValidator=v.object({field:v.union(v.literal('occasion'),v.literal('style'),v.literal('pattern'),v.literal('fit'),v.literal('colour'),v.literal('fabric'),v.literal('brand')),question:v.string(),choices:v.array(v.object({label:v.string(),text:v.string(),value:v.string()}))});
+export const discoveryStatusValidator=v.union(v.literal('exploring'),v.literal('refining'),v.literal('satisfied'));
+export function acceptsDiscovery(text:string){return /^(?:these (?:work|are right)(?: for me)?|(?:i(?:'ve| have) )?found what i (?:wanted|want)|this is what i wanted|that(?:'s| is) (?:perfect|exactly what i wanted))[.!\s]*$/i.test(text.trim());}
 export const discoveryFields=['occasion','style','pattern','fit','colour','fabric','brand'];
 export type DiscoveryQuestion=Infer<typeof discoveryQuestionValidator>;
 export function nextDiscoveryQuestion(r:Requirements,options:Option[]=[],taste:Taste={prefer:[],avoid:[]}):DiscoveryQuestion|null{
  if(!r.category||!r.budget)return null;
  const asked=new Set(r.askedDiscoveryFields??[]),shoe=sizeKind(r.category)==='shoe',athletic=['sneakers','shoes'].includes(r.category),waist=sizeKind(r.category)==='waist';
  const known:Partial<Record<DiscoveryQuestion['field'],RegExp>>={fit:/\b(slim|straight|relaxed|oversized|regular)\b/i,style:/\b(classic|chunky|sporty|retro|minimal)\b/i,pattern:/\b(plain|solid|printed|floral|striped)\b/i,colour:/\b(black|white|blue|red|green|pink|beige|brown|grey|gray|navy)\b/i};
- const question=(field:DiscoveryQuestion['field'],text:string,values:[string,string,string][]):DiscoveryQuestion|null=>asked.has(field)||r[field]||taste.prefer.some(term=>known[field]?.test(term))?null:{field,question:text,choices:values.map(([label,text,value])=>({label,text,value}))};
+ const question=(field:DiscoveryQuestion['field'],text:string,values:[string,string,string][]):DiscoveryQuestion|null=>asked.has(field)||r[field]||taste.prefer.some(term=>known[field]?.test(term))?null:{field,question:text,choices:values.map(([label,text,value])=>({label,text,value})).filter(choice=>!taste.avoid.some(term=>term.toLowerCase().includes(choice.value.toLowerCase())))};
+ const colour=question('colour','Any specific colour in mind? You can also type another colour.',r.category==='jeans'?[['Black','I prefer black','black'],['Blue','I prefer blue','blue'],['Grey','I prefer grey','grey']]:[['Black','I prefer black','black'],['White','I prefer white','white'],['Blue','I prefer blue','blue']]);
  const fit=question('fit','What fit do you prefer: slim, straight, or relaxed?',[['Slim fit','I prefer a slim fit','slim'],['Straight fit','I prefer a straight fit','straight'],['Relaxed fit','I prefer a relaxed fit','relaxed']]);
  if(waist&&fit)return fit;
+ if(waist&&options.length&&colour)return colour;
  const purpose=question('occasion',athletic?'What will you mainly use these for: everyday wear, long walks, or workouts?':'What are you shopping for: everyday wear, work, or an occasion?',athletic?[['Everyday wear','For everyday wear','everyday'],['Long walks','For long walks','walking'],['Workouts','For workouts','workout']]:[['Everyday wear','For everyday wear','everyday'],['Work','For work','work'],['Party or celebration','For a party or celebration','party']]);
  if(purpose)return purpose;
  if(shoe){
@@ -21,8 +25,7 @@ export function nextDiscoveryQuestion(r:Requirements,options:Option[]=[],taste:T
   const pattern=question('pattern','Do you prefer plain pieces, prints, or stripes?',[['Plain','I prefer plain pieces','solid'],['Printed','I prefer printed pieces','printed'],['Striped','I prefer striped pieces','striped']]);if(!['bag','belt','watch','sunglasses'].includes(r.category)&&!r.style&&pattern)return pattern;
   if(sizeKind(r.category)!=='none'&&fit)return fit;
  }
- const colours=[...new Set(options.map(o=>o.colour.toLowerCase()).filter(Boolean))];
- const colour=question('colour',colours.length>1?'These picks come in different colours. Which direction do you prefer?':'Any preferred colour: black, white, blue, or something else?',[['Black','I prefer black','black'],['White','I prefer white','white'],['Blue','I prefer blue','blue']]);if(colour)return colour;
+ if(colour)return colour;
  if(shoe)return question('fabric','Do you prefer leather, canvas, or mesh?',[['Leather','I prefer leather','leather'],['Canvas','I prefer canvas','canvas'],['Mesh','I prefer mesh','mesh']]);
  return null;
 }

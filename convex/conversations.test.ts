@@ -63,3 +63,22 @@ test('skipping a discovery question searches without inventing the skipped prefe
  await user.mutation(api.conversations.post,{text:'No preference, show options'});await t.finishAllScheduledFunctions(vi.runAllTimers);
  current=await user.query(api.conversations.current,{});expect(current.requirements.occasion).toBeUndefined();expect(current.requirements).toMatchObject({budget:2000,size:'M'});expect(current.messages.at(-1)?.result?.options.length).toBeGreaterThan(0);expect(current.discoveryQuestion?.field).toBe('pattern');
 });
+test('discovery success requires explicit confirmation; reset isolates chat taste and old sessions',async()=>{
+ vi.useFakeTimers();mockStores();const t=convexTest(schema,modules);workflow.register(t);const user=t.withIdentity({subject:'goal-user',issuer:'https://test.chauffeur'});
+ await user.mutation(api.profiles.save,{preferences:{size:'M',budgetPaise:200000,language:'en'}});
+ await t.run(async ctx=>{const p=await ctx.db.query('profiles').withIndex('by_owner',q=>q.eq('owner','goal-user')).unique();await ctx.db.patch(p!._id,{taste:{prefer:['floral'],avoid:['black']}});});
+ await user.mutation(api.conversations.post,{text:'kurta just search'});await t.finishAllScheduledFunctions(vi.runAllTimers);
+ let current=await user.query(api.conversations.current,{});expect(current.discoveryStatus).toBe('refining');
+ await user.mutation(api.conversations.post,{text:'These work for me'});
+ current=await user.query(api.conversations.current,{});expect(current.discoveryStatus).toBe('satisfied');expect(current.pending).toBe(false);expect(current.discoveryQuestion).toBeUndefined();
+ await user.mutation(api.conversations.post,{text:'reset'});
+ current=await user.query(api.conversations.current,{});expect(current.discoveryStatus).toBe('exploring');expect(current.messages).toHaveLength(1);
+ const row=await t.run(ctx=>ctx.db.query('conversations').withIndex('by_key',q=>q.eq('key','web:goal-user')).unique());expect(row?.taste).toEqual({prefer:[],avoid:[]});expect(row?.shownUrls).toEqual([]);expect(row?.rejectedUrls).toEqual([]);
+ const saved=await t.run(ctx=>ctx.db.query('profiles').withIndex('by_owner',q=>q.eq('owner','goal-user')).unique());expect(saved?.taste?.prefer).toContain('floral');
+});
+test('AI context contains only the active session history and its current need',async()=>{
+ const t=convexTest(schema,modules);
+ const id=await t.run(async ctx=>{const id=await ctx.db.insert('conversations',{key:'web:context-user',agentThreadId:'fixture',aiTurn:true,inputText:'black',requirements:{category:'jeans',budget:2500,size:'32',fit:'relaxed'},taste:{prefer:['relaxed'],avoid:[]},revision:2,session:2,pending:true,updatedAt:Date.now(),shownUrls:[],rejectedUrls:[]});
+ await ctx.db.insert('messages',{conversationId:id,session:1,role:'user',text:'Old chat: red party dresses'});await ctx.db.insert('messages',{conversationId:id,session:2,role:'user',text:'Relaxed jeans under 2500'});return id;});
+ const context=await t.query(internal.aiConversations.context,{conversationId:id,revision:2});expect(context?.prompt.history.map(m=>m.text)).toEqual(['Relaxed jeans under 2500']);expect(context?.prompt.requirements).toMatchObject({fit:'relaxed',budget:2500,size:'32'});expect(context?.prompt.wardrobe).toEqual([]);
+});

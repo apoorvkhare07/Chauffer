@@ -37,3 +37,14 @@ test('Amazon brand evidence is read from its own result row, separately from the
  expect(amazonOptions(html,{...r,brand:'Nike'},1)[0]).toMatchObject({brand:'Nike',title:'Men Court Vision Sneakers',price:3999});
  expect(amazonOptions(html,{...r,brand:'Puma'},1)).toEqual([]);
 });
+test('a short refinement keeps confirmed current-session requirements when the model omits them',()=>{
+ const previous={category:'jeans',audience:'men' as const,budget:2500,size:'32',fit:'relaxed',brand:'SNITCH',askedDiscoveryFields:['fit','colour']};
+ const raw={intent:'refine',reply:'I will look for black',requirements:{category:null,audience:null,budget:null,size:null,brand:null,colour:'black',fabric:null,occasion:null,style:null,fit:null,pattern:null,sleeve:null,length:null,mustHave:[]},taste:{prefer:[],avoid:[]},referenceOption:null,feedbackKind:null};
+ expect(normalizeDecision(raw,previous,{prefer:[],avoid:[]},'black').requirements).toMatchObject({...previous,colour:'black'});
+});
+test('current-chat must-haves and feedback survive an abbreviated refinement',()=>{
+ const previous={category:'jeans',budget:2500,size:'32',fit:'relaxed',mustHave:['relaxed']};
+ const raw={intent:'refine',reply:'Black options',requirements:{category:null,budget:null,size:null,colour:'black',fabric:null,occasion:null,style:null,fit:null,pattern:null,sleeve:null,length:null,mustHave:[]},taste:{prefer:[],avoid:[]},referenceOption:null,feedbackKind:null};
+ const plan=normalizeDecision(raw,previous,{prefer:['relaxed'],avoid:['embroidered']},'black');expect(plan.requirements.mustHave).toContain('relaxed');expect(plan.taste).toEqual({prefer:['relaxed'],avoid:['embroidered']});
+ expect(normalizeDecision(raw,previous,{prefer:[],avoid:[]},'any fit').requirements.fit).toBeUndefined();
+});

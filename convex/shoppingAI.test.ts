@@ -33,7 +33,7 @@ test('AI plans free text in the shared workflow, ranks real evidence and saves o
  await user.mutation(api.profiles.save,{preferences:{language:'hi',size:'L',budgetPaise:200000}});
  expect((await t.run(ctx=>ctx.db.get(profile!._id)))?.taste?.prefer).toContain('solid');
  await user.mutation(api.conversations.post,{text:'reset'});expect((await user.query(api.conversations.current,{})).requirements).toEqual({size:'L',budget:2000});
- const conversation=await t.run(ctx=>ctx.db.query('conversations').withIndex('by_key',q=>q.eq('key','web:alice')).unique());expect(conversation?.taste?.prefer).toContain('solid');
+ const conversation=await t.run(ctx=>ctx.db.query('conversations').withIndex('by_key',q=>q.eq('key','web:alice')).unique());expect(conversation?.taste).toEqual({prefer:[],avoid:[]});
 });
 test('missing details get one question; invalid reference, false memory consent and model failure cannot silently act',async()=>{
  const {t,user}=setup();const generate=vi.spyOn(Agent.prototype,'generateObject').mockImplementation(async()=>modelReply(reply('refine',{requirements:{...fullRequirements,category:null,size:null,budget:null}})));

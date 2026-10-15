@@ -245,3 +245,8 @@ Live verification: the brand question → Nike flow returned six Nike choices at
 
 
 Contextual question verification: Chrome now asks fit for a broad jeans request and intended use for a broad sneaker request. Choosing relaxed fit changes retrieval and ranking while retaining budget/size; a focused relaxed-jeans request searches directly and then offers an occasion question. Known or previously offered fields are skipped, and “No preference, show options” searches without inventing a preference. Confirmed intent evidence precedes store variety. Final suite: 141 tests, backend types/build pass; live evidence and limitations are in TESTING_LEDGER.md.
+
+
+### Discovery keeps refining within the current chat
+
+Jeans results now prioritise a colour follow-up once fit is known. A short answer such as “black” retains current budget, size and fit. Success requires explicit shopper confirmation through “These work for me”; displaying results keeps discovery open for refinement. New search/reset clears working chat context and does not automatically load past-chat taste. Saved size/budget settings remain starting defaults and saved history is retained. See DISCOVERY.md for the session boundary and evidence rules.

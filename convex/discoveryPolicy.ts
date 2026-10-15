@@ -32,5 +32,5 @@ export function discoverySummary(options:Option[],r:Requirements){
  const money=(n:number)=>'₹'+n.toLocaleString('en-IN');
  const budgetNote=floor?(inRange?`I prioritised ${money(floor)}–${money(r.budget!)} picks.${inRange<options.length?' Lower-priced alternatives follow.':''}`:`I couldn’t verify picks around ${money(floor)}–${money(r.budget!)}; these are lower-priced alternatives.`):'Lower-priced picks come first.';
 
- return `I found ${options.length} new options. ${budgetNote}`;
+ return `Here are ${options.length} options to narrow down. ${budgetNote}`;
 }

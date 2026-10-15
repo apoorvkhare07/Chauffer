@@ -22,3 +22,12 @@ The existing separate wardrobe functions are not yet this shared coordinator. Th
 Question buttons carry the exact field/value chosen by the shopper, bypassing a second model call. Free-text replies still use the discovery agent. A skip starts retrieval without inventing the missing attribute; “no more questions” disables further optional questions for that item. Occasion words only improve ranking when merchant text supplies evidence (for example training/walking/formal); they are not suitability or comfort guarantees. Bounded merchant queries include confirmed occasion/style terms with broad fallback retaining hard constraints.
 
 Within the spending band, explicit fit/pattern/style and occasion evidence come before store variety. Unknown/nonmatching preferences remain fallback; do not insert a straight-fit pair just to add another store when relaxed-fit matches exist. When needed to fill the shortlist with evidence matches, allow up to six per store; ordinary searches retain the normal source cap. Hard constraints still apply to every option.
+
+
+## Goal and session boundaries
+
+Discovery succeeds when the shopper explicitly confirms the shortlist is useful. Returning product cards only advances the conversation to refining. “These work for me” (or an equivalent explicit message) confirms the current shortlist without saving, purchasing or changing account preferences. A further refinement reopens discovery; new search/reset starts exploring again. Do not infer success from a result count, save, click or absence of feedback.
+
+For jeans, after fit is known and results exist, ask colour before generic occasion questions. Colour answers preserve category, size, budget, fit, brand and other current requirements. Short model replies cannot silently clear unmentioned current requirements, must-haves or feedback; explicit “any fit/colour” can relax that field.
+
+A session means the current chat until new search/reset, including reloads of that chat. Context contains only its bounded history, confirmed requirements, taste, shown/rejected URLs and references. New chats do not automatically import learned taste from profile/past chats. Explicit account size/budget/audience/language settings remain defaults, and saved records/history are retained. Stored wardrobe/styling context is supplied only when the current chat explicitly requests it. Convex Agent cross-thread search remains off. Earlier current-session information survives in structured state even when the bounded message window no longer contains the original wording.

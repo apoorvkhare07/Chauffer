@@ -19,6 +19,9 @@ export const decisionValidator=v.object({intent:v.union(v.literal('search'),v.li
 export type Decision=Infer<typeof decisionValidator>;
 export function normalizeDecision(raw:unknown,previous:Requirements,taste:Taste,text=""):Decision{
  const value=decisionSchema.parse(raw);const named=namedBrands(text);if(named.length>1){value.intent='chat';value.reply=`Which brand should I search first: ${named.join(' or ')}?`;}const requirements=Object.fromEntries(Object.entries(value.requirements).filter(([,v])=>v!==null)) as Requirements;
+ // Carry the active chat's confirmed attributes when a short refinement omits them.
+ const sameItem=!requirements.category||requirements.category===previous.category;
+ for(const field of ['category','budget','size','colour','fabric','occasion','style','fit','pattern','sleeve','length'] as const){if(requirements[field]===undefined&&previous[field]!==undefined&&(sameItem||field==='budget'))(requirements as any)[field]=previous[field];}
  // A new category is a new item: stale shirt fabric/cut must not filter shoes.
  // Explicitly restated values (or “keep/same”) can carry over.
  if(previous.category&&requirements.category&&requirements.category!==previous.category){
@@ -37,14 +40,17 @@ export function normalizeDecision(raw:unknown,previous:Requirements,taste:Taste,
  if(explicitAudience)requirements.audience=explicitAudience;else if(previous.audience)requirements.audience=previous.audience;
  if(requirements.category&&sizeKind(requirements.category)!==sizeKind(previous.category)&&requirements.size===previous.size)delete requirements.size;
  if(requirements.audience&&previous.audience&&requirements.audience!==previous.audience&&requirements.size===previous.size&&!/\bsize\b/i.test(text))delete requirements.size;
- const avoid=cleanTerms([...value.taste.avoid,...value.taste.prefer.map(negativeStyle).filter((x):x is string=>Boolean(x)),...(requirements.mustHave??[]).map(negativeStyle).filter((x):x is string=>Boolean(x)),...[requirements.style,requirements.pattern].map(x=>x?negativeStyle(x):null).filter((x):x is string=>Boolean(x))].map(term=>negativeStyle(term)??canonicalStyle(term)));
+ if(sameItem&&!/\b(?:drop|clear|remove|relax) (?:all |my |the )?(?:must.haves|constraints|requirements)\b/i.test(text))requirements.mustHave=[...new Set([...(requirements.mustHave??[]),...(previous.mustHave??[])])];
+ const inherited=sameItem&&value.intent!=='forget'?taste:{prefer:[],avoid:[]};
+ const explicitPositive=positiveStyleTerms([...value.taste.prefer,requirements.colour]).filter(term=>text.toLowerCase().includes(term));
+ const avoid=cleanTerms([...value.taste.avoid,...inherited.avoid.filter(term=>!explicitPositive.includes(term)),...value.taste.prefer.map(negativeStyle).filter((x):x is string=>Boolean(x)),...(requirements.mustHave??[]).map(negativeStyle).filter((x):x is string=>Boolean(x)),...[requirements.style,requirements.pattern].map(x=>x?negativeStyle(x):null).filter((x):x is string=>Boolean(x))].map(term=>negativeStyle(term)??canonicalStyle(term)));
  const explicitMust=/\b(only|must|has to|needs to|compulsory|sirf)\b|सिर्फ|केवल|ज़रूर/i.test(text.replace(/not (?:a )?must|not mandatory|not compulsory|don.t have to|do not have to/gi,''));
  const onlyCotton=/(?:only|sirf|सिर्फ|केवल)\s+(?:cotton\b|कॉटन|कपास|सूती)(?!\s*(?:blend|mix))|\bcotton only\b/i.test(text);
  const notOnlyCotton=/not only cotton|sirf cotton nahi|सिर्फ\s*कॉटन\s*नहीं/i.test(text);
  if(onlyCotton&&!notOnlyCotton)requirements.fabric='pure cotton';
  requirements.mustHave=positiveStyleTerms(requirements.mustHave??[]).filter(term=>explicitMust||positiveStyleTerms(previous.mustHave??[]).includes(term));
  for(const field of ['style','pattern','fit','sleeve','length'] as const){const term=requirements[field];if(term){if(negativeStyle(term))delete requirements[field];else requirements[field]=canonicalStyle(term);}}
- const nextTaste={prefer:cleanTerms(positiveStyleTerms(value.taste.prefer).filter(term=>!avoid.includes(term))),avoid};
+ const nextTaste={prefer:cleanTerms(positiveStyleTerms([...value.taste.prefer,...inherited.prefer]).filter(term=>!avoid.includes(term))),avoid};
  // An explicit broad request for prints is not permission to pick a new print subtype.
  const broadPrint=/(?:show|prefer|want)\s+(?:me\s+)?printed\b|printed\s+(?:kurtas?|tops?|dresses|instead)/i.test(text);
  const rejectsPrint=/(?:no|not|avoid|without|don't want|do not want)\s+(?:\w+\s+){0,2}print(?:ed|s)?\b/i.test(text);
@@ -79,6 +85,7 @@ export function normalizeDecision(raw:unknown,previous:Requirements,taste:Taste,
    plannedTaste.avoid=plannedTaste.avoid.filter(term=>!terms.test(term)||text.toLowerCase().includes(term.toLowerCase()));
   }
  }
+ for(const field of ['fit','pattern','style','occasion'] as const){if(new RegExp(`\\b(?:any ${field}|no ${field} preference|no preference for ${field})\\b`,'i').test(text)){const old=previous[field];delete planned[field];if(old){planned.mustHave=planned.mustHave?.filter(term=>term!==old);plannedTaste.prefer=plannedTaste.prefer.filter(term=>term!==old);}}}
  return {intent:value.intent,reply:value.reply,requirements:planned,taste:plannedTaste,...(value.referenceOption!==null?{referenceOption:value.referenceOption}:{}),...(value.feedbackKind?{feedbackKind:value.feedbackKind}:{})};
 }
 export function missingQuestion(r:Requirements):string|null{

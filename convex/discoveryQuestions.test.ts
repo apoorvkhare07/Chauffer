@@ -34,3 +34,9 @@ test('store variety cannot displace verified preference matches with an unrelate
  const batch=chooseBatch([...matches,other],{category:'jeans',budget:2500,fit:'relaxed'},{prefer:[],avoid:[]});
  expect(batch).toHaveLength(6);expect(batch.every(o=>o.title.includes('Relaxed'))).toBe(true);
 });
+test('jeans results ask colour next after fit, and a colour answer keeps the current need',()=>{
+ const r={category:'jeans',audience:'men' as const,budget:2500,size:'32',fit:'relaxed',askedDiscoveryFields:['fit']};
+ const options=[{store:'Amazon' as const,title:'Men Relaxed Jeans',url:'https://www.amazon.in/dp/B000000001',price:1900,colour:'Blue',fabric:'cotton',observedAt:1}];
+ const q=nextDiscoveryQuestion(r,options)!;expect(q.field).toBe('colour');expect(q.question).toContain('colour');
+ const next={...r,...questionAnswer('Black',q)};expect(next).toMatchObject({category:'jeans',budget:2500,size:'32',fit:'relaxed',colour:'black'});expect(searchTerms(next)).toContain('black');
+});
