@@ -267,3 +267,6 @@ Checks: 86 tests and the frontend build passed. Browser verified hero photos/fra
 
 ### Purple palette restoration
 Restored the exact pre-teal marketing styles while retaining chapter snap logic and short transitions. Browser verified primary #7956a3; 90 tests and build passed.
+
+### Blue palette trial
+Verified primary rgb(41,80,184) (#2950B8) and homepage appearance in browser. All 90 tests and build passed. Only marketing palette styles changed.

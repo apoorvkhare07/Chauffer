@@ -239,3 +239,6 @@ Marketing primary is #1b999d, supported by pale teal surfaces and darker teal te
 
 ### Purple restored
 The previous purple palette is restored, superseding the teal colour decision above. Snappy chapter transitions and scroll settling remain in place.
+
+### Current primary: blue
+Primary colour is now #2950B8, with coordinated blue accents and pale surfaces. This supersedes the purple palette choice; motion and layout are preserved.
