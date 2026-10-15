@@ -26,6 +26,7 @@ import type * as dailyFeedWorkflow from "../dailyFeedWorkflow.js";
 import type * as discoveryPolicy from "../discoveryPolicy.js";
 import type * as discoveryQuestions from "../discoveryQuestions.js";
 import type * as discoveryRules from "../discoveryRules.js";
+import type * as discoveryUpdate from "../discoveryUpdate.js";
 import type * as discoveryWorkflow from "../discoveryWorkflow.js";
 import type * as fashionRules from "../fashionRules.js";
 import type * as feedRules from "../feedRules.js";
@@ -102,6 +103,7 @@ declare const fullApi: ApiFromModules<{
   discoveryPolicy: typeof discoveryPolicy;
   discoveryQuestions: typeof discoveryQuestions;
   discoveryRules: typeof discoveryRules;
+  discoveryUpdate: typeof discoveryUpdate;
   discoveryWorkflow: typeof discoveryWorkflow;
   fashionRules: typeof fashionRules;
   feedRules: typeof feedRules;
