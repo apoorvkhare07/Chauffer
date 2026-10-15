@@ -5,6 +5,7 @@ import "./style.css";
 import "./homepage.css";
 import "./shopping-journey.css";
 import "./assistant-shopping-banner.css";
+import "./brand-fonts.css";
 import "./marketing-typography.css";
 import "./brand-header.css";
 

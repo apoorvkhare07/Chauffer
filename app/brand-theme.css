@@ -1,0 +1,38 @@
+/* App counterpart to the public site's blue / Inter identity. */
+:root {
+  font-family: Inter,system-ui,sans-serif;
+  --canvas:#f7f8fa;
+  --ink:#242a38;
+  --muted:#646e80;
+  --accent:#2950B8;
+  --soft:#e9eefa;
+  --line:#dfe4ef;
+  color:var(--ink);
+}
+.account-shell { font-family:Inter,system-ui,sans-serif; }
+.account-shell :is(h1,h2,h3,h4) { font-family:inherit; font-weight:700; }
+.account-shell .personal-greeting h1 em { font-family:inherit; font-style:normal; font-weight:inherit; }
+.account-nav .cs-brand { text-decoration:none; }
+.account-nav .cs-logo-name { font-size:25px; }
+.account-shell .chat-thread { background:#f4f6fb; }
+.account-shell .chat-date { color:var(--muted); }
+.account-shell .chat-user { background:#e8eefb; border-color:#d3ddf4; }
+.account-shell .chat-message { border-color:var(--line); }
+.account-shell .chat-sender { color:var(--accent); }
+.account-shell .chat-avatar { background:var(--accent); }
+.account-shell .chat-reasons { background:var(--soft); }
+.account-shell .onboarding-steps .active { background:var(--accent); }
+.account-shell input { accent-color:var(--accent); }
+@media(max-width:760px) {
+ .account-nav .cs-logo-name { font-size:23px; }
+ .account-nav .cs-logo-mark { width:44px; height:44px; flex-basis:44px; }
+}
+.account-shell .button.primary { box-shadow:0 5px 15px #2950b815; }
+.account-shell .button.primary:hover { background:#214299; }
+.account-shell :is(button,a,input,select,textarea,summary):focus-visible { outline-color:#2950B8; }
+.account-shell textarea { font-family:inherit; }
+@media(max-width:760px) {
+ .signed-in-shell .account-nav { height:62px; padding-block:5px; }
+ .chat-workspace .shopping-chat { height:calc(var(--app-height,100dvh) - 132px - env(safe-area-inset-bottom)); }
+ .keyboard-open .chat-workspace .shopping-chat { height:calc(var(--app-height,100dvh) - 62px); }
+}

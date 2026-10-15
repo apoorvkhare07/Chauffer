@@ -1,6 +1,6 @@
 import React,{useEffect,useRef,useState} from 'react';
 import {useMutation,useQuery} from 'convex/react';
-import {Send,RotateCcw} from 'lucide-react';
+import {Send,RotateCcw,Asterisk} from 'lucide-react';
 import {api} from '../convex/_generated/api';
 import ProductPreview from './ProductPreview.jsx';
 import ShoppingInput from './ShoppingInput.jsx';
@@ -25,7 +25,7 @@ export default function LiveSearch({active=true,incomingRequest}){
  function reset(){send('reset');}
  async function save(message,option){setSaving(option.url);setNotice('');try{await saveProduct({messageId:message.id,url:option.url});setNotice('Saved. Open Saved items to compare your favourites.');}catch(e){setNotice(String(e.message).includes('50 products')?'Your shortlist is full. Remove an item before saving another.':'Could not save this option. Please try again.');}finally{setSaving('');}}
  return <section className="shopping-chat" aria-labelledby="chat-title">
-  <header className="chat-header"><div className="chat-avatar" aria-hidden="true">c</div><div><h1 id="chat-title">Chauffeur</h1><p>{!conversation?'Loading your conversation…':conversation.aiEnabled?'Your personal shopping assistant':'Basic shopping search'}</p></div><button className="chat-reset" type="button" onClick={reset} disabled={pending} aria-label="Start a new chat"><RotateCcw size={16}/><span>Start again</span></button></header>
+  <header className="chat-header"><div className="chat-avatar" aria-hidden="true"><Asterisk size={30}/></div><div><h1 id="chat-title">Chauffeur</h1><p>{!conversation?'Loading your conversation…':conversation.aiEnabled?'Your personal shopping assistant':'Basic shopping search'}</p></div><button className="chat-reset" type="button" onClick={reset} disabled={pending} aria-label="Start a new chat"><RotateCcw size={16}/><span>Start again</span></button></header>
   <div className="chat-thread" ref={thread} role="log" aria-label="Shopping messages" aria-live="polite" aria-relevant="additions">
    <p className="chat-date">Saved conversation · Live discovery</p>
    {messages.map(message=><div className={`chat-message chat-${message.role} ${message.result?'chat-result-message':''}`} key={message.id}><span className="chat-sender">{message.role==='user'?'You':'Chauffeur'}</span><p className="chat-text">{message.text}</p>

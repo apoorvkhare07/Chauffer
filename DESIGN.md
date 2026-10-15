@@ -257,3 +257,6 @@ The default header now uses the original six-spoke line asterisk flowing into an
 
 ### Six-feature fashion loader
 Reusable `FashionLoader.jsx` uses the original rotating six-spoke icon surrounded by six emerging blue/white tiles: shopping bag, payment card, hanger, virtual try-on, offers and favourites. Tiles orbit with upright symbols, then return to the centre in a repeating loop inspired by https://in.pinterest.com/pin/51158145761837698/. Preview at `/?preview=loader` includes pause/play; actual account/sign-in loading uses the component without forced delays. Reduced-motion users see a static composition; accessible status text describes the real pending task. Feature symbols are conceptual and do not claim checkout or virtual try-on completion.
+
+### Shared app branding
+Website and authenticated app now share `Brand.jsx`, Inter font declarations, and the animated asterisk/bag wordmark with blue full stop. App primary colour is #2950B8; legacy purple accents are coordinated blue, with semantic success/error colours preserved. App headings are bold upright Inter. Phone header is 62px with chat height adjusted to keep the composer above navigation. The fictional demo remains separate.
