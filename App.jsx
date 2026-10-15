@@ -11,20 +11,19 @@ const scenarios = [
 ];
 const liveLink = text => text ? `/app/?q=${encodeURIComponent(text)}` : '/app/';
 function Brand({ orbit = false }) {
-  return <a className={`cs-brand${orbit ? ' cs-brand-orbit' : ''}`} href={orbit ? '/?logo=orbit' : '/'} aria-label="Chauffer home">
+  return <a className={`cs-brand${orbit ? ' cs-brand-orbit' : ''}`} href="/" aria-label="Chauffer home">
     <span className="cs-logo-mark" aria-hidden="true">
-      {orbit ? <span className="cs-bag-morph"><span className="cs-bag-handle"/><span className="cs-bag-body"/><Asterisk className="cs-bag-spark" size={19} strokeWidth={2.5}/></span> : <Asterisk className="cs-logo-star" size={44} strokeWidth={1.8}/>}
+      {orbit ? <svg className="cs-bag-morph" viewBox="0 0 44 44" fill="none"><g className="cs-bag-turn"><path className="cs-bag-body" d="M12 16 L9 38 M9 38 L35 38 M35 38 L32 16"/><path className="cs-bag-handle" d="M12 16 H32 M16 16 V12 A6 6 0 0 1 28 12 V16"/><path className="cs-bag-spark" d="M22 23 V33 M17.67 25.5 L26.33 30.5 M17.67 30.5 L26.33 25.5"/></g></svg> : <Asterisk className="cs-logo-star" size={44} strokeWidth={1.8}/>}
     </span>
-    {!orbit && <span className="cs-logo-name">chauffer</span>}
+    <span className="cs-logo-name">chauffer<span className="cs-logo-dot">.</span></span>
   </a>;
 }
 export default function App() {
   const [selected,setSelected]=useState(0);
   const example=scenarios[selected];
-  const orbitLogo = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('logo') === 'orbit';
   return <div className="chauffeur-site">
     <a className="skip-link" href="#main-content">Skip to content</a>
-    <header className="cs-nav cs-wrap"><Brand orbit={orbitLogo}/><nav aria-label="Main navigation"><a href="#how-it-works">How it works</a><a href="#shop-by-occasion">Shopping ideas</a><a href="#the-details">Questions</a></nav><a className="cs-button cs-button-small" href="/app/">Chat to shop <MessageCircle size={16}/></a></header>
+    <header className="cs-nav cs-wrap"><Brand orbit/><nav aria-label="Main navigation"><a href="#how-it-works">How it works</a><a href="#shop-by-occasion">Shopping ideas</a><a href="#the-details">Questions</a></nav><a className="cs-button cs-button-small" href="/app/">Chat to shop <MessageCircle size={16}/></a></header>
     <main id="main-content">
       <FashionHero scenarios={scenarios} liveLink={liveLink}/>
       <section className="cs-store-band"><div className="cs-wrap"><p>Your next find could be anywhere.</p><div className="cs-store-names"><span>Flipkart</span><span>amazon<span className="cs-amazon-line"/></span></div><p className="cs-store-note">Live discovery on Flipkart and Amazon. Buy directly on the store.</p></div></section>

@@ -251,3 +251,6 @@ Marketing header is 68px desktop / 62px phone (previously 100px / 80px). Default
 
 ### Shopping-bag logo trial
 The alternate header at `/?logo=orbit` now replaces orbit rings with a seven-second blue star-to-shopping-bag transformation, inspired by https://in.pinterest.com/pin/946178202959543661/. The bag holds with a white sparkle before returning to the star. The named default logo stays as-is. Reduced motion shows a static bag; the hero pause control pauses all three animated parts.
+
+### Continuous named shopping mark
+The default header now uses the original six-spoke line asterisk flowing into an outlined shopping bag and back on an eight-second repeating loop. The turning motion eases while the bag forms so its silhouette stays readable. The adjacent wordmark reads “chauffer.” in Inter, with the full stop in primary blue #2950B8. This replaces the spiky-star trial and makes the combined mark the main header logo.

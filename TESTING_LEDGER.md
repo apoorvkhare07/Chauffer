@@ -281,3 +281,6 @@ All 90 tests and build passed. Browser reviewed both desktop versions and the or
 
 ### Shopping-bag logo trial
 All 90 tests and production build passed. Visually checked both star and bag phases on desktop, phone header at 390px (62px high), and confirmed pause freezes the animation. Reduced-motion styling uses a static bag.
+
+### Continuous loop and named wordmark
+All 90 tests and build passed. Browser checked original six-spoke and bag phases, Inter wordmark and exact blue dot, and combined header at 390px. Final rotation easing keeps the bag upright during its central phase; reduced-motion/pause handling retained.
