@@ -249,3 +249,8 @@ Checks: 86 tests and the frontend build passed. Browser verified hero photos/fra
 - Checked desktop conversation and expanded FAQ, plus 390px conversation and feature cards. No horizontal page overflow at phone width.
 - Switched conversation examples and verified the corresponding messages update; expanded a FAQ answer.
 - All 90 tests passed and build passed. Signed-in app and separate demo layouts unchanged.
+
+### Scroll-driven photo story
+- Inspected the supplied Pinterest animation in browser. Replaced the shopping carousel and garment SVG placeholders with continuously moving real-photo cards and conversation/comparison/buying overlays.
+- Browser checked vertical keyboard scrolling through all five stages in sequence, phone-sized scene layout and the five stacked scenes on a short landscape screen.
+- All 90 existing tests passed; build passed. Real-device finger scrolling and reduced-motion OS setting still need a device check (short-screen fallback uses the same static rendering).
