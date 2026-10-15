@@ -357,3 +357,9 @@ Production browser check: existing chat request "Find casual shirts using my sav
 - Added a bounded 25-product reader using active products, `selling_price`, product-specific colour, material, images and exact product destinations. Rejects malformed links, known sold-out requested clothing sizes and mismatched category/audience/budget; does not infer a UK/US/EU system from bare shoe sizes. Existing size/location/checkout uncertainty disclosures remain.
 - Three new regression tests failed before the change and pass after it. Full checks: 4 website/demo tests plus 112 backend tests (116 total), backend type check and production build pass.
 - Local real search returned SNITCH sneakers alongside five other stores. First production request after deployment returned three real SNITCH sneakers (₹1,999–₹2,049). A subsequent request/browser check reverted to the old SNITCH query route, confirming a concurrent deployment overwrote the fix. Carrying the change into main before the final release; final live checks to follow.
+
+## Wardrobe add entry points — 2026-10-15
+- Added a header Add clothing button and an empty-wardrobe Add your first piece button. Both open and scroll to the existing upload form, focusing its first input.
+- Production browser: verified both buttons with keyboard activation; form opened and photo chooser received focus. Browser mouse automation timed out, so pointer activation was not separately verified. No personal photo uploaded or wardrobe data changed.
+- npm test (109 backend tests plus website/engine checks) and npm run build passed.
+- Next shared test: choose a clothing photo, analyse it, review details and save the first piece.
