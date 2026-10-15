@@ -327,3 +327,9 @@ Production browser check: existing chat request "Find casual shirts using my sav
 - Checked: production step-one layout at desktop and 390px phone width; style chip toggle updates free text. No test preferences saved into the builder's account.
 - Automated: 4 website/engine tests plus 99 backend tests pass, backend typecheck and production build pass. Added private fit-detail persistence and invalid-height checks.
 - Test together next: fill actual step-one details; save/skip step two; upload a personal photo with consent and a wardrobe image, confirm analysis, finish setup and revisit Settings. These changed upload screens have not yet been exercised end to end with real personal images.
+
+## Required onboarding gate — 2026-10-15
+- App access now checks saved name, valid age, gender choice and nonblank style preferences, independent of legacy skipped/complete flags. No private app pages mount until that check loads and passes.
+- Server rejects marking onboarding skipped/complete while those basics are missing. Saving setup reopens the optional sequence so legacy flags cannot prematurely dismiss it.
+- Regression checks cover old skipped flags, rejected completion, saved basics, optional photo absence, and cleared required style. Full suite: 104 tests; backend typecheck/build passed.
+- Live browser verified: refreshing `#/home` with missing basics shows step one; direct `#/wardrobe` navigation still shows step one. No required details entered or changed during verification.
