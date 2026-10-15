@@ -1,3 +1,5 @@
+import {buildDiscoveryHandoff} from './discoveryHandoff';
+import {loadShoppingContext} from './shoppingContext';
 import {discoveryUpdate} from './discoveryUpdate';
 import {nextDiscoveryQuestion,shouldClarifyBefore,discoveryQuestionValidator} from './discoveryQuestions';
 import {preferences} from './schema';
@@ -6,17 +8,17 @@ import {v} from 'convex/values';
 import {decisionValidator,memoryConsent,missingQuestion} from './aiDecision';
 import {requirementsValidator,optionValidator} from './discoveryRules';
 import {tasteValidator,emptyTaste} from './taste';
-import {garmentValidator,styleValidator,emptyStyle} from './wardrobeRules';
+import {garmentValidator,styleValidator} from './wardrobeRules';
 import {replyLanguage} from './conversationLanguage';
 export const context=internalQuery({args:{conversationId:v.id('conversations'),revision:v.number()},returns:v.union(v.null(),v.object({threadId:v.string(),prompt:v.object({discoveryQuestion:v.optional(discoveryQuestionValidator),profile:v.optional(preferences),text:v.string(),language:v.string(),requirements:requirementsValidator,taste:tasteValidator,history:v.array(v.object({role:v.string(),text:v.string()})),wardrobe:v.array(garmentValidator),stylePreferences:styleValidator,latestBatch:v.array(v.object({number:v.number(),option:optionValidator}))})})),handler:async(ctx,{conversationId,revision})=>{
  const c=await ctx.db.get(conversationId);if(!c||c.revision!==revision||!c.aiTurn||!c.agentThreadId)return null;
  const rows=await ctx.db.query('messages').withIndex('by_conversation_session',q=>q.eq('conversationId',conversationId).eq('session',c.session)).order('desc').take(30);
  const result=rows.find(m=>m.result)?.result;
  const requestedContext=[c.inputText??'',...rows.filter(m=>m.role==='user').map(m=>m.text)].join(' ');
- const useSavedStyling=/wardrobe|closet|what i own|(?:go|wear) with my|saved (?:style|styling)|my (?:style|styling|body) profile/i.test(requestedContext);
- const owner=c.key.startsWith('web:')?c.key.slice(4):null;const wardrobe=owner&&useSavedStyling?await ctx.db.query('wardrobeItems').withIndex('by_owner',q=>q.eq('owner',owner)).take(80):[];const style=owner&&useSavedStyling?await ctx.db.query('wardrobeStyles').withIndex('by_owner',q=>q.eq('owner',owner)).unique():null;
+ const shopping=await loadShoppingContext(ctx,c,requestedContext);
+ const owner=c.key.startsWith('web:')?c.key.slice(4):null;
  const profile=owner?await ctx.db.query('profiles').withIndex('by_owner',q=>q.eq('owner',owner)).unique():null;
- return {threadId:c.agentThreadId,prompt:{...(c.discoveryQuestion?{discoveryQuestion:c.discoveryQuestion}:{}),...(profile?{profile:profile.preferences}:{}),text:c.inputText??'',language:replyLanguage(c.inputText??'',profile?.preferences.language??c.language),requirements:c.requirements,taste:c.taste??emptyTaste,history:rows.slice(0,12).reverse().map(m=>({role:m.role,text:m.text.slice(0,700)})),wardrobe:wardrobe.map(i=>i.details),stylePreferences:style?.details??emptyStyle,latestBatch:(c.referenceProduct?[c.referenceProduct]:result?.options??[]).map((option,i)=>({number:i+1,option}))}};
+ return {threadId:c.agentThreadId,prompt:{...(c.discoveryQuestion?{discoveryQuestion:c.discoveryQuestion}:{}),...(profile?{profile:profile.preferences}:{}),text:c.inputText??'',language:replyLanguage(c.inputText??'',profile?.preferences.language??c.language),requirements:c.requirements,taste:c.taste??emptyTaste,history:rows.slice(0,12).reverse().map(m=>({role:m.role,text:m.text.slice(0,700)})),wardrobe:shopping.items.map(i=>i.details),stylePreferences:shopping.style,latestBatch:(c.referenceProduct?[c.referenceProduct]:result?.options??[]).map((option,i)=>({number:i+1,option}))}};
 }});
 export const apply=internalMutation({args:{conversationId:v.id('conversations'),revision:v.number(),decision:decisionValidator,inboxId:v.optional(v.id('waInbox')),claimId:v.optional(v.id('webSearchRuns'))},returns:v.union(v.null(),v.object({search:v.boolean(),reply:v.string()})),handler:async(ctx,{conversationId,revision,decision,inboxId,claimId})=>{
  const c=await ctx.db.get(conversationId);if(!c||c.revision!==revision)return null;
@@ -52,7 +54,7 @@ export const apply=internalMutation({args:{conversationId:v.id('conversations'),
  if(update&&!wantsMemory&&!missing)reply=search?`${update} I’ll search with these changes and keep the other details.`:`${update} ${reply}`;
  if(!search&&claimId)await ctx.db.patch(claimId,{finishedAt:Date.now()});
  await ctx.db.patch(conversationId,{discoveryStatus:search?'refining':c.discoveryStatus??'exploring',discoveryQuestion:discoveryQuestion??undefined,requirements:decision.requirements,taste,rejectedUrls:rejected,shownUrls:[...new Set([...recent.slice().reverse().flatMap(m=>m.result?.options.map(o=>o.url)??[]),...c.shownUrls])].slice(-120),pending:search,aiTurn:false,updatedAt:Date.now()});
- await ctx.db.insert('messages',{conversationId,session:c.session,role:'assistant',text:reply,ai:true});
+ await ctx.db.insert('messages',{conversationId,session:c.session,role:'assistant',text:reply,ai:true,...(!search?{handoff:buildDiscoveryHandoff({conversationId,session:c.session,revision,text:c.inputText,requirements:decision.requirements,taste,question:discoveryQuestion,status:discoveryQuestion||missing?'needs_clarification':'exploring'})}:{})});
  if(inboxId){const inbox=await ctx.db.get(inboxId);if(!inbox)return null;await ctx.db.patch(inboxId,{reply,search,requirements:decision.requirements});}
  return {search,reply};
 }});

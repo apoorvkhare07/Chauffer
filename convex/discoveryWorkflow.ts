@@ -1,3 +1,4 @@
+import {buildDiscoveryHandoff,noStyling,type DiscoveryStyling} from './discoveryHandoff';
 import {WorkflowManager} from '@convex-dev/workflow';
 import {components,internal} from './_generated/api';
 import {v} from 'convex/values';
@@ -21,8 +22,16 @@ export const respond=workflow.define({args:{conversationId:v.id('conversations')
  }else if(inboxId){const reply=await step.runQuery(internal.whatsapp.plan,{id:inboxId});if(!reply)return null;await step.runAction(internal.whatsapp.send,{id:inboxId,phase:'reply',text:reply.reply},{retry:false});if(!reply.search)return null;}
  let text:string|null;
  try{
+  const context=await step.runQuery(internal.discoveryCoordinator.context,{conversationId,revision});
+  if(!context){if(claimId)await step.runMutation(internal.webDiscovery.finish,{id:claimId});return null;}
   const result=await step.runAction(internal.liveDiscovery.search,{requirements:plan.requirements,excludeUrls:plan.excludeUrls,taste:plan.taste},{retry:false});
-  text=await step.runMutation(internal.conversations.complete,{conversationId,revision,result:{options:result.options,failed:result.failed,stores:result.stores??[]},...(claimId?{claimId}:{})});
+  let styling:DiscoveryStyling=noStyling;
+  if(context?.wardrobe.requested){
+   const packet=buildDiscoveryHandoff({conversationId,session:context.session,revision,text:context.text,requirements:context.requirements,taste:context.taste,result:{...result,stores:result.stores??[]}});
+   try{styling=await step.runAction(internal.discoveryStyling.review,{packet,context:context.wardrobe,deadlineAt:context.deadlineAt},{retry:false});}
+   catch{styling={state:'unavailable',summary:'Shopping results are ready; the wardrobe pairing check could not finish.',matches:[],limitations:[]};}
+  }
+  text=await step.runMutation(internal.conversations.complete,{conversationId,revision,styling,...(context?.wardrobe.requested?{stylingSourceKey:context.wardrobe.sourceKey}:{}),result:{options:result.options,failed:result.failed,stores:result.stores??[]},...(claimId?{claimId}:{})});
  }catch{
   text=await step.runMutation(internal.conversations.complete,{conversationId,revision,error:'Search failed',...(claimId?{claimId}:{})});
  }

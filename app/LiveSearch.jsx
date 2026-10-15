@@ -17,6 +17,7 @@ export default function LiveSearch({active=true,showHome=false,onExplore,onHome}
  const input=useRef(null),busy=useRef(false),initialHandled=useRef(false),dialog=useRef(null),opener=useRef(null);
  const pending=submitting||!conversation||conversation.pending;
  const latestResult=messages.findLast(m=>m.result),options=latestResult?.result.options??[];
+ const styling=latestResult?.handoff?.styling;
  const lastUser=messages.findLast(m=>m.role==='user');
  const firstUser=messages.find(m=>m.role==='user');
  const currentReplies=currentTurnReplies(messages);
@@ -48,6 +49,7 @@ export default function LiveSearch({active=true,showHome=false,onExplore,onHome}
    <div className="discovery-card-copy"><span className="discovery-store">{option.store}{option.brand?` · ${option.brand}`:''}</span><h2>{option.title}</h2><strong className="discovery-price">{price(option)}</strong><span className="discovery-attributes">{[option.colour,option.fabric].filter(Boolean).join(' · ')||'Explore this find'}</span></div>
   </button>
   <button className={`discovery-save ${isSaved(option)?'is-saved':''}`} aria-label={`${isSaved(option)?'Saved':'Save'} ${option.title}`} disabled={Boolean(saving)||savedProducts===undefined||isSaved(option)} onClick={()=>save(message,option)}><Heart size={19} fill={isSaved(option)?'currentColor':'none'}/></button>
+  {styling?.state==='ready'&&styling.matches.filter(m=>m.productId===option.url).map((m,i)=><p className="discovery-wardrobe-pair" key={i}><strong>Wear with {m.items.map(item=>item.name).join(', ')}</strong>{m.reason}</p>)}
   {option.reasons?.[0]&&<p className="discovery-reason"><Sparkles size={13}/>{option.reasons[0]}</p>}
   <div className="discovery-card-actions"><button disabled={pending||!conversation?.aiEnabled} onClick={()=>send('More like this product, keeping my budget and size.',undefined,{messageId:message.id,url:option.url})}><Sparkles size={14}/> More like this</button><a href={option.url} target="_blank" rel="noopener noreferrer" aria-label={`View ${option.title} on ${option.store}`}><ArrowUpRight size={18}/></a></div>
  </article>;
@@ -61,6 +63,7 @@ export default function LiveSearch({active=true,showHome=false,onExplore,onHome}
   <div className="discovery-refinements" aria-label="Refine your search"><SlidersHorizontal size={16}/>{suggestions(requirements,conversation?.discoveryQuestion).map(text=><button key={text} disabled={pending} onClick={()=>refine(text)}>{text}</button>)}</div>
   {pending&&!options.length?<div className="discovery-grid discovery-skeleton" aria-hidden="true">{[0,1,2,3].map(i=><div key={i}><div/><span/><span/></div>)}</div>:<>
    {!!latestResult&&<div className="discovery-results-heading"><h2>{options.length?previousPicks?'Previous picks':`${options.length} finds to explore`:'Let’s adjust the search'}</h2>{options.length>0&&!pending&&!previousPicks&&(conversation?.discoveryStatus==='satisfied'?<span>Shortlist confirmed</span>:<button type="button" onClick={()=>send('These work for me')}>These work for me</button>)}{pending&&<span>Updating your picks…</span>}{previousPicks&&!pending&&conversation?.discoveryQuestion&&<span>Answer above to update these</span>}</div>}
+   {styling&&styling.state!=='not_requested'&&!previousPicks&&<aside className="discovery-wardrobe-note"><strong>From your wardrobe</strong><p>{styling.summary}</p>{styling.state==='needs_wardrobe'&&<a href="#/wardrobe">Open wardrobe</a>}{styling.limitations.map(t=><small key={t}>{t}</small>)}</aside>}
    {options.length>0&&<div className={`discovery-grid ${pending?'is-updating':''}`} aria-label="Product recommendations">{options.map(option=>card(latestResult,option))}</div>}
    {latestResult&&!options.length&&!pending&&<div className="discovery-empty"><Sparkles size={26}/><h3>No verified matches this time.</h3><p>Try a different style, colour or budget. Your assistant can help find another direction.</p></div>}
   </>}

@@ -18,8 +18,15 @@ export const decisionSchema=z.object({
 });
 export const decisionValidator=v.object({intent:v.union(v.literal('search'),v.literal('refine'),v.literal('more'),v.literal('feedback'),v.literal('chat'),v.literal('remember'),v.literal('forget')),reply:v.string(),question:v.optional(discoveryQuestionValidator),requirements:requirementsValidator,taste:tasteValidator,referenceOption:v.optional(v.number()),feedbackKind:v.optional(v.union(v.literal('like'),v.literal('dislike'),v.literal('refine')))});
 export type Decision=Infer<typeof decisionValidator>;
+function clearOpenAttributes(requirements:Requirements){
+ for(const field of ['colour','fabric','occasion','style','fit','pattern','sleeve','length'] as const){
+  if(/^(?:any(?: (?:brand|fabric|material|colou?r|style|fit|pattern|occasion|sleeve|length))?|none|n\/a|not applicable|unspecified|null)$/i.test(requirements[field]?.trim()??''))delete requirements[field];
+ }
+}
 export function normalizeDecision(raw:unknown,previous:Requirements,taste:Taste,text=""):Decision{
  const value=decisionSchema.parse(raw);const named=namedBrands(text);if(named.length>1){value.intent='chat';value.reply=`Which brand should I search first: ${named.join(' or ')}?`;value.question={field:'brand',question:value.reply,choices:named.map(brand=>({label:brand,text:brand,value:brand}))};}const requirements=Object.fromEntries(Object.entries(value.requirements).filter(([,v])=>v!==null)) as Requirements;
+ // Open/empty model values are not merchant attributes. In particular, “any brand” is never a fabric.
+ clearOpenAttributes(requirements);
  // Carry the active chat's confirmed attributes when a short refinement omits them.
  const sameItem=!requirements.category||requirements.category===previous.category;
  for(const field of ['category','budget','size','colour','fabric','occasion','style','fit','pattern','sleeve','length'] as const){if(requirements[field]===undefined&&previous[field]!==undefined&&(sameItem||field==='budget'))(requirements as any)[field]=previous[field];}
@@ -87,6 +94,7 @@ export function normalizeDecision(raw:unknown,previous:Requirements,taste:Taste,
   }
  }
  for(const field of ['fit','pattern','style','occasion'] as const){if(new RegExp(`\\b(?:any ${field}|no ${field} preference|no preference for ${field})\\b`,'i').test(text)){const old=previous[field];delete planned[field];if(old){planned.mustHave=planned.mustHave?.filter(term=>term!==old);plannedTaste.prefer=plannedTaste.prefer.filter(term=>term!==old);}}}
+ clearOpenAttributes(planned);
  return {intent:value.intent,reply:value.reply,...(value.intent==='chat'&&value.question?{question:value.question}:{}),requirements:planned,taste:plannedTaste,...(value.referenceOption!==null?{referenceOption:value.referenceOption}:{}),...(value.feedbackKind?{feedbackKind:value.feedbackKind}:{})};
 }
 export function missingQuestion(r:Requirements):string|null{
