@@ -1,3 +1,4 @@
+import {budgetTier,budgetFloor} from './discoveryPolicy';
 import {matchesOption,type Option,type Requirements} from './discoveryRules';
 import {type Taste,cleanTerms} from './taste';
 import {styleEvidence,positiveStyleTerms,negativeStyle} from './styleTerms';
@@ -9,10 +10,10 @@ export function rankOptions(options:Option[],requirements:Requirements,taste:Tas
   const avoid=cleanTerms([...taste.avoid,...(requirements.mustHave??[]).map(negativeStyle).filter((x):x is string=>Boolean(x))]);
   const avoided=avoid.filter(term=>styleEvidence(evidence,term));
   const score=matched.length*8-avoided.length*12;
-  const reasons=[...matched.map(term=>`Store details match your ${term} preference.`),...(requirements.fabric&&option.fabric?[`Fabric: ${option.fabric}.`]:[]),`Listed price fits your ₹${requirements.budget?.toLocaleString('en-IN')} budget.`].slice(0,4);
+  const reasons=[...(requirements.brand&&requirements.brand!=='any'?[`Listed brand matches ${requirements.brand}.`]:[]),...(budgetFloor(requirements)&&option.price>=budgetFloor(requirements)?['Within your preferred spending range.']:[]),...matched.map(term=>`Store details match your ${term} preference.`),...(requirements.fabric&&option.fabric?[`Fabric: ${option.fabric}.`]:[]),`Listed price fits your ₹${requirements.budget?.toLocaleString('en-IN')} budget.`].slice(0,4);
   return {avoid:avoided.length>0,option:{...option,reasons,unknownPreferences:[...unknown,...avoid.filter(term=>!styleEvidence(evidence,term)).map(term=>`whether it avoids ${term}`)].slice(0,8)},score};
  });
- return scored.filter(x=>!x.avoid).sort((a,b)=>b.score-a.score||a.option.price-b.option.price).map(x=>x.option);
+ return scored.filter(x=>!x.avoid).sort((a,b)=>budgetTier(a.option,requirements)-budgetTier(b.option,requirements)||b.score-a.score||(requirements.pricePreference==='lowest_price'||!requirements.budget||budgetTier(a.option,requirements)===1?a.option.price-b.option.price:Math.abs(a.option.price-requirements.budget*.8)-Math.abs(b.option.price-requirements.budget*.8))).map(x=>x.option);
 }
 export function chooseBatch(options:Option[],requirements:Requirements,taste:Taste,perStoreLimit=3,priorityUrls:string[]=[]):Option[]{
  const ranked=rankOptions(options,requirements,taste).sort((a,b)=>Number(priorityUrls.includes(b.url))-Number(priorityUrls.includes(a.url)));const counts=new Map<string,number>();const seen=new Set<string>();
@@ -20,6 +21,7 @@ export function chooseBatch(options:Option[],requirements:Requirements,taste:Tas
  // each store's best evidence-ranked option, then its second/third, max six.
  const unique=ranked.filter(o=>{const store=o.store??'Flipkart';const n=counts.get(store)??0;const key=[store,o.title,o.colour,o.fabric].map(x=>x.toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim()).join('|');if(n>=perStoreLimit||seen.has(key))return false;seen.add(key);counts.set(store,n+1);return true;});
  const groups=new Map<string,Option[]>();for(const o of unique){const key=o.store??'Flipkart';groups.set(key,[...(groups.get(key)??[]),o]);}
- const result:Option[]=[];for(let i=0;i<perStoreLimit&&result.length<6;i++)for(const group of groups.values()){if(group[i])result.push(group[i]);if(result.length===6)break;}
+ const result:Option[]=unique.filter(o=>priorityUrls.includes(o.url)).slice(0,6);
+ for(const tier of [0,1]){const pools=[...groups.values()].map(group=>group.filter(o=>budgetTier(o,requirements)===tier&&!priorityUrls.includes(o.url)));for(let i=0;i<perStoreLimit&&result.length<6;i++)for(const group of pools){if(group[i])result.push(group[i]);if(result.length===6)break;}}
  return result;
 }

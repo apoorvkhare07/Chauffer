@@ -1,3 +1,4 @@
+import {comparePrices} from './discoveryPolicy';
 import {load} from 'cheerio';
 import {allowedImageUrl,matchesOption,type Option,type Requirements} from './discoveryRules';
 import {productStore,storeConfig,type Store} from './storeConfig';
@@ -92,5 +93,5 @@ export function retailOptions(store:Store,html:string,r:Requirements,observedAt:
    }
   }
  }
- return {options:options.slice(0,24),readable:Array.isArray(products)};
+ return {options:options.sort((a,b)=>comparePrices(a.price,b.price,r)).slice(0,24),readable:Array.isArray(products)};
 }

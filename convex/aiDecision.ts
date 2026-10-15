@@ -1,3 +1,4 @@
+import {brandQuestion,explicitDiscovery,namedBrands} from './discoveryPolicy';
 import {requestedAudience,fashionCategories,validSize,sizeQuestion,sizeKind} from './fashionRules';
 import {z} from 'zod';
 import {v,type Infer} from 'convex/values';
@@ -8,7 +9,7 @@ const nullable=z.string().max(80).nullable();
 export const decisionSchema=z.object({
  intent:z.enum(['search','refine','more','feedback','chat','remember','forget']),
  reply:z.string().min(1).max(600),
- requirements:z.object({category:z.enum(fashionCategories).nullable(),audience:z.enum(['men','women','unisex']).nullable().optional(),budget:z.number().min(100).max(50000).nullable(),size:z.string().max(30).nullable(),colour:nullable,fabric:nullable,occasion:nullable,style:nullable,fit:nullable,pattern:nullable,sleeve:nullable,length:nullable,mustHave:z.array(z.string().min(2).max(40)).max(5)}),
+ requirements:z.object({brand:z.string().max(60).nullable().optional(),pricePreference:z.enum(['best_within_budget','lowest_price']).nullable().optional(),category:z.enum(fashionCategories).nullable(),audience:z.enum(['men','women','unisex']).nullable().optional(),budget:z.number().min(100).max(50000).nullable(),size:z.string().max(30).nullable(),colour:nullable,fabric:nullable,occasion:nullable,style:nullable,fit:nullable,pattern:nullable,sleeve:nullable,length:nullable,mustHave:z.array(z.string().min(2).max(40)).max(5)}),
  taste:z.object({prefer:z.array(z.string().min(2).max(40)).max(10),avoid:z.array(z.string().min(2).max(40)).max(10)}),
  referenceOption:z.number().int().min(1).max(6).nullable(),
  feedbackKind:z.enum(['like','dislike','refine']).nullable(),
@@ -16,7 +17,7 @@ export const decisionSchema=z.object({
 export const decisionValidator=v.object({intent:v.union(v.literal('search'),v.literal('refine'),v.literal('more'),v.literal('feedback'),v.literal('chat'),v.literal('remember'),v.literal('forget')),reply:v.string(),requirements:requirementsValidator,taste:tasteValidator,referenceOption:v.optional(v.number()),feedbackKind:v.optional(v.union(v.literal('like'),v.literal('dislike'),v.literal('refine')))});
 export type Decision=Infer<typeof decisionValidator>;
 export function normalizeDecision(raw:unknown,previous:Requirements,taste:Taste,text=""):Decision{
- const value=decisionSchema.parse(raw);const requirements=Object.fromEntries(Object.entries(value.requirements).filter(([,v])=>v!==null)) as Requirements;
+ const value=decisionSchema.parse(raw);const named=namedBrands(text);if(named.length>1){value.intent='chat';value.reply=`Which brand should I search first: ${named.join(' or ')}?`;}const requirements=Object.fromEntries(Object.entries(value.requirements).filter(([,v])=>v!==null)) as Requirements;
  // A new category is a new item: stale shirt fabric/cut must not filter shoes.
  // Explicitly restated values (or “keep/same”) can carry over.
  if(previous.category&&requirements.category&&requirements.category!==previous.category){
@@ -28,6 +29,7 @@ export function normalizeDecision(raw:unknown,previous:Requirements,taste:Taste,
   }
   requirements.mustHave=(requirements.mustHave??[]).filter(term=>!(previous.mustHave??[]).includes(term)||text.toLowerCase().includes(term.toLowerCase()));
  }
+ delete requirements.brand;delete requirements.pricePreference;Object.assign(requirements,explicitDiscovery(text,previous,value.requirements as Requirements));
  const explicitAudience=requestedAudience(text);
  if(explicitAudience)requirements.audience=explicitAudience;else if(previous.audience)requirements.audience=previous.audience;
  if(requirements.category&&sizeKind(requirements.category)!==sizeKind(previous.category)&&requirements.size===previous.size)delete requirements.size;
@@ -80,7 +82,7 @@ export function missingQuestion(r:Requirements):string|null{
  if(!r.category)return 'What would you like: clothing, shoes or accessories?';
  if(!r.budget)return 'What is your maximum budget in rupees?';
  if(!validSize(r.category,r.size))return sizeQuestion(r.category);
- return null;
+ return brandQuestion(r);
 }
 export function memoryConsent(text:string,intent:string):boolean{
  if(intent==='remember'&&/(?:do not|don't|dont|never|not)\s+(?:save|remember)|nahi\s*(?:save|yaad)|याद\s*मत|मत\s*(?:रख|याद)/i.test(text))return false;

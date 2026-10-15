@@ -235,3 +235,7 @@ Production India-route verification: the women’s dress request (size M, budget
 
 
 Signed-in production Chrome sneaker search (men, UK 8, ₹5,000, retained style preferences) reached eight stores: Flipkart, Amazon, Myntra, AJIO, Bewakoof, Meesho, Souled Store and SNITCH. Bonkers Corner and NEWME had no verified matches. Amazon ₹599, Myntra ₹1,499 and Meesho ₹438 appeared in the six-card shortlist. Loaded photos, Meesho detail panel and dated starting-price disclosures were checked. All ten configured stores returned matches across the women’s dress and men’s sneaker requests; this does not guarantee every store matches every query or remains reachable.
+
+### Smarter discovery — 15 October 2026
+
+See [DISCOVERY.md](DISCOVERY.md) for the current discovery agent and planned specialist handoffs. A budget now guides a preferred spending band, rather than always selecting the cheapest readable products: ₹5,000 favours ₹3,000–5,000, with explicitly described cheaper fallbacks. Selected brand is preserved and enforced. High-budget footwear asks one brand question before signed-in search; Nike/Adidas/Puma/open choices are clickable. “Cheapest options” and “best within budget” switch ordering without silently changing the ceiling. Price is not treated as proof of quality; size stock and checkout totals remain unverified.

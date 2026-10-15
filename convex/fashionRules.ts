@@ -22,7 +22,7 @@ export const categoryPatterns: Record<string,RegExp> = {
  belt:/\bbelts?\b/i,watch:/\b(watch|watches)\b/i,sunglasses:/\b(sunglasses|shades)\b/i,
  dress:/\b(dress|dresses|gowns?)\b|ड्रेस/i,top:/\b(tops?|tunics?|blouses?)\b/i,
 };
-export function detectCategory(text:string){return [...new Set(['sleepwear','salwar','kurta-set','tracksuit',...Object.keys(categoryPatterns)])].find(c=>categoryPatterns[c].test(text));}
+export function detectCategory(text:string){text=text.replace(/\bsnearkers?\b/gi,'sneakers');return [...new Set(['sleepwear','salwar','kurta-set','tracksuit',...Object.keys(categoryPatterns)])].find(c=>categoryPatterns[c].test(text));}
 export function sizeKind(category?:string){return ['shoes','sneakers','boots','loafers','heels','sandals','flats'].includes(category??'')?'shoe':['saree','bag','watch','sunglasses'].includes(category??'')?'none':['jeans','trousers','shorts','belt','joggers','leggings'].includes(category??'')?'waist':'clothing';}
 export function validSize(category:string|undefined,size?:string){if(sizeKind(category)==='none')return true;if(!size)return false;return sizeKind(category)==='shoe'?/^(UK|US|EU)\s*\d{1,2}(?:\.5)?$/i.test(size):sizeKind(category)==='waist'?/^(?:XXXS|XXS|XS|S|M|L|XL|XXL|XXXL|[2-4]XL|(?:waist\s*)?\d{2}(?:\s*(?:in|inches|cm))?)$/i.test(size):/^(?:XXXS|XXS|XS|S|M|L|XL|XXL|XXXL|[2-4]XL|\d{2})$/i.test(size);}
 export function sizeQuestion(category?:string){return sizeKind(category)==='shoe'?'What shoe size and system do you wear—for example UK 8, US 9 or EU 42?':sizeKind(category)==='waist'?'What waist size should I look for—for example 32 inches or M?':'What clothing size should I look for—for example M, XL or 40?';}

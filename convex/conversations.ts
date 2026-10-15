@@ -1,3 +1,4 @@
+import {discoverySummary} from './discoveryPolicy';
 import {profileDefaults} from './profilePreferences';
 import {query,mutation,internalQuery,internalMutation} from './_generated/server';
 import {getAuthUserId} from '@convex-dev/auth/server';
@@ -68,7 +69,7 @@ export const plan=internalQuery({args:{conversationId:v.id('conversations'),revi
 export const complete=internalMutation({args:{conversationId:v.id('conversations'),revision:v.number(),result:v.optional(discoveryResultValidator),error:v.optional(v.string()),claimId:v.optional(v.id('webSearchRuns'))},returns:v.union(v.null(),v.string()),handler:async(ctx,{conversationId,revision,result,error,claimId})=>{
  if(claimId)await ctx.db.patch(claimId,{finishedAt:Date.now()});
  const c=await ctx.db.get(conversationId);if(!c||c.revision!==revision)return null;
- const text=error?(error==='AI_UNAVAILABLE'?'AI could not respond just now. Please try again in a moment.':'The search could not finish. Please try again.'):result?.failed?'I couldn’t reach the stores just now. Try again later, or open their searches below.':result?.options.length?`I found ${result.options.length} new options. Tell me what you like or dislike, or ask for more.`:'No new verified matches in the results I could read. Try a different colour, fabric or budget; I haven’t repeated the same products.';
+ const text=error?(error==='AI_UNAVAILABLE'?'AI could not respond just now. Please try again in a moment.':'The search could not finish. Please try again.'):result?.failed?'I couldn’t reach the stores just now. Try again later, or open their searches below.':result?.options.length?discoverySummary(result.options,c.requirements):'No new verified matches in the results I could read. Try a different colour, fabric or budget; I haven’t repeated the same products.';
  await ctx.db.insert('messages',{conversationId,session:c.session,role:'assistant',text,...(result?{result}:{})});
  await ctx.db.patch(conversationId,{pending:false,aiTurn:false,updatedAt:Date.now(),shownUrls:[...new Set([...c.shownUrls,...(result?.options.map(o=>o.url)??[])])].slice(-120)});
  if(!result)return text;

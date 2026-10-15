@@ -1,3 +1,4 @@
+import {comparePrices} from './discoveryPolicy';
 import {load} from 'cheerio';
 import {allowedImageUrl,allowedProductUrl,matchesOption,type Option,type Requirements} from './discoveryRules';
 import {detectAudience} from './fashionRules';
@@ -8,17 +9,18 @@ export function amazonOptions(html:string,r:Requirements,observedAt:number,exclu
  const $=load(html),options:Option[]=[];
  $('[data-component-type="s-search-result"]').each((_i,el)=>{
   const row=$(el),asin=row.attr('data-asin');if(!asin||!/^[A-Z0-9]{10}$/.test(asin))return;
-  const title=row.find('h2').map((_i,h)=>$(h).text().trim()).get().sort((a,b)=>b.length-a.length)[0]??'';
+  const brand=row.find('h2.a-size-mini.s-line-clamp-1').first().text().trim().slice(0,80);
+  const title=row.find('h2:not(.a-size-mini.s-line-clamp-1)').map((_i,h)=>$(h).text().trim()).get().sort((a,b)=>b.length-a.length)[0]??'';
   const rawPrice=row.find('.a-price:not(.a-text-price) .a-offscreen').first().text().trim();
   if(!/^₹\s*[\d,]+(?:\.\d{1,2})?$/.test(rawPrice))return;
   const price=Number(rawPrice.slice(1).replaceAll(',',''));
   const text=title.toLowerCase(),colour=text.match(/\b(navy blue|dark blue|light blue|blue|black|white|red|pink|green|yellow|purple|orange|beige|brown)\b/)?.[0]??'';
   const fabric=text.match(/\b(pure cotton|100% cotton|cotton blend|cotton|linen|silk|rayon|viscose|georgette|chiffon)\b/)?.[0]??'';
   const image=row.find('img.s-image').first().attr('src');
-  const option:Option={...(allowedImageUrl(image)?{imageUrl:image}:{}),title:title.slice(0,200),url:`https://www.amazon.in/dp/${asin}`,price,colour,fabric,observedAt,store:'Amazon',source:'listing',priceFrom:true};
+  const option:Option={...(brand?{brand}:{}),...(allowedImageUrl(image)?{imageUrl:image}:{}),title:title.slice(0,200),url:`https://www.amazon.in/dp/${asin}`,price,colour,fabric,observedAt,store:'Amazon',source:'listing',priceFrom:true};
   if(!excludeUrls.includes(option.url)&&matchesOption(option,r)&&!options.some(x=>x.url===option.url))options.push(option);
  });
- return options.sort((a,b)=>a.price-b.price).slice(0,limit);
+ return options.sort((a,b)=>comparePrices(a.price,b.price,r)).slice(0,limit);
 }
 export function meeshoOptions(data:unknown,r:Requirements,observedAt:number,excludeUrls:string[]=[],limit=3):Option[]{
  if(!data||typeof data!=='object'||!Array.isArray((data as any).catalogs))throw new Error('No readable Meesho search');
@@ -43,5 +45,5 @@ export function meeshoOptions(data:unknown,r:Requirements,observedAt:number,excl
   const option:Option={title:!productAudience&&catalogueAudience?`${catalogueAudience} ${title}`:title,url,price,colour,fabric:(spec('Fabric')||spec('Material')).slice(0,80),observedAt,store:'Meesho',source:'listing',priceFrom:true,...(allowedImageUrl(rawImage)?{imageUrl:rawImage}:{})};
   if(!excludeUrls.includes(url)&&matchesOption(option,r)&&!options.some(x=>x.url===url))options.push(option);
  }
- return options.sort((a,b)=>a.price-b.price).slice(0,limit);
+ return options.sort((a,b)=>comparePrices(a.price,b.price,r)).slice(0,limit);
 }

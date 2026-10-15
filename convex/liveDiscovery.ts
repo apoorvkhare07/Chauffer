@@ -1,4 +1,5 @@
 "use node";
+import {comparePrices} from './discoveryPolicy';
 import {fashionCategories} from './fashionRules';
 import {stores,storeSearchUrl,storeResultValidator,type StoreResult} from './marketplaces';
 import {chooseBatch} from './ranking';
@@ -72,7 +73,7 @@ export async function discover(requirements:Requirements,excludeUrls:string[]=[]
   }
  }
  if(urls.length&&!readableProducts)throw new Error('Flipkart product details unavailable');
- return matches.sort((a,b)=>a.price-b.price).slice(0,limit);
+ return matches.sort((a,b)=>comparePrices(a.price,b.price,requirements)).slice(0,limit);
 }
 export async function discoverAcrossStores(requirements:Requirements,excludeUrls:string[]=[],taste:Taste=emptyTaste,perStoreLimit=3):Promise<{options:Option[];failed:boolean;stores:StoreResult[]}>{
  const browserDeadline=Date.now()+90000;
@@ -141,6 +142,7 @@ export const webSearch=action({args:{requirements:requirementsValidator},returns
  const owner=await getAuthUserId(ctx);if(!owner)throw new Error('Please sign in.');
  const budget=requirements.budget;
  if(!(fashionCategories as readonly string[]).includes(requirements.category??'')||typeof budget!=='number'||!Number.isFinite(budget)||budget<100||budget>50000)throw new Error('Choose a fashion category and a budget between ₹100 and ₹50,000.');
+ if(requirements.brand&&(requirements.brand.length>60||/[\r\n<>]/.test(requirements.brand)))throw new Error('Invalid brand.');
  for(const field of ['size','colour','fabric'] as const)if(requirements[field]&&(requirements[field]!.length>40||/[\r\n]/.test(requirements[field]!)))throw new Error('Invalid search preference.');
  const id=await ctx.runMutation(internal.webDiscovery.claim,{owner});
  try{return await discoverAcrossStores(requirements);}finally{await ctx.runMutation(internal.webDiscovery.finish,{id});}

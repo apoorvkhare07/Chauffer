@@ -1,3 +1,4 @@
+import {comparePrices} from './discoveryPolicy';
 import {load} from 'cheerio';
 import {allowedImageUrl,matchesOption,type Option,type Requirements} from './discoveryRules';
 import {productStore,storeConfig,type Store} from './storeConfig';
@@ -35,5 +36,5 @@ export function renderedOptions(store:Store,html:string,r:Requirements,observedA
   // The h5 is the listed price; adjacent p is MRP, not the payable price.
   add(card.find('[class*="ProductTitle-"]').first().text().trim(),canonical(card.attr('href')??'',store),card.find('[class*="PriceRow-"] h5').first().text(),card.find('img[src]').first().attr('src'),/(out of stock|sold out)\b/i.test(card.text()));
  }
- return {options:options.slice(0,24),readable:pricedProducts>0};
+ return {options:options.sort((a,b)=>comparePrices(a.price,b.price,r)).slice(0,24),readable:pricedProducts>0};
 }
