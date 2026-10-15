@@ -2,7 +2,6 @@ import BrandAssetsPreview from './brand/BrandAssetsPreview.jsx';
 import Brand from './Brand.jsx';
 import React, { useState } from 'react';
 import { LoaderPreview } from './FashionLoader.jsx';
-import ShoppingJourney from './ShoppingJourney.jsx';
 import WardrobeSpiral from './WardrobeSpiral.jsx';
 import ShoppingIntro from './ShoppingIntro.jsx';
 import { Asterisk, ArrowUpRight, Plus, SlidersHorizontal, MessageCircle, ShoppingBag } from 'lucide-react';
@@ -21,11 +20,10 @@ export default function App() {
   if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('preview') === 'loader') return <LoaderPreview/>;
   return <div className="chauffeur-site">
     <a className="skip-link" href="#main-content">Skip to content</a>
-    <header className="cs-nav cs-wrap"><Brand/><nav aria-label="Main navigation"><a href="#how-it-works">How it works</a><a href="#shop-by-occasion">Shopping ideas</a><a href="#the-details">Questions</a></nav><a className="cs-button cs-button-small" href="/app/">Chat to shop <MessageCircle size={16}/></a></header>
+    <header className="cs-nav cs-wrap"><Brand/><nav aria-label="Main navigation"><a href="#shop-by-occasion">How it works</a><a href="#shop-by-occasion">Shopping ideas</a><a href="#the-details">Questions</a></nav><a className="cs-button cs-button-small" href="/app/">Chat to shop <MessageCircle size={16}/></a></header>
     <main id="main-content">
       <ShoppingIntro liveLink={liveLink}/>
       <section className="cs-store-band"><div className="cs-wrap"><p>Your next find could be anywhere.</p><div className="cs-store-names"><span>Flipkart</span><span>amazon<span className="cs-amazon-line"/></span></div><p className="cs-store-note">Live discovery on Flipkart and Amazon. Buy directly on the store.</p></div></section>
-      <ShoppingJourney/>
       <section className="cs-discovery" id="discovery"><div className="cs-wrap cs-discovery-inner"><div className="cs-discovery-copy"><p className="cs-eyebrow">Your style, in your own words</p><h2>Shop by talking.<br/><em>Find more of you.</em></h2><p>Start with your day, your style or a piece you own. Your assistant helps you explore—and listens when you change your mind.</p><div className="cs-scenario-tabs" role="group" aria-label="Conversation examples">{scenarios.map((s,i)=><button key={s.name} type="button" aria-pressed={selected===i} onClick={()=>setSelected(i)}>{s.name}</button>)}</div></div><div className="cs-conversation"><div className="cs-conversation-top"><Brand/><span>Example shopping chat</span></div><div className="cs-example-user"><span>You</span><p>{example.request}</p></div><div className="cs-example-assistant" aria-live="polite"><span><Asterisk size={15}/>Chauffeur</span><p>{example.reply}</p><div className="cs-tags">{example.tags.map(t=><span key={t}>{t}</span>)}</div></div><div className="cs-example-feedback"><SlidersHorizontal size={16}/><span>“Less formal. Something with a small print.”</span></div><p className="cs-example-caption">An example of the flow. Live results vary by request and store access.</p></div><a className="cs-button cs-discovery-cta" href={liveLink(example.request)}>Try this conversation <ArrowUpRight size={17}/></a></div></section>
       <WardrobeSpiral/>
       <section className="cs-status cs-wrap"><div><p className="cs-eyebrow">Built around your everyday</p><h2>Here for you today.<br/><em>More to come.</em></h2><p>One place for discovering fashion, styling your wardrobe and thinking through your next purchase.</p></div><div className="cs-status-list"><article><span className="cs-status-pill cs-status-live">Available now</span><h3>Shopping and styling on the web</h3><p>AI clothing discovery, product previews, saved preferences, wardrobe outfits and buying reviews. Photo and voice inputs help draft your request.</p></article><article><span className="cs-status-pill">In the plan</span><h3>More fashion. More ways to shop.</h3><p>Verified delivered-price comparisons, WhatsApp and assisted checkout remain in the plan.</p></article></div></section>
