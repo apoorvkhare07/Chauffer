@@ -233,3 +233,6 @@ The shopping sequence now follows vertical page scroll, inspired by the layered 
 
 ### Distinct occasion opening and parallax depth
 The first story scene is an occasion, not another product shortlist: a Monday calendar and a personal thought sit in front of two real outfit photos. Original five-step labels and narrative are restored, including labelled sample prices and the planned approval review. Parallax offsets move background, foreground photos and notes at different rates while preserving the shared centred design.
+
+### Primary colour and story snap
+Marketing primary is #1b999d, supported by pale teal surfaces and darker teal text. Buttons use dark ink for readability. The shopping story now lands on discrete chapters with short transitions and snaps to the nearest chapter after scrolling pauses, retaining subtle layered movement.

@@ -259,3 +259,8 @@ Checks: 86 tests and the frontend build passed. Browser verified hero photos/fra
 - Restored the occasion/calendar opening, office-look conversation, discovery, illustrative price comparison and final size/address/total review. Checkout remains explicitly planned; sample comparison prices are fictional.
 - Added different scroll speeds for background, photos, calendar and thought bubble, with continuous offsets (no midpoint position jumps).
 - Checked the distinct first scene at phone size and original chapter text through native page scrolling. Existing 90 tests and build passed; production build also runs during deployment.
+
+### Snappy story and teal primary
+- Story now selects discrete chapters, with 150–180ms transitions and a 130ms scroll-settle snap to the nearest chapter. Background depth movement remains; entry/exit edges are free to leave the section.
+- Verified exact primary button colour rgb(27,153,157), desktop chapter settling and phone banner appearance. All 90 tests and build passed.
+- Teal palette applied to marketing styles only; account/demo styles remain separate.
