@@ -53,11 +53,23 @@ export async function discover(requirements:Requirements,excludeUrls:string[]=[]
  const catalogues=pages.filter((p):p is PromiseFulfilledResult<string>=>p.status==='fulfilled').map(p=>listingUrls(p.value));
  const catalogue=[...new Set(catalogues.length>1?[...catalogues[0].slice(0,6),...catalogues[1]]:catalogues[0]??[])].slice(0,12);if(!catalogue.length)throw new Error('No readable live catalogue');
  const urls=catalogue.filter(url=>!excludeUrls.includes(url));
- const matches:Option[]=[];
+ const matches:Option[]=[];let readableProducts=0;
  for(let offset=0;offset<urls.length&&matches.length<limit;offset+=3){
-  const results=await Promise.allSettled(urls.slice(offset,offset+3).map(async url=>productOption(await page(url),url,Date.now())));
-  for(const result of results)if(result.status==='fulfilled'&&result.value&&matchesOption(result.value,requirements))matches.push(result.value);
+  const results=await Promise.allSettled(urls.slice(offset,offset+3).map(async url=>{
+   const html=await page(url),option=productOption(html,url,Date.now());
+   const product=structured(html).find(x=>x['@type']==='Product'&&typeof x.name==='string');
+   const offer=Array.isArray(product?.offers)?product.offers[0]:product?.offers;
+   // A known sold-out product is readable evidence; a challenge, missing price
+   // or failed request is not evidence that the search has no matching stock.
+   const readable=Boolean(option)||/\/(OutOfStock|SoldOut|Discontinued)$/.test(String(offer?.availability??''));
+   return {option,readable};
+  }));
+  for(const result of results)if(result.status==='fulfilled'){
+   if(result.value.readable)readableProducts++;
+   if(result.value.option&&matchesOption(result.value.option,requirements))matches.push(result.value.option);
+  }
  }
+ if(urls.length&&!readableProducts)throw new Error('Flipkart product details unavailable');
  return matches.sort((a,b)=>a.price-b.price).slice(0,limit);
 }
 export async function discoverAcrossStores(requirements:Requirements,excludeUrls:string[]=[],taste:Taste=emptyTaste,perStoreLimit=3):Promise<{options:Option[];failed:boolean;stores:StoreResult[]}>{

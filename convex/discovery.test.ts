@@ -36,6 +36,19 @@ test('discovery fetches fresh search and product pages; does not return sample p
  expect(await discover({category:'kurta',budget:1000,colour:'blue',fabric:'cotton'})).toHaveLength(1);expect(fetch).toHaveBeenCalledTimes(2);
  fetch.mockResolvedValue(new Response('Unavailable',{status:503}));await expect(discover({category:'kurta',budget:1000})).rejects.toThrow('Store unavailable');
 });
+test('Flipkart cannot report no matches when every product page is refused or unreadable',async()=>{
+ const fetch=vi.spyOn(globalThis,'fetch').mockImplementation(async input=>String(input).includes('/search?')?new Response(ld({'@type':'ItemList',itemListElement:[{url}]})):new Response('Access refused',{status:403}));
+ await expect(discover({category:'kurta',budget:1000})).rejects.toThrow('product details unavailable');
+ fetch.mockImplementation(async input=>new Response(String(input).includes('/search?')?ld({'@type':'ItemList',itemListElement:[{url}]}):'<h1>Robot check</h1>'));
+ await expect(discover({category:'kurta',budget:1000})).rejects.toThrow('product details unavailable');
+});
+test('Flipkart keeps genuine nonmatches and previously shown products distinct from unreadable pages',async()=>{
+ const fetch=vi.spyOn(globalThis,'fetch').mockImplementation(async input=>new Response(String(input).includes('/search?')?ld({'@type':'ItemList',itemListElement:[{url}]}):productHtml()));
+ expect(await discover({category:'kurta',budget:400})).toEqual([]);
+ fetch.mockImplementation(async input=>new Response(String(input).includes('/search?')?ld({'@type':'ItemList',itemListElement:[{url}]}):productHtml().replace('InStock','OutOfStock')));
+ expect(await discover({category:'kurta',budget:1000})).toEqual([]);
+ expect(await discover({category:'kurta',budget:1000},[url])).toEqual([]);
+});
 test('webhook checks exact signature and routes only configured phone ID',async()=>{
  const body='{"test":true}',secret='test-secret';const key=await crypto.subtle.importKey('raw',new TextEncoder().encode(secret),{name:'HMAC',hash:'SHA-256'},false,['sign']);
  const bytes=new Uint8Array(await crypto.subtle.sign('HMAC',key,new TextEncoder().encode(body)));const signature='sha256='+Array.from(bytes,x=>x.toString(16).padStart(2,'0')).join('');
