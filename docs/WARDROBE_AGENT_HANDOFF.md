@@ -1,6 +1,6 @@
 # Wardrobe intelligence and agent coordination
 
-Status: wardrobe-side implementation, 15 October 2026. Discovery is developing its own envelope; the adapters below are versioned payloads for that envelope, not a replacement. Do not change discovery's active-request consent or search routing to adopt this document automatically.
+Status: wardrobe-side implementation, 15 October 2026. Discovery’s completed envelope is in [AGENT_HANDOFF.md](AGENT_HANDOFF.md) and has been merged. The adapters below are versioned wardrobe payloads for that envelope, not a replacement. Discovery’s optional pairing reviewer now consumes the same confirmed shopper context through `shoppingContext`. Do not change discovery's active-request consent or search routing to adopt this document automatically.
 
 ## Responsibilities and order
 
@@ -21,7 +21,7 @@ Status: wardrobe-side implementation, 15 October 2026. Discovery is developing i
 
 `contextKey` and `inventoryKey` are opaque freshness markers for application code, not prompts and not facts to display. They must not go in telemetry. Do not cache private payloads across users or requests.
 
-## Suggested mapping into discovery's envelope (integration pending)
+## Mapping into discovery's envelope (partial integration)
 
 | Coordinator route | Payload / receiver | Result and next step |
 |---|---|---|
@@ -49,6 +49,10 @@ Before enabling: configure key in dev/prod, validate real city disambiguation an
 
 - Test ownership, preferences/sizes/photo-confirmation precedence, changing profile mid-request, unavailable pieces, insufficient inventory, guessed IDs, time-zone/date validation and unavailable weather.
 - Test real English/Hindi/Hinglish advice and body-neutral explanations; inspect whether model respects fabric unknowns and never promises fit.
-- Discovery owner: map the above versioned payloads into your handoff contract; retain your current consent gating and store retrieval limits. Do not wire a second merchant search in wardrobe.
+- Discovery owner: automatic wardrobe-request routing and result packets still need mapping into your handoff contract; retain your current consent gating and store retrieval limits. Do not wire a second merchant search in wardrobe.
 - Stylist owner: reuse confirmed description + limitations and explicit style/fit goals; return advisory decisions with sources. Any new photo inference must go through review before saved use.
 - Pending: integrated cross-agent routing, shared refinement history, explicit shopping opt-in handoff, sourced candidate re-review using the complete context, real phone location and live weather. These are separate from the working standalone wardrobe request.
+
+### Integrated in this change
+
+The production discovery handoff from `agent-mds` was merged before deployment. `shoppingContext.loadShoppingContext` retains its explicit active-request gate and 24-piece bound, and now adds the shared confirmed shopper summary. `discoveryStyling.review` uses that summary for its existing optional pairing call. Saved-size/body/preference changes invalidate pairing advice while merchant results remain intact. This does not add an automatic route from discovery chat to standalone wardrobe outfits or the future specialist stylist.

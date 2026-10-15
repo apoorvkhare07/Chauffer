@@ -19,11 +19,15 @@
 ## Sequence
 
 1. Existing conversation planner interprets current-session messages and preserves confirmed constraints.
-2. Coordinator reads the matching pending revision. Only an explicit wardrobe/style request loads this owner's bounded saved wardrobe (up to 80, at most 24 available pieces supplied) and manual style preferences.
+2. Coordinator reads the matching pending revision. Only an explicit wardrobe/style request loads this owner's bounded saved wardrobe (up to 80, at most 24 available pieces supplied) and confirmed style preferences. The shared wardrobe context also supplies self-reported top/jeans sizes, approximate height and a reviewed photo description when available. Unreviewed photo guesses and raw portraits are excluded.
 3. Discovery retrieves/ranks real products once. Store/browser retry limits stay unchanged.
 4. One optional styling call assesses those products against supplied available clothes. It receives no wardrobe photos, exact private snapshot key, other-user data or past-chat search history. The current-session brief is bounded to eight recent user messages within a thirty-message read.
 5. Unknown product/owned IDs are rejected. Server-owned names are used in the UI. The specialist cannot change product evidence, budget or trigger another store search.
 6. Completion checks turn revision and exact wardrobe/style snapshot. Later edits also clear stale pairings when current-chat results are read. Shopping products remain usable if styling fails or becomes stale.
 7. Explicit acceptance produces a satisfied packet at the new revision. Saves/clicks do not count as acceptance. A refinement reopens discovery; reset clears current-chat wardrobe scope.
 
-The 15-second maximum styling call runs only within the existing conversation deadline, with no retry. Model token usage is recorded with the discovery conversation. This does not yet add image-based styling, automatic body-profile imports, product-specific size/stock verification, agent-generated search loops, or a general evaluation/quality scoring system.
+The 15-second maximum styling call runs only within the existing conversation deadline, with no retry. Model token usage is recorded with the discovery conversation. This does not yet add image-based styling, unreviewed body-profile imports, product-specific size/stock verification, agent-generated search loops, or a general evaluation/quality scoring system.
+
+## Wardrobe intelligence integration
+
+`shoppingContext.loadShoppingContext` now uses `wardrobeContext` after the existing active-request scope gate. Saved preferences, sizes, reviewed styling and location changes invalidate the private source fingerprint; ordinary discovery still performs no private wardrobe reads. The optional styling reviewer receives this context without raw images or coordinates. See [wardrobe adapter and routing plan](WARDROBE_AGENT_HANDOFF.md) for standalone outfit requests and the remaining conversation-routing work.

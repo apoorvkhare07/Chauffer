@@ -159,3 +159,13 @@ Built in the requested order:
 4. Account support includes a partial shopping-data snapshot and sign-out on all devices using Convex Auth session invalidation. The snapshot discloses its limits: latest 100 web messages, seven daily edits, preferences, wardrobe metadata and saved products; no image files, older history or AI logs. Password recovery/email verification remain pending an approved email-delivery connection. Full account deletion is still pending comprehensive application, file, authentication and AI-history cleanup; no unsafe partial deletion is presented as complete removal.
 
 Known gaps: Amazon access is intermittent, exact manufacturer codes often absent, readable offer extraction is limited by merchant markup and location/account context. Exact-price/offer arithmetic remains conservative until verified checkout evidence exists. Real virtual try-on remains pending the separate Gemini image-generation quota. WhatsApp delivery/account linking and voice replies remain unconnected.
+
+## Wardrobe intelligence — 15 October 2026
+
+Current request adds a standalone wardrobe assistant using confirmed inventory, saved taste/fit/avoid, top and jeans sizes, approximate height, reviewed photo description, event date/period/setting and the backend clock in the user's time zone. It produces up to three validated owned-piece outfits with reasons, a summary, practical tips and at most one clarification. No raw body images or generated try-on pixels are used as fit evidence.
+
+Discovery's completed handoff has been merged. Its existing optional pairing reviewer now uses the same confirmed shopper context behind the current-request wardrobe gate; profile/style changes invalidate pairing advice without removing sourced products. The wardrobe-side internal adapters and sequence are in [WARDROBE_AGENT_HANDOFF.md](docs/WARDROBE_AGENT_HANDOFF.md), alongside the existing [discovery contract](docs/AGENT_HANDOFF.md).
+
+Live weather remains pending by builder choice. A server-only WeatherAPI adapter and optional city/approximate-location path are implemented; without WEATHER_API_KEY the UI says weather is not connected and the model relies on user-described conditions. No city/location is inferred silently.
+
+Next integration: route appropriate discovery-chat requests to standalone wardrobe outfits, carry refinement feedback and selected items through the common envelope, connect a dedicated stylist advisory response, and add an explicitly accepted shopping handoff for wardrobe gaps. Current independent request editing and discovery pairing do not claim these cross-agent flows are complete.

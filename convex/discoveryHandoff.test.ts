@@ -52,3 +52,12 @@ test('an inventory change during styling invalidates the pairing before publicat
  const row=await t.run(ctx=>ctx.db.query('messages').withIndex('by_conversation_session',q=>q.eq('conversationId',conversationId).eq('session',0)).first());
  expect(row?.handoff?.styling).toMatchObject({state:'stale',matches:[]});expect(row?.result?.options).toHaveLength(1);
 });
+test('discovery pairing shares confirmed sizes and becomes stale when profile context changes',async()=>{
+ const {t,conversationId,id}=await setup();await t.run(ctx=>ctx.db.insert('profiles',{owner:'alice',preferences:{language:'en',size:'M',jeansSize:'32',heightCm:178},updatedAt:Date.now()}));
+ const context=(await t.query(internal.discoveryCoordinator.context,{conversationId,revision:1}))!;expect(context.wardrobe.shopper).toMatchObject({topSize:'M',jeansSize:'32',heightCm:178,body:{source:'none'}});
+ const packet=buildDiscoveryHandoff({conversationId,session:0,revision:1,requirements:context.requirements,taste:context.taste,result:{options:[product],stores:[],failed:false}});
+ const styling=safeDiscoveryStyling(packet,context.wardrobe,{matches:[{productId:product.url,wardrobeItemIds:[id],reason:'Possible combination.'}]});
+ await t.mutation(internal.conversations.complete,{conversationId,revision:1,result:{options:[product],stores:[],failed:false},styling,stylingSourceKey:context.wardrobe.sourceKey});
+ await t.withIdentity({subject:'alice'}).mutation(api.profiles.save,{preferences:{language:'en',size:'L',jeansSize:'34',heightCm:178}});
+ const current=await t.withIdentity({subject:'alice'}).query(api.conversations.current,{});expect(current.messages.at(-1)?.handoff?.styling.state).toBe('stale');expect(current.messages.at(-1)?.result?.options).toEqual([product]);
+});

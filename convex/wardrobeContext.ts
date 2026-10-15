@@ -5,7 +5,7 @@ import {requireOwner} from './identity';
 import {emptyStyle} from './wardrobeRules';
 import {emptyTaste} from './taste';
 import {locationValidator,cleanLocation} from './wardrobeContextRules';
-export async function wardrobeContext(ctx:QueryCtx|MutationCtx,owner:string){
+export async function wardrobeContext(ctx:Pick<QueryCtx,'db'>,owner:string){
  const [profile,styleRow,photo,location]=await Promise.all([ctx.db.query('profiles').withIndex('by_owner',q=>q.eq('owner',owner)).unique(),ctx.db.query('wardrobeStyles').withIndex('by_owner',q=>q.eq('owner',owner)).unique(),ctx.db.query('stylingProfiles').withIndex('by_owner',q=>q.eq('owner',owner)).unique(),ctx.db.query('wardrobeLocations').withIndex('by_owner',q=>q.eq('owner',owner)).unique()]);
  const style=styleRow?.details??emptyStyle,p=profile?.preferences,description=style.bodyDescription.trim(),confirmed=Boolean(description&&photo?.confirmedDescription===description&&photo?.photoId&&photo.photoState==='ready');
  const shopper={language:p?.language??'en',...(p?.audience?{audience:p.audience}:{}),...(p?.gender?{gender:p.gender}:{}),...(p?.size?{topSize:p.size}:{}),...(p?.jeansSize?{jeansSize:p.jeansSize}:{}),...(p?.heightCm?{heightCm:p.heightCm}:{}),body:{source:confirmed?'confirmed_photo' as const:description?'self_described' as const:'none' as const,description,photoAvailable:Boolean(photo?.photoId),needsReview:Boolean(photo?.analysis?.canEstimate&&!photo.confirmedDescription),limitations:confirmed?(photo?.analysis?.limitations??[]).slice(0,5):[]}};
