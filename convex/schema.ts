@@ -1,3 +1,4 @@
+import {styleAdviceValidator} from './stylistRules';
 import {eventValidator,weatherValidator,guidanceValidator,locationValidator} from './wardrobeContextRules';
 import {discoveryHandoffValidator} from './discoveryHandoff';
 import {discoveryQuestionValidator,discoveryStatusValidator} from './discoveryQuestions';
@@ -25,8 +26,9 @@ export default defineSchema({
  guestSearches: defineTable({tokenHash:v.string(),text:v.string(),state:v.union(v.literal('pending'),v.literal('ready'),v.literal('failed')),reply:v.optional(v.string()),result:v.optional(discoveryResultValidator),createdAt:v.number()}).index('by_token',['tokenHash']).index('by_created',['createdAt']),
 
  priceIntelligence: defineTable({owner:v.string(),savedId:v.id('savedProducts'),report:intelligenceValidator}).index('by_saved',['savedId']),
+ stylistSessions: defineTable({owner:v.string(),request:v.string(),event:eventValidator,contextKey:v.string(),parentId:v.optional(v.id('stylistSessions')),state:v.union(v.literal('building'),v.literal('ready'),v.literal('failed')),advice:v.optional(styleAdviceValidator),note:v.string(),createdAt:v.number()}).index('by_owner',['owner']),
  stylingRequests: defineTable({owner:v.string(),purpose:v.union(v.literal('body'),v.literal('tryon'))}).index('by_owner_purpose',['owner','purpose']),
- stylingProfiles: defineTable({owner:v.string(),onboarding:v.union(v.literal('active'),v.literal('complete'),v.literal('skipped')),photoId:v.optional(v.id('_storage')),photoState:v.union(v.literal('empty'),v.literal('building'),v.literal('ready'),v.literal('failed')),analysis:v.optional(bodyAnalysisValidator),confirmedDescription:v.optional(v.string()),updatedAt:v.number()}).index('by_owner',['owner']),
+ stylingProfiles: defineTable({owner:v.string(),onboarding:v.union(v.literal('active'),v.literal('complete'),v.literal('skipped')),photoId:v.optional(v.id('_storage')),photoState:v.union(v.literal('empty'),v.literal('building'),v.literal('ready'),v.literal('failed')),analysis:v.optional(bodyAnalysisValidator),confirmedVisualStyle:v.optional(v.string()),confirmedDescription:v.optional(v.string()),updatedAt:v.number()}).index('by_owner',['owner']),
  tryOnPreviews: defineTable({owner:v.string(),source:previewSourceValidator,title:v.string(),photoId:v.id('_storage'),garmentPhotoId:v.optional(v.id('_storage')),garmentImageUrl:v.optional(v.string()),state:v.union(v.literal('building'),v.literal('ready'),v.literal('failed')),outputId:v.optional(v.id('_storage')),note:v.string(),failureCode:v.optional(v.string()),createdAt:v.number(),expiresAt:v.number()}).index('by_owner',['owner']).index('by_expiry',['expiresAt']),
  wardrobeStyles: defineTable({owner:v.string(),details:styleValidator,updatedAt:v.number()}).index('by_owner',['owner']),
  wardrobePhotoDrafts: defineTable({owner:v.string(),photoId:v.optional(v.id('_storage')),analysis:v.optional(photoAnalysisValidator),state:v.union(v.literal('building'),v.literal('ready'),v.literal('failed')),createdAt:v.number()}).index('by_owner',['owner']).index('by_created',['createdAt']),

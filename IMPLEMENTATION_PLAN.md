@@ -169,3 +169,10 @@ Discovery's completed handoff has been merged. Its existing optional pairing rev
 Live weather remains pending by builder choice. A server-only WeatherAPI adapter and optional city/approximate-location path are implemented; without WEATHER_API_KEY the UI says weather is not connected and the model relies on user-described conditions. No city/location is inferred silently.
 
 Next integration: route appropriate discovery-chat requests to standalone wardrobe outfits, carry refinement feedback and selected items through the common envelope, connect a dedicated stylist advisory response, and add an explicitly accepted shopping handoff for wardrobe gaps. Current independent request editing and discovery pairing do not claim these cross-agent flows are complete.
+
+## Personal stylist and try-on — 15 October 2026
+- Dedicated Stylist page: detailed briefs, palettes, occasion controls, outfit concepts, dated trend sources and refinement.
+- Shared confirmed photo/body/style/size context and common fashion reasoning across stylist, wardrobe and discovery pairing.
+- Explicit validated stylist → discovery shopping handoff; concepts remain separate from actual wardrobe/merchant items.
+- Visible photo outfit style has separate confirmation. Try-on uses the available model directly, public errors, watchdog and stale garment protection.
+- Pending: live-person preview acceptance, automatic trend refresh, broader language/occasion quality checks and automatic routing. See docs/STYLIST_AGENT_HANDOFF.md.

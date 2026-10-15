@@ -56,3 +56,6 @@ Before enabling: configure key in dev/prod, validate real city disambiguation an
 ### Integrated in this change
 
 The production discovery handoff from `agent-mds` was merged before deployment. `shoppingContext.loadShoppingContext` retains its explicit active-request gate and 24-piece bound, and now adds the shared confirmed shopper summary. `discoveryStyling.review` uses that summary for its existing optional pairing call. Saved-size/body/preference changes invalidate pairing advice while merchant results remain intact. This does not add an automatic route from discovery chat to standalone wardrobe outfits or the future specialist stylist.
+
+### Personal stylist now available
+The general stylist and explicit shopping handoff are implemented: see [STYLIST_AGENT_HANDOFF.md](STYLIST_AGENT_HANDOFF.md). Shared shopper.photoStyle contains only separately confirmed visible-outfit notes. Common styling principles now guide all three specialists. Wardrobe remains restricted to available owned pieces; general concepts do not imply ownership. Automatic conversational routing remains pending.
