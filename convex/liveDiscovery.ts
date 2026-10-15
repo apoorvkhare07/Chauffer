@@ -3,7 +3,7 @@ import {fashionCategories} from './fashionRules';
 import {stores,storeSearchUrl,storeResultValidator,type StoreResult} from './marketplaces';
 import {chooseBatch} from './ranking';
 import {tasteValidator,emptyTaste,type Taste} from './taste';
-import {amazonOptions} from './storeExtractors';
+import {amazonOptions,meeshoOptions} from './storeExtractors';
 import {retailOptions} from './retailExtractors';
 import { load } from 'cheerio';
 import { internalAction,action } from './_generated/server';
@@ -39,8 +39,8 @@ export function productOption(html:string,url:string,observedAt:number):Option|n
  const manufacturerCode=typeof p.mpn==='string'?p.mpn:undefined;
  return {...(imageUrl?{imageUrl}:{}),...(brand?{brand:brand.slice(0,80)}:{}),...(manufacturerCode?{manufacturerCode:manufacturerCode.slice(0,80)}:{}),title:p.name.slice(0,200),url,price,colour:typeof p.color==='string'?p.color.slice(0,60):'',fabric:fabric.slice(0,80),attributes:[...new Set(attributes)],observedAt};
 }
-async function page(url:string):Promise<string>{
- const response=await fetch(url,{signal:AbortSignal.timeout(12000),redirect:'error'});
+async function page(url:string,init?:RequestInit):Promise<string>{
+ const response=await fetch(url,{...init,signal:AbortSignal.timeout(12000),redirect:'error'});
  if(!response.ok)throw new Error(`Store unavailable: HTTP ${response.status}`);
  const reader=response.body?.getReader();if(!reader)throw new Error('Empty store response');let size=0;const chunks:Uint8Array[]=[];try{while(true){const {done,value}=await reader.read();if(done)break;size+=value.length;if(size>5000000)throw new Error('Unexpected store response');chunks.push(value);}}finally{await reader.cancel();}return Buffer.concat(chunks).toString('utf8');
 }
@@ -66,6 +66,11 @@ export async function discoverAcrossStores(requirements:Requirements,excludeUrls
   try{
    let options:Option[];
    if(store==='Flipkart')options=(await discover(requirements,excludeUrls,12)).map(o=>({...o,store,source:'product' as const}));
+   else if(store==='Meesho'){
+    const body={query:searchTerms(requirements),type:'text_search',page:1,offset:0,limit:20,sort_option:null,selected_filters:[],selectedFilterIds:[],cursor:null,isDevicePhone:false};
+    const text=await page('https://www.meesho.com/api/v1/products/search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    options=meeshoOptions(JSON.parse(text),requirements,Date.now(),excludeUrls,12);
+   }
    else if(store==='Amazon'){
     const broadUrl=storeSearchUrl(store,requirements,false);
     const pages=await Promise.allSettled([page(searchUrl),...(broadUrl!==searchUrl?[page(broadUrl)]:[])]);

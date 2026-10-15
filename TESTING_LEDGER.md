@@ -365,3 +365,9 @@ Production browser check: existing chat request "Find casual shirts using my sav
 - Production browser: verified both buttons with keyboard activation; form opened and photo chooser received focus. Browser mouse automation timed out, so pointer activation was not separately verified. No personal photo uploaded or wardrobe data changed.
 - npm test (109 backend tests plus website/engine checks) and npm run build passed.
 - Next shared test: choose a clothing photo, analyse it, review details and save the first piece.
+
+## Meesho product-source investigation — 2026-10-15
+- Traced the current public website bundles to POST `/api/v1/products/search`. Without cookies, credentials or browser impersonation, local requests return real catalogue JSON; the same request from dev Convex returns HTTP 403.
+- Added the bounded JSON request and conservative current response parsing: single-product price evidence, matching hero/image IDs, invalid/prebooking/ambiguous-audience rejection, allowed product/image URLs and excluded URLs. Existing explicit hero-price handling is preserved. No catalogue-wide minimum is used for multiple products.
+- Two regression tests failed before the fix and pass after it. Full checks: 4 website/demo plus 114 backend tests (118 total), backend type check and build pass. Dev Convex push completed cleanly.
+- Local real sneaker search included Meesho's ₹389 sneaker alongside five other stores. Opened the exact merchant URL in Chrome and confirmed the same title and ₹389 price. No account sign-in, cart or purchase used. Production access remains to be checked; another service would require builder approval.
