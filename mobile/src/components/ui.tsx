@@ -1,7 +1,6 @@
 import React, { type PropsWithChildren } from "react";
 import {
   ActivityIndicator,
-  KeyboardAvoidingView,
   Platform,
   Pressable,
   ScrollView,
@@ -70,19 +69,17 @@ export function Brand() {
 }
 export function Screen({ children }: PropsWithChildren) {
   return (
-    <KeyboardAvoidingView
-      style={s.fill}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-      keyboardVerticalOffset={96}
-    >
+    <View style={s.fill}>
       <ScrollView
         keyboardShouldPersistTaps="handled"
+        automaticallyAdjustKeyboardInsets={Platform.OS === "ios"}
+        keyboardDismissMode={Platform.OS === "ios" ? "interactive" : "on-drag"}
         contentContainerStyle={s.screen}
         contentInsetAdjustmentBehavior="automatic"
       >
         {children}
       </ScrollView>
-    </KeyboardAvoidingView>
+    </View>
   );
 }
 export function Card({

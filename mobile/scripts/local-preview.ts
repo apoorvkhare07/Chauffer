@@ -148,6 +148,8 @@ async function main() {
   const expo = spawn(
     process.execPath,
     [
+      // Native Expo manifests use 127.0.0.1; bind localhost to IPv4 as well.
+      "--dns-result-order=ipv4first",
       join(process.cwd(), "node_modules/expo/bin/cli"),
       "start",
       "--web",

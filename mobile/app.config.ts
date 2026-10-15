@@ -71,6 +71,7 @@ const config: ExpoConfig = {
   },
   web: { bundler: "metro", output: "single" },
   plugins: [
+    ["expo-build-properties", { ios: { enableSceneSupport: true } }],
     "expo-router",
     "expo-dev-client",
     "expo-font",

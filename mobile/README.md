@@ -2,7 +2,7 @@
 
 Initial iOS/Android app, following [the mobile handoff](../docs/MOBILE_APP_HANDOFF.md). This is a React Native app with Expo Router, using the existing Convex backend. It is not a wrapper around the website.
 
-**Current state:** screens, platform adapters and contract tests are implemented. iOS/Android JavaScript bundles compile. A connected native journey has **not** been verified: the agreed development backend and device/build tooling are still needed. Read [BUILD_STATUS.md](BUILD_STATUS.md) for evidence, remaining questions and release gates.
+**Current state:** screens, platform adapters and contract tests are implemented. An iOS development build is installed and running in the iPhone 18 Pro simulator; one local guest search returned six merchant options. iOS/Android JavaScript bundles compile. Authenticated journeys, physical phones and Android installation still need verification. Read [BUILD_STATUS.md](BUILD_STATUS.md) for evidence, remaining questions and release gates.
 
 ## Run locally
 
@@ -39,7 +39,7 @@ From `mobile/`, run:
 npm run dev:local
 ```
 
-Open `http://localhost:8083`. This starts the cached local Convex binary against its existing data/functions and Expo's browser preview. It never deploys source or creates a database. Stop it with Ctrl+C. If that backend is already running with the expected name, the command reuses it.
+Open `http://localhost:8083`. The installed iOS development app can use the same URL in its development-server field. This starts the cached local Convex binary against its existing data/functions and Expo's preview, explicitly bound to IPv4 so the simulator can load its app code. It never deploys source or creates a database. Stop it with Ctrl+C. If that backend is already running with the expected name, the command reuses it.
 
 SMS stays off locally: the builder confirmed MSG91 requires registered IPs. No test-code bypass is provided. Guest discovery was exercised successfully; signed-in journeys need an agreed development server with working MSG91. The saved local backend currently lacks the newer stylist functions and visible-outfit confirmation; the backend owner must deploy an agreed integrated commit before connected testing of those features.
 
@@ -50,6 +50,8 @@ On a Mac with full Xcode, iOS Simulator and CocoaPods installed:
 ```sh
 npm run ios
 ```
+
+Xcode 27 calls its simulator window **Device Hub**. This app enables `ios.enableSceneSupport` through `expo-build-properties`, as required for an Expo 57 app built with Xcode 27. Keep this setting when regenerating native projects; without it the build compiles but iOS 27 stops it at launch. See [Expo's scene support guidance](https://github.com/expo/fyi/blob/main/ios-scene-lifecycle.md#staying-on-sdk-57-with-xcode-27).
 
 With the Android SDK/JDK and an emulator or connected test device:
 
@@ -82,7 +84,7 @@ npx expo-doctor
 npm run bundle
 ```
 
-`bundle` exports iOS/Android Hermes bundles (compiled JavaScript) and a browser preview into ignored `dist/`. It does not create an APK/IPA or prove native modules work. `npx expo prebuild --no-install --platform all` checks native project generation without building or installing. Doctor will flag missing CocoaPods after iOS project generation on this Mac.
+`bundle` exports iOS/Android Hermes bundles (compiled JavaScript) and a browser preview into ignored `dist/`. It does not create an APK/IPA or prove native modules work. `npx expo prebuild --no-install --platform all` checks native project generation without building or installing. CocoaPods is installed on this Mac and Doctor currently passes all 21 checks.
 
 ## Code map
 
