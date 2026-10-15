@@ -1,4 +1,5 @@
 "use node";
+import {stylePrinciples} from "./stylistRules";
 import type {Id} from './_generated/dataModel';
 import {Agent} from '@convex-dev/agent';
 import {createGoogleGenerativeAI} from '@ai-sdk/google';
@@ -21,7 +22,7 @@ export const suggest=internalAction({args:{id:v.id('wardrobeOutfits')},returns:v
  const key=process.env.GEMINI_API_KEY;if(!key)throw new Error('AI not configured.');
  let weather:WardrobeWeather={status:'unavailable',note:'Could not check weather. Use the conditions you describe.'};
  try{const location=await ctx.runQuery(internal.wardrobeContext.place,{owner:plan.owner});if(location&&process.env.WEATHER_API_KEY)await ctx.runMutation(internal.wardrobeContext.claimWeather,{owner:plan.owner});weather=await fetchWardrobeWeather(location,plan.event);}catch{}
- const agent=new Agent(components.agent,{name:'Chauffeur wardrobe intelligence',languageModel:createGoogleGenerativeAI({apiKey:key})(process.env.GEMINI_MODEL||'gemini-3.1-flash-lite'),instructions,storageOptions:{saveMessages:'none'},contextOptions:{recentMessages:0,searchOtherThreads:false,searchOptions:{textSearch:false,vectorSearch:false,limit:0}}});
+ const agent=new Agent(components.agent,{name:'Chauffeur wardrobe intelligence',languageModel:createGoogleGenerativeAI({apiKey:key})(process.env.GEMINI_MODEL||'gemini-3.1-flash-lite'),instructions:stylePrinciples+'\n'+instructions,storageOptions:{saveMessages:'none'},contextOptions:{recentMessages:0,searchOtherThreads:false,searchOptions:{textSearch:false,vectorSearch:false,limit:0}}});
  const result=await agent.generateObject(ctx,{threadId:plan.threadId},{prompt:JSON.stringify({request:plan.request,items:plan.items,taste:plan.taste,style:plan.style,shopper:plan.shopper,event:plan.event,weather,clock:localClock(Date.now(),plan.event.timeZone),requestedAt:plan.createdAt}),schema,maxOutputTokens:2600,maxRetries:0,abortSignal:AbortSignal.timeout(45000)});
  const outfits=safeOutfits(result.object.outfits,plan.items).map(o=>({...o,itemIds:o.itemIds as Id<'wardrobeItems'>[]}));
  const guidance=result.object.outfits.length&&!outfits.length?{summary:'I could not validate a complete outfit from the available pieces. Please review your clothing tags and try again.',tips:[]}:safeGuidance(result.object.guidance??{summary:'',tips:[]});
