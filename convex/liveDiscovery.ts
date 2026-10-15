@@ -1,4 +1,6 @@
 "use node";
+import {addedStores,shopifySearchStores,storeConfig} from './storeConfig';
+import {expandedRetailOptions} from './expandedRetail';
 import {comparePrices} from './discoveryPolicy';
 import {fashionCategories} from './fashionRules';
 import {stores,storeSearchUrl,storeResultValidator,type StoreResult} from './marketplaces';
@@ -47,6 +49,26 @@ async function page(url:string,init?:RequestInit):Promise<string>{
  if(!response.ok)throw new Error(`Store unavailable: HTTP ${response.status}`);
  const reader=response.body?.getReader();if(!reader)throw new Error('Empty store response');let size=0;const chunks:Uint8Array[]=[];try{while(true){const {done,value}=await reader.read();if(done)break;size+=value.length;if(size>5000000)throw new Error('Unexpected store response');chunks.push(value);}}finally{await reader.cancel();}return Buffer.concat(chunks).toString('utf8');
 }
+// Fixed public storefront routes only; never follow API hosts supplied by merchant data.
+export async function expandedStoreBody(store:import('./storeConfig').Store,r:Requirements,searchUrl:string){
+ if((shopifySearchStores as readonly string[]).includes(store)){
+  const url=new URL('/search/suggest.json',storeConfig[store].origin);
+  url.searchParams.set('q',searchTerms({...r,audience:undefined},false));url.searchParams.set('resources[type]','product');url.searchParams.set('resources[limit]','10');return page(url.href);
+ }
+ if(store==='Tata CLiQ'){
+  const url=new URL('https://searchbff.tatacliq.com/products/mpl/search');
+  const values={searchText:searchTerms(r)+':relevance',page:'0',pageSize:'40',isKeywordRedirect:'false',isKeywordRedirectEnabled:'false',channel:'WEB',isMDE:'true',isTextSearch:'false',isFilter:'false',qc:'false',isFilterDataRequired:'true',isPwa:'true',typeID:'all'};
+  for(const [key,value] of Object.entries(values))url.searchParams.set(key,value);return page(url.href);
+ }
+ if(store==='Westside'){
+  // Same public configuration and search request used by Westside's own web app.
+  // Credentials stay in this call; never log or return them or persist them.
+  const config=JSON.parse(await page('https://www.westside.com/api/wizzy-config'))?.config;
+  const c=config?.credentials;if(!c||!['apiKey','storeId','storeSecret'].every(key=>typeof c[key]==='string'&&c[key].length>0&&c[key].length<1000))throw new Error('Westside public search unavailable');
+  return page('https://westside-api.wizsearch.in/v1/products/search',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':c.apiKey,'x-store-id':c.storeId,'x-store-secret':c.storeSecret},body:JSON.stringify({q:searchTerms(r),currency:'INR',includeOutOfStock:'false',getAllVariants:'false',productsCount:24,showOOSProductsInOrder:'false'})});
+ }
+ return page(searchUrl);
+}
 export async function discover(requirements:Requirements,excludeUrls:string[]=[],limit=3):Promise<Option[]>{
  const search=new URL('https://www.flipkart.com/search');search.searchParams.set('q',searchTerms(requirements));
  const hasSoft=searchTerms(requirements)!==searchTerms(requirements,false);
@@ -81,7 +103,8 @@ export async function discoverAcrossStores(requirements:Requirements,excludeUrls
   const searchUrl=storeSearchUrl(store,requirements);
   try{
    let options:Option[];
-   if(store==='Flipkart')options=(await discover(requirements,excludeUrls,12)).map(o=>({...o,store,source:'product' as const}));
+   if(addedStores.includes(store)){const found=expandedRetailOptions(store,await expandedStoreBody(store,requirements,searchUrl),requirements,Date.now(),excludeUrls);if(!found.readable)throw new Error('No readable public product catalogue');options=found.options;}
+   else if(store==='Flipkart')options=(await discover(requirements,excludeUrls,12)).map(o=>({...o,store,source:'product' as const}));
    else if(store==='Meesho'){
     const body={query:searchTerms(requirements),type:'text_search',page:1,offset:0,limit:20,sort_option:null,selected_filters:[],selectedFilterIds:[],cursor:null,isDevicePhone:false};
     const text=await page('https://www.meesho.com/api/v1/products/search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});

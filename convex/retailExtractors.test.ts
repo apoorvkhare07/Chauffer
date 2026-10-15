@@ -32,7 +32,7 @@ test('NEWME uses available web variant price and does not substitute app coupon 
  expect(retailOptions('NEWME',html,{category:'dress',budget:2000,audience:'men'},1).options).toEqual([]);
 });
 test('all featured stores have search destinations; unrendered shells are unavailable, never fabricated stock',()=>{
- expect(stores).toHaveLength(10);for(const store of stores)expect(new URL(storeSearchUrl(store,r)).protocol).toBe('https:');
+ expect(stores).toHaveLength(20);for(const store of stores)expect(new URL(storeSearchUrl(store,r)).protocol).toBe('https:');
  for(const store of ['Meesho','The Souled Store','SNITCH'] as const)expect(retailOptions(store,'<html>Enable JavaScript</html>',r,1)).toEqual({options:[],readable:false});
  for(const u of ['https://www.myntra.com.evil.test/shoes/123/buy','https://www.ajio.com/search/?text=shoes','https://www.bonkerscorner.com/products/foo/../../admin','https://user:pass@www.bewakoof.com/p/shoe'])expect(allowedProductUrl(u)).toBe(false);
  expect(allowedImageUrl('https://assets.myntassets.com.evil.test/x')).toBe(false);

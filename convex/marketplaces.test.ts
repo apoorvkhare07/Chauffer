@@ -25,9 +25,9 @@ test('search attempts every featured store; blocked stores do not discard anothe
  });
  const result=await discoverAcrossStores(r);
  expect(result.failed).toBe(false);expect(result.options).toHaveLength(1);
- expect(result.stores).toHaveLength(10);expect(result.stores[0]).toMatchObject({store:'Flipkart',status:'unavailable'});expect(result.stores[1]).toMatchObject({store:'Amazon',status:'matched'});expect(result.stores.slice(2).every(s=>s.status==='unavailable')).toBe(true);
+ expect(result.stores).toHaveLength(20);expect(result.stores[0]).toMatchObject({store:'Flipkart',status:'unavailable'});expect(result.stores[1]).toMatchObject({store:'Amazon',status:'matched'});expect(result.stores.slice(2).every(s=>s.status==='unavailable')).toBe(true);
  expect(new URL(result.stores[1].searchUrl).searchParams.get('k')).toBe('blue cotton kurta');
- expect(new Set(fetch.mock.calls.map(([url])=>new URL(String(url)).hostname)).size).toBe(10);
+ expect(new Set(fetch.mock.calls.map(([url])=>new URL(String(url)).hostname)).size).toBe(20);
 });
 test('chat accumulates separate answers, clears refinements explicitly and does not search on thanks',()=>{
  const category=nextRequest('kurta'),budget=nextRequest('under ₹1,000',category.requirements),ready=nextRequest('M',budget.requirements);

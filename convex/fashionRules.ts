@@ -16,7 +16,7 @@ export const categoryPatterns: Record<string,RegExp> = {
  skirt:/\bskirts?\b/i,jacket:/\b(jackets?|blazers?|coats?)\b/i,
  sweater:/\b(sweaters?|sweatshirts?|hoodies?|cardigans?)\b/i,
  sneakers:/\b(sneakers?|trainers?)\b/i,boots:/\bboots?\b/i,loafers:/\bloafers?\b/i,heels:/\bheels?\b/i,
- shoes:/\b(shoes?|sneakers?|trainers?|loafers?|boots?|heels?)\b/i,
+ shoes:/\b(shoes?|sneakers?|trainers?|loafers?|boots?|heels?|footwear)\b/i,
  sandals:/\b(sandals?|slippers?|flip flops?)\b/i,
  bag:/\b(bags?|handbags?|backpacks?|totes?|clutches?)\b/i,
  belt:/\bbelts?\b/i,watch:/\b(watch|watches)\b/i,sunglasses:/\b(sunglasses|shades)\b/i,

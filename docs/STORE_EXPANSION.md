@@ -1,0 +1,20 @@
+# Ten additional fashion sources · 15 October 2026
+
+Research and implementation record, not a merchant partnership or a promise of continuous access. Existing ten sources remain. Every candidate still passes the existing budget, category, colour/material/brand, exclusion and ranking rules. Size stock, fulfilment and final offers remain unverified. Up to six products are shown; adding stores expands the candidate pool rather than making the first page longer.
+
+| Store | Official research page | Reader and limits |
+|---|---|---|
+| Nykaa Fashion | [Shoes](https://www.nykaafashion.com/dp/shoes) | Public listing state, row selling price, own colour only. Skip sold-out rows and ambiguous gender on gender-specific requests. |
+| Tata CLiQ | [Fashion search](https://www.tatacliq.com/search/?searchCategory=all&text=jeans) | Public search API found in the storefront's own script. INR selling price, stock flag and merchant product link. Skip ambiguous gender on gender-specific requests. |
+| H&M | [India search](https://www2.hm.com/en_in/search-results.html?q=jeans) | India listing state; public regular/sale prices, never club/member price. Product category supplies audience; own colour variant, not all swatches. |
+| Uniqlo | [India catalogue](https://www.uniqlo.com/in/en/) | Direct access denied in local checks. Chrome works, but the standard Browserless trial did not return usable products. Reader supports the search grid if accessible; no automatic Browserless recovery enabled. Reports unavailable with a store-search link. |
+| Westside | [Women](https://www.westside.com/collections/woman), [category list](https://www.westside.com/pages/collection-category/) | Current site uses a different public search API. Read the site's public configuration per call and request its fixed search host; never log/store those configuration credentials. Selling price, stock, row gender and canonical Westside product destination. |
+| FREAKINS | [Women/men denim](https://freakins.com/) | Public Shopify product suggestions, rupee price, availability, product tags/type. Hard search terms; audience checked on each row. |
+| Off Duty | [Women](https://offduty.in/), [men](https://offduty.in/pages/men) | Same bounded public Shopify search format; product-specific gender tags and material evidence. |
+| Superkicks | [Current offers/catalogue](https://www.superkicks.in/collections/latest-offers) | Public Shopify suggestions, exact vendor and type, availability and rupee price. No guess that a sneaker-themed T-shirt is footwear. |
+| VegNonVeg | [Official store](https://www.vegnonveg.com/) | Priced visible listing cards and their own catalogue category. Footwear supports broad shoes; model names alone do not prove sneakers. Conservative exclusion of ambiguous TD/PS/GS items; no invented gender or fabric. |
+| PUMA | [India sneakers](https://in.puma.com/in/en/sneakers/shop-all-sneakers) | India listing state, priced/orderable variant and matching link/swatches. Skip app-exclusive products and expired sale prices. Keep the swatch URL. |
+
+All new reads are direct, bounded by the existing 12-second/5 MB page limits. Shopify uses up to ten suggestions, other listing readers inspect at most 24–48 rows. Westside uses two fixed requests (configuration then search). No automatic CAPTCHA solving, login, new paid service or expanded browser-call allowance. The seven existing recovery sources and maximum seven pages/two at a time/90-second deadline remain.
+
+`storeExpansionProbe:run` is internal and manually invoked for fixed invented women-jeans, men-shirts or men-footwear scenarios. It does not read chats or create shopper records. Optional `browserUniqlo` tests one Uniqlo page using the existing standard route; it does not enable shopper recovery. Product observations and availability vary across local and production networks; see TESTING_LEDGER.md for release evidence.
