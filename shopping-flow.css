@@ -17,3 +17,101 @@
 @media(max-width:760px){.shopping-flow{display:block;padding-top:15px;padding-bottom:45px}.flow-visual{top:12px;height:360px;z-index:2;border-radius:22px;margin-bottom:-360px}.flow-copy-step,.flow-copy-step:first-child,.flow-copy-step:last-child{min-height:100svh;padding:400px 5px 50px;align-items:center;text-align:center}.flow-copy-step h2{font-size:36px;margin:15px 0}.flow-copy-step>p:not(.cs-eyebrow){font-size:13px;line-height:1.7}.flow-cta{margin-top:10px;font-size:12px}.flow-board-heading{top:15px;left:15px;right:15px;font-size:8px}.flow-board-heading b{font-size:8px}.flow-scene{inset:57px 15px 40px}.flow-need .shopping-search-dock{margin-bottom:10px}.flow-need .style-board-brief{font-size:8px;margin-bottom:8px}.flow-need .style-board-photos{min-height:130px}.flow-need .style-board-photos img{height:105px}.flow-need .style-board-photos figcaption{font-size:7px;padding:7px 0}.flow-need .style-board-footer{display:none}.flow-photo-grid{gap:7px}.flow-photo-grid img{height:83px}.flow-photo-grid figcaption{font-size:7px;padding:5px 0 2px}.flow-caption{font-size:8px;margin-top:10px}.flow-swipe-deck{height:174px;width:125px;margin-bottom:10px}.flow-swipe-deck img{height:140px}.flow-swipe-deck figcaption{font-size:8px;padding:7px 0}.flow-heart{padding:9px;right:-15px;bottom:9px}.flow-heart svg{width:17px;height:17px}.flow-feedback{font-size:11px;padding:9px;max-width:220px}.flow-response{font-size:8px;margin-top:8px}.flow-review-card{padding:13px;margin:0 auto}.flow-review-top{gap:12px;margin-bottom:8px}.flow-review-top img{height:57px;width:45px}.flow-review-top h3{font-size:16px;margin:5px 0}.flow-review-top p{display:none}.flow-check{padding:9px 0}.flow-check b{font-size:10px}.flow-check span{font-size:8px}.flow-review-card>small{font-size:8px;margin-top:5px}.flow-buy-card{gap:13px;padding:13px;margin-top:5px}.flow-buy-card img{height:155px}.flow-buy-card h3{font-size:19px;margin:8px 0}.flow-buy-card p{font-size:9px}.flow-store-button{font-size:8px;padding:9px;margin-top:10px}.flow-small-label{font-size:7px}.flow-next{margin-top:18px}.flow-next b{font-size:10px}.flow-next span{font-size:8px}.flow-progress{bottom:23px}.flow-example-label{bottom:7px;font-size:7px}}
 @media(prefers-reduced-motion:reduce){.flow-scene,.flow-scene *{animation:none!important;transition:none!important}.flow-swipe-deck .swipe-away{display:none}}
 @media(max-height:600px) and (min-width:761px){.flow-visual{top:15px;transform:scale(.8);transform-origin:top center}.flow-copy-step{min-height:600px}}
+
+/* One screen per chapter; native proximity snapping keeps touch and wheel scrolling natural. */
+html.shopping-scroll-page{scroll-snap-type:y proximity;scroll-padding-top:0}
+.shopping-scroll-page .public-fashion-hero{min-height:calc(100svh - 68px);scroll-snap-align:end;scroll-snap-stop:normal}
+.shopping-scroll-page .shopping-flow{padding-top:0;padding-bottom:0;gap:clamp(28px,5vw,70px);scroll-margin-top:0}
+.shopping-scroll-page .flow-copy-step,.shopping-scroll-page .flow-copy-step:first-child,.shopping-scroll-page .flow-copy-step:last-child{min-height:100svh;padding:40px 0;scroll-snap-align:start;scroll-snap-stop:normal;box-sizing:border-box}
+.shopping-scroll-page .flow-visual{height:min(520px,78svh);top:max(20px,calc((100svh - 520px)/2));transform:none}
+.shopping-scroll-page .wardrobe-showcase{min-height:100svh;scroll-snap-align:start;box-sizing:border-box}
+.shopping-intro .fashion-entry-search{transform-origin:top left;backface-visibility:hidden;will-change:transform}
+@media(max-width:760px){
+ .shopping-scroll-page .public-fashion-hero{min-height:calc(100svh - 62px);padding-top:24px;align-items:center}
+ .shopping-scroll-page .public-fashion-hero .scene-center{padding:190px 20px 45px}
+ .shopping-scroll-page .public-fashion-hero .fashion-floats{top:24px}
+ .shopping-scroll-page .shopping-flow{--board-height:clamp(280px,43svh,360px)}
+ .shopping-scroll-page .flow-visual{height:var(--board-height);top:16px;margin-bottom:calc(-1 * var(--board-height))}
+ .shopping-scroll-page .flow-copy-step,.shopping-scroll-page .flow-copy-step:first-child,.shopping-scroll-page .flow-copy-step:last-child{padding:calc(var(--board-height) + 40px) 5px 24px;justify-content:center}
+ .shopping-scroll-page .flow-copy-step h2{font-size:clamp(27px,4.3svh,36px);margin:10px 0 15px}
+ .shopping-scroll-page .flow-copy-step>p:not(.cs-eyebrow){font-size:clamp(11px,1.55svh,13px);line-height:1.65;margin:5px 0}
+ .shopping-scroll-page .flow-copy-step .cs-eyebrow{margin:0;font-size:9px}
+ .shopping-scroll-page .flow-plan-note{font-size:9px;margin-top:6px}
+ .shopping-scroll-page .flow-cta{margin-top:7px;padding:8px 0}
+}
+@media(max-width:760px) and (max-height:740px){
+ .shopping-scroll-page .public-fashion-hero .scene-center{padding-top:160px;padding-bottom:30px}
+ .shopping-scroll-page .public-fashion-hero h1{font-size:43px;margin:14px 0}
+ .shopping-scroll-page .hero-description{font-size:12px;margin-bottom:16px}
+ .shopping-scroll-page .flow-scene{inset:50px 15px 34px}
+ .shopping-scroll-page .flow-board-heading{top:11px}
+ .shopping-scroll-page .flow-need .style-board-photos img{height:76px}
+ .shopping-scroll-page .flow-need .style-board-photos{min-height:104px}
+ .shopping-scroll-page .flow-need .shopping-search-dock{margin-bottom:3px}
+ .shopping-scroll-page .flow-photo-grid img{height:64px}
+ .shopping-scroll-page .flow-caption{margin-top:7px}
+ .shopping-scroll-page .flow-swipe-deck{height:140px;width:108px}
+ .shopping-scroll-page .flow-swipe-deck img{height:107px}
+ .shopping-scroll-page .flow-review-card{padding:10px}
+ .shopping-scroll-page .flow-review-top img{height:40px}
+ .shopping-scroll-page .flow-check{padding:6px 0}
+ .shopping-scroll-page .flow-review-card>small{font-size:7px}
+ .shopping-scroll-page .flow-buy-card img{height:120px}
+ .shopping-scroll-page .flow-next{margin-top:12px}
+}
+@media(min-width:761px) and (max-height:670px){
+ .shopping-scroll-page .flow-visual{height:390px;top:max(12px,calc((100svh - 390px)/2))}
+ .shopping-scroll-page .flow-scene{inset:60px 20px 38px;transform:translateY(12px) scale(.97)}
+ .shopping-scroll-page .flow-scene.is-active{transform:none}
+ .shopping-scroll-page .flow-photo-grid img{height:85px}
+ .shopping-scroll-page .flow-need .style-board-photos img{height:105px}
+ .shopping-scroll-page .flow-need .style-board-photos{min-height:140px}
+ .shopping-scroll-page .flow-need .style-board-footer{display:none}
+ .shopping-scroll-page .flow-swipe-deck{height:185px;width:135px}
+ .shopping-scroll-page .flow-swipe-deck img{height:148px}
+ .shopping-scroll-page .flow-review-card{padding:12px;margin:0 auto}
+ .shopping-scroll-page .flow-review-top{margin-bottom:8px}
+ .shopping-scroll-page .flow-review-top img{height:55px;width:45px}
+ .shopping-scroll-page .flow-check{padding:7px 0}
+ .shopping-scroll-page .flow-buy-card{margin-top:0;padding:12px}
+ .shopping-scroll-page .flow-buy-card img{height:160px}
+ .shopping-scroll-page .flow-next{margin-top:15px}
+ .shopping-scroll-page .flow-copy-step h2{font-size:36px}
+ .shopping-scroll-page .flow-copy-step>p:not(.cs-eyebrow){font-size:13px}
+}
+@media(prefers-reduced-motion:reduce){html.shopping-scroll-page{scroll-snap-type:none;scroll-behavior:auto}}
+@media(max-width:760px) and (max-height:740px){
+ .shopping-scroll-page .flow-need .style-board-photos img{height:64px}
+ .shopping-scroll-page .flow-need .style-board-photos{min-height:90px}
+ .shopping-scroll-page .flow-review-top img{height:34px}
+ .shopping-scroll-page .flow-review-top{margin-bottom:4px}
+ .shopping-scroll-page .flow-check{padding:4px 0}
+ .shopping-scroll-page .flow-check span{margin-top:3px}
+}
+@media(min-width:761px) and (max-height:480px){
+ .shopping-scroll-page .flow-visual{height:calc(100svh - 24px);top:12px}
+ .shopping-scroll-page .flow-copy-step,.shopping-scroll-page .flow-copy-step:first-child,.shopping-scroll-page .flow-copy-step:last-child{padding:18px 0}
+ .shopping-scroll-page .flow-copy-step h2{font-size:28px;margin:10px 0}
+ .shopping-scroll-page .flow-copy-step>p:not(.cs-eyebrow){font-size:11px;line-height:1.65}
+ .shopping-scroll-page .flow-cta{margin-top:6px;font-size:11px}
+ .shopping-scroll-page .flow-scene{inset:50px 15px 34px}
+ .shopping-scroll-page .flow-board-heading{top:12px;font-size:8px}
+ .shopping-scroll-page .flow-photo-grid img{height:70px}
+ .shopping-scroll-page .flow-need .style-board-photos img{height:80px}
+ .shopping-scroll-page .flow-need .style-board-photos{min-height:110px}
+ .shopping-scroll-page .flow-need .style-board-brief{font-size:9px;margin-bottom:10px}
+ .shopping-scroll-page .flow-review-top h3{font-size:16px}
+ .shopping-scroll-page .flow-review-top p{display:none}
+ .shopping-scroll-page .flow-check{padding:5px 0}
+ .shopping-scroll-page .flow-check b{font-size:10px}
+ .shopping-scroll-page .flow-check span{font-size:8px}
+ .shopping-scroll-page .flow-buy-card h3{font-size:18px}
+ .shopping-scroll-page .flow-buy-card p{font-size:9px}
+}
+@media(min-width:761px) and (max-height:480px){
+ .shopping-scroll-page .public-fashion-hero .scene-center{padding:16px 12px}
+ .shopping-scroll-page .public-fashion-hero h1{font-size:40px;margin:12px 0}
+ .shopping-scroll-page .hero-kicker{font-size:10px;margin:6px 0}
+ .shopping-scroll-page .hero-description{font-size:12px;line-height:1.5;margin-bottom:14px}
+}
+.shopping-scroll-page .chauffeur-site{overflow-x:clip}

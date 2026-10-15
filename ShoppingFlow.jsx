@@ -15,7 +15,7 @@ export default function ShoppingFlow({ dock, liveLink, search }) {
   const flow = useRef(null), rows = useRef([]), [active, setActive] = useState(0);
   useEffect(() => {
     let frame;
-    const update = () => { frame = null; const marker = window.innerWidth <= 760 ? 80 : window.innerHeight * .58; let next = 0; rows.current.forEach((el, i) => { if (el && el.getBoundingClientRect().top < marker) next = i; }); setActive(next); if(search.current) search.current.style.visibility = next === 0 ? 'visible' : 'hidden'; };
+    const update = () => { frame = null; const marker = window.innerHeight * .25; let next = 0; rows.current.forEach((el, i) => { if (el && el.getBoundingClientRect().top < marker) next = i; }); setActive(next); if(search.current) search.current.style.visibility = next === 0 ? 'visible' : 'hidden'; };
     const schedule = () => { if(!frame) frame = requestAnimationFrame(update); };
     window.addEventListener('scroll', schedule, { passive:true }); window.addEventListener('resize', schedule); update();
     return () => { cancelAnimationFrame(frame); window.removeEventListener('scroll',schedule); window.removeEventListener('resize',schedule); };
