@@ -49,6 +49,7 @@ import type * as retailExtractors from "../retailExtractors.js";
 import type * as savedProducts from "../savedProducts.js";
 import type * as shoppingAI from "../shoppingAI.js";
 import type * as shoppingInput from "../shoppingInput.js";
+import type * as storeBrowserProbe from "../storeBrowserProbe.js";
 import type * as storeConfig from "../storeConfig.js";
 import type * as storeExtractors from "../storeExtractors.js";
 import type * as styleTerms from "../styleTerms.js";
@@ -119,6 +120,7 @@ declare const fullApi: ApiFromModules<{
   savedProducts: typeof savedProducts;
   shoppingAI: typeof shoppingAI;
   shoppingInput: typeof shoppingInput;
+  storeBrowserProbe: typeof storeBrowserProbe;
   storeConfig: typeof storeConfig;
   storeExtractors: typeof storeExtractors;
   styleTerms: typeof styleTerms;
