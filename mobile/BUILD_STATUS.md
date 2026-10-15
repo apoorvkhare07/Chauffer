@@ -5,7 +5,7 @@ Recorded 15 October 2026. App 0.1.0. This is implementation evidence, not native
 ## Branch and scope
 
 - Worktree: `/Users/apoorvkhare/build-sprint-app/chauffeur-mobile`, branch `mobile-foundation`.
-- Base: committed main `09f2726` (including original/clean-photo fixes); handoff documentation merged from `agent-mds` at `e81a3a1`.
+- Base: original main `09f2726` plus handoff `e81a3a1`; current mobile branch merged committed main `0ba004d` through merge `d6020ed`. No unfinished main files were copied.
 - All implementation changes are under `mobile/`. The shared backend, generated contracts, website, root package/lock and other sessions' unfinished changes were not edited. No backend watcher, shared deployment, store registration, release signing-key generation or public release was performed.
 - Expo 57.0.30, React Native 0.86.3, React 19.2.3, Convex 1.46.0, Convex Auth 0.0.94, MSG91 native SDK 3.1.0. Node 22.23.3 used for checks. The lock file is authoritative for transitive versions.
 
@@ -15,6 +15,8 @@ Four native tabs and navigation, approved blue/Inter identity and icons, protect
 
 Wardrobe has manual add/edit, availability, removal confirmation, original/clean image access, camera/library preparation, explicit sharing consent, AI draft correction and confirmation. Outfit requests use confirmed available inventory with optional time/date/setting and typed weather, and hide stale output. Settings includes preference editing, remembered-taste clearing and device sign-out. No fabricated products, production fixtures, checkout, voice, push, device location or new AI/backend service was added.
 
+Personal stylist now includes event context, optional preference review, detailed sections/palette/concept looks, curated editorial references, focused refinements, stale-result suppression and an explicit server-validated shopping handoff. Optional styling photos have local selection, separate upload consent, editable body/visible-outfit notes confirmed separately against the current photo ID, explicit retry and removal confirmation. Browser adapters reuse the existing web OTP and image helpers. No authentication bypass or new shared endpoint was added.
+
 ## Evidence
 
 | Check | Result and limit |
@@ -22,14 +24,14 @@ Wardrobe has manual add/edit, availability, removal confirmation, original/clean
 | Mobile typecheck and lint | Passed |
 | Clean install | `npm ci` passed and reapplied the pinned MSG91 patch successfully |
 | Mobile core tests | 18 passed: environment rejection/isolation, exact choice text, old/current/satisfied result handling, request bounds/Hindi, server proof ordering/rejection/late cancellation, phone validation, photo bounds/sizing, trusted links |
-| React Native component tests | 8 passed: submit-once/pending/cancel, failed-input retention/no automatic resend, save source IDs/no acceptance, photo consent/correction/confirmation, denied-camera recovery, wrong OTP/server proof failure, stale-outfit suppression, mocked SecureStore restore/isolation/removal |
+| Component and browser adapter tests | 17 passed (14 native components + 3 browser adapters): submit-once/pending/cancel, failed-input retention/no automatic resend, save source IDs/no acceptance, photo consent/correction/confirmation, denied-camera recovery, wrong OTP/server proof failure, stale-outfit suppression, mocked SecureStore restore/isolation/removal; stylist refinements/stale suppression/explicit shopping handoff; styling-photo consent/separate confirmations/current photo ID/retry/removal; browser CAPTCHA ordering/remount and local picker cancellation/preview cleanup. Layout boundaries reject raw text, including empty strings |
 | Expo dependency alignment | Passed |
 | Expo Doctor | 21/21 before native generation; after generation 20/21, with only missing CocoaPods reported. This is a local native-tooling gap, not a waived device check |
-| Platform bundles | Passed for iOS, Android and web. Hermes bundles about 3.3MB/3.6MB; browser bundle about 1.5MB. These are not installable native binaries |
+| Platform bundles | Passed for iOS, Android and web. Hermes bundles about 3.4MB/3.7MB; browser entry about 1.5MB plus a lazily loaded 3.2MB HEIC converter. These are not installable native binaries |
 | Native project generation | `expo prebuild --no-install --platform all` passed. Inspected generated iOS permission strings and Android blocked microphone/location/contact permissions. No native compile, Pods installation, emulator or device launch |
-| Browser preview | Actual Expo screens opened in Chrome and Safari. Discover/Wardrobe/Saved/Settings navigation and disconnected states inspected. Safari helper used at 320/390px; tab-label clipping found and corrected. Configured authenticated browser journeys were not tested |
-| Root regression checks | Existing `npm test` passed: 4 website/demo + 178 backend tests. Root build and backend typecheck passed. These verify existing code, not mobile native integration |
-| Provider/device integrations | Not run: no real SMS, native provider proof, native session refresh, live search, remote save/reload, real image upload, merchant return or cross-device account isolation claim |
+| Browser preview | Actual Expo screens opened in Chrome and Safari. Discover/Wardrobe/Saved/Settings navigation and disconnected states inspected. Safari helper used at 320/390px; tab-label clipping found and corrected. One real local guest search returned six merchant options with prices and store coverage. Latest Safari refresh verified Discover, the disabled/unconfigured SMS state and private stylist/photo entry without the text-node overlay. Authenticated browser journeys were not tested |
+| Root regression checks | Existing `npm test` passed: 4 website/demo + 186 backend tests. Root build and backend typecheck passed. These verify existing code, not mobile native integration |
+| Provider/device integrations | Not run: no real SMS, native provider proof, native session refresh, authenticated/native search, remote save/reload, real image upload, merchant return or cross-device account isolation claim |
 
 Tests use invented data and mock network/native boundaries. A SecureStore mock proves adapter wiring, not iOS Keychain or Android keystore behavior. Photo arithmetic tests do not prove HEIC conversion, EXIF orientation/metadata stripping or device memory use. Browser widths do not prove native keyboards, safe areas, Android back or slow mobile data.
 
@@ -37,18 +39,18 @@ Tests use invented data and mock network/native boundaries. A SecureStore mock p
 
 | Build | Current mapping |
 | --- | --- |
-| Development (`in.chauffer.app.dev`) | No cloud development URL supplied. The audit checkout referenced local deployment `local:local-apoorv_khare-chauffeur` at `http://127.0.0.1:3210`; no listener/watcher was running during inspection. No main env file copied. Local use requires deliberate network setup |
+| Development (`in.chauffer.app.dev`) | Local development now uses existing `local-apoorv_khare-chauffeur` at `http://127.0.0.1:3210`, explicitly enabled in ignored mobile env files. Existing cached binary/data started without a watcher or function deployment. Read-only connection check passed. No main env file or private provider keys copied |
 | Preview (`in.chauffer.app.preview`) | No agreed staging deployment or EAS project configured |
 | Production | Known live Convex origin `https://rare-chameleon-828.convex.cloud`; deliberately rejected by development/preview. Production seller identifiers remain unset. No production mobile requests sent |
 
-Without configuration the app is inspectable but cannot sign in, search or upload. `npm run check:environment` is the read-only first connection check once the backend owner supplies the non-production URL. Do not resolve the missing environment by deploying from this worktree or pointing the test build at production.
+The local configuration supports guest discovery. SMS is deliberately off because the builder confirmed MSG91 needs registered IPs. The saved local functions predate the stylist and visible-outfit confirmation APIs. `npm run check:environment` is the read-only first connection check once the backend owner supplies the non-production URL. Do not resolve the missing environment by deploying from this worktree or pointing the test build at production.
 
 ## Gaps and decisions, collected together
 
 | Item | What is needed | What can proceed without it |
 | --- | --- | --- |
-| Development backend | Backend owner supplies/restarts the agreed non-production deployment and confirms integrated functions/provider settings | All implemented screens, tests and bundles |
-| First native installation | Test iPhone/Android access; full Xcode/CocoaPods or Android SDK/JDK locally, or configured Expo cloud build/signing | Browser layout and contract checks |
+| Development backend | Backend owner provides an approved-IP development deployment with the integrated stylist/photo functions and MSG91 settings; existing local guest server works | All implemented screens, tests and bundles |
+| First native installation | Test iPhone/Android access; Xcode licence acceptance and remaining iOS tooling (Xcode is installed but reports its licence is not yet accepted), or Android SDK/JDK locally, or configured Expo cloud build/signing | Browser layout and contract checks |
 | MSG91 native compatibility | Confirm the existing widget has mobile integration enabled and its native proof works with existing `verifyWidget`; test correct/wrong/expired codes, resend and provider rejection on both OSes | No auth bypass or alternative provider required for screen work |
 | Native photo behavior | Real HEIC/JPEG/rotated/oversized files and denied-camera tests; verify payload bounds, metadata removal, upload/confirmation, cache cleanup and original-photo access | Manual clothing and mocked confirmation tests |
 | Launch identity/accounts | Builder chooses seller/legal identity, final identifiers, developer account enrollment and any build costs | Development identifiers already distinct |
@@ -70,4 +72,4 @@ No shared API changes are proposed for the foundation. If native MSG91 proof pro
 
 M0 implementation is built; simulator/device acceptance remains open. M1/M2 are implemented against current contracts, with real integration acceptance open. M3 run notes are provided; device rehearsal and installable build evidence remain open.
 
-Next milestone: one installed phone connected to the agreed development backend, completing sign-in → discovery/refinement → save → corrected wardrobe photo.
+Next milestone: accept the Xcode licence on this Mac, then connect one installed phone to the agreed development backend, completing sign-in → discovery/refinement → save → corrected wardrobe photo.

@@ -61,7 +61,8 @@
     "test:ui": "jest --runInBand",
     "test:core": "tsx --test tests/*.test.ts",
     "generate:assets": "node scripts/generate-assets.cjs",
-    "preview:phone": "python3 -m http.server 8084 --bind 127.0.0.1 --directory scripts"
+    "preview:phone": "python3 -m http.server 8084 --bind 127.0.0.1 --directory scripts",
+    "dev:local": "tsx scripts/local-preview.ts"
   },
   "private": true
 }

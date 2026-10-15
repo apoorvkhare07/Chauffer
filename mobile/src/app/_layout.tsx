@@ -56,6 +56,14 @@ export default function RootLayout() {
             />
             <Stack.Screen name="history" options={{ title: "Past chats" }} />
             <Stack.Screen
+              name="styling-photo"
+              options={{ title: "Optional styling photo" }}
+            />
+            <Stack.Screen
+              name="stylist"
+              options={{ title: "Personal stylist" }}
+            />
+            <Stack.Screen
               name="+not-found"
               options={{ headerTitle: () => <Brand /> }}
             />

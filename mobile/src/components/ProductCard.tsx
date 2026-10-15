@@ -58,7 +58,7 @@ export function ProductCard({
           . Check the final price, size stock and fit on the store.
         </Muted>
         {!!product.reasons?.length && <Copy>{product.reasons.join(" ")}</Copy>}
-        {pairing && <Notice>{pairing}</Notice>}
+        {!!pairing && <Notice>{pairing}</Notice>}
         <Row>
           <Button
             label="Open on store"
@@ -110,7 +110,7 @@ export function ProductCard({
             )}
           </>
         )}
-        {task.error && <Notice error>{task.error}</Notice>}
+        {!!task.error && <Notice error>{task.error}</Notice>}
       </View>
     </Card>
   );

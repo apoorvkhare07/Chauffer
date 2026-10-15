@@ -40,6 +40,11 @@ function Intro() {
         Tell me the occasion, what you like, and your budget. We’ll find a place
         to start.
       </Muted>
+      <Button
+        secondary
+        label="Ask a personal stylist"
+        onPress={() => router.push("/stylist")}
+      />
     </View>
   );
 }
@@ -186,7 +191,7 @@ function GuestDiscovery() {
           }
         />
       </Card>
-      {(task.error || storageError) && (
+      {!!(task.error || storageError) && (
         <Notice error>{task.error || storageError}</Notice>
       )}
     </Screen>
@@ -260,6 +265,11 @@ function SignedDiscovery() {
   return (
     <Screen>
       <Title>Your next find.</Title>
+      <Button
+        secondary
+        label="Ask my personal stylist"
+        onPress={() => router.push("/stylist")}
+      />
       <Muted>
         This is the same active chat as your website account. A new search or
         stop affects both devices.
@@ -443,7 +453,7 @@ function SignedDiscovery() {
           </Muted>
         )}
       </Card>
-      {task.error && <Notice error>{task.error}</Notice>}
+      {!!task.error && <Notice error>{task.error}</Notice>}
     </Screen>
   );
 }

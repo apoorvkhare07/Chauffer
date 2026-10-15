@@ -35,7 +35,7 @@ export function StoreStates({
           Tap a store to open its search. Coverage changes with each request.
         </Copy>
       )}
-      {task.error && <Notice error>{task.error}</Notice>}
+      {!!task.error && <Notice error>{task.error}</Notice>}
     </Card>
   );
 }

@@ -166,7 +166,7 @@ function OutfitBuilder() {
               {latest.guidance.tips.map((tip, i) => (
                 <Muted key={i}>{tip}</Muted>
               ))}
-              {latest.guidance.question && (
+              {!!latest.guidance.question && (
                 <Copy>{latest.guidance.question}</Copy>
               )}
             </Card>
@@ -217,7 +217,7 @@ function OutfitBuilder() {
           )}
         </>
       )}
-      {task.error && <Notice error>{task.error}</Notice>}
+      {!!task.error && <Notice error>{task.error}</Notice>}
     </Screen>
   );
 }

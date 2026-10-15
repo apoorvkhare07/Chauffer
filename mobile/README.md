@@ -13,7 +13,7 @@ cd /Users/apoorvkhare/build-sprint-app/chauffeur-mobile
 npm ci
 cd mobile
 npm ci
-cp .env.example .env
+cp -n .env.example .env
 ```
 
 The first install supplies shared repository types; the second supplies Expo's independently pinned dependencies. `postinstall` applies the reviewed MSG91 patch in `patches/`.
@@ -28,6 +28,20 @@ npm start
 The environment check only reads the public guest-state endpoint; it sends no SMS, search or photo. A development build must be installed before scanning the Metro QR code. Metro is Expo's local app-code server. Expo Go does not prove the native MSG91 integration.
 
 Missing configuration shows a clear setup message and disables requests. Development and preview reject the known production backend. Every installation environment has a separate native identifier and secure token namespace. Local addresses require `EXPO_PUBLIC_ALLOW_LOCAL_BACKEND=true`; a real phone needs this Mac's reachable network address, not `127.0.0.1`.
+
+## Existing local browser setup
+
+This Mac now has an ignored development configuration pointing to `http://127.0.0.1:3210`, with explicit local-backend opt-in. The ignored `mobile/.env.local` sets `CHAUFFER_LOCAL_STATE_DIR` to the existing Chauffer local state directory. It contains a path, not copied provider keys.
+
+From `mobile/`, run:
+
+```sh
+npm run dev:local
+```
+
+Open `http://localhost:8083`. This starts the cached local Convex binary against its existing data/functions and Expo's browser preview. It never deploys source or creates a database. Stop it with Ctrl+C. If that backend is already running with the expected name, the command reuses it.
+
+SMS stays off locally: the builder confirmed MSG91 requires registered IPs. No test-code bypass is provided. Guest discovery was exercised successfully; signed-in journeys need an agreed development server with working MSG91. The saved local backend currently lacks the newer stylist functions and visible-outfit confirmation; the backend owner must deploy an agreed integrated commit before connected testing of those features.
 
 ## Install a native development build
 
@@ -55,7 +69,7 @@ Production requires explicit `MOBILE_IOS_IDENTIFIER` and `MOBILE_ANDROID_IDENTIF
 npm run web -- --port 8083 --host localhost
 ```
 
-Open `http://localhost:8083`. This renders the same screen code, but web token storage is memory-only and native phone verification/photos deliberately require an installed build. It is not a replacement website or production deployment.
+Open `http://localhost:8083`. This renders the same screen code, but web token storage is memory-only. Browser phone verification uses the existing web widget, and browser photos use the existing JPEG/HEIC preparation helper. Native SDK, camera and secure-storage behavior still require an installed build. It is not a replacement website or production deployment.
 
 For two browser layouts, start `npm run preview:phone` in another terminal and open `http://localhost:8084/phone-preview.html`. It displays the app at 320 and 390 pixels. The helper is outside app routes and is not bundled.
 
@@ -78,6 +92,7 @@ npm run bundle
 | `src/app/sign-in.tsx`, `preferences.tsx` | Phone proof, required setup, optional body context |
 | `src/app/wardrobe-edit.tsx`, `outfits.tsx` | Manual/photo clothing drafts, corrections, outfit suggestions |
 | `src/app/history.tsx` | Read-only past chats |
+| `src/app/stylist.tsx`, `styling-photo.tsx` | Personal advice/refinement, explicit shopping handoff, optional photo review and separate confirmations |
 | `src/providers/Backend.tsx` | Convex Auth, protected screens, setup and connection states |
 | `src/platform/` | SecureStore, MSG91, camera/JPEG preparation, merchant browser, no-op analytics |
 | `src/core/` | Environment, input/media limits, result freshness and typed contracts |

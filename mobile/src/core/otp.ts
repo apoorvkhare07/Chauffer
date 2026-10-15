@@ -1,5 +1,6 @@
 export type ProviderReply = Record<string, unknown>;
 export interface OtpProvider {
+  beforeSend?(): void;
   initialize(widgetId: string, token: string): Promise<void>;
   send(identifier: string): Promise<ProviderReply>;
   verify(requestId: string, code: string): Promise<ProviderReply>;

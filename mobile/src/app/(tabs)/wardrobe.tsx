@@ -52,6 +52,11 @@ function WardrobeList() {
           onPress={() => router.push("/outfits")}
         />
       </Row>
+      <Button
+        secondary
+        label="Explore personal styling ideas"
+        onPress={() => router.push("/stylist")}
+      />
       {!items ? (
         <Loading label="Opening your wardrobe…" />
       ) : !items.length ? (
@@ -67,7 +72,7 @@ function WardrobeList() {
       )}
       {items?.map((item) => (
         <Card key={item.id}>
-          {(original === item.id
+          {!!(original === item.id
             ? item.photoUrl
             : item.cleanPhotoUrl || item.photoUrl) && (
             <Image
@@ -99,7 +104,7 @@ function WardrobeList() {
                 "The clean photo could not finish. Your original is still available."}
             </Muted>
           )}
-          {item.cleanPhotoUrl && item.photoUrl && (
+          {!!item.cleanPhotoUrl && !!item.photoUrl && (
             <Button
               secondary
               label={
@@ -166,7 +171,7 @@ function WardrobeList() {
           )}
         </Card>
       ))}
-      {task.error && <Notice error>{task.error}</Notice>}
+      {!!task.error && <Notice error>{task.error}</Notice>}
     </Screen>
   );
 }

@@ -12,6 +12,8 @@ import Discover from "../src/app/(tabs)/index";
 import WardrobeEdit from "../src/app/wardrobe-edit";
 import SignIn from "../src/app/sign-in";
 import Outfits from "../src/app/outfits";
+import Stylist from "../src/app/stylist";
+import StylingPhoto from "../src/app/styling-photo";
 import { createStorage } from "../src/platform/storage";
 import type { Conversation } from "../src/core/contracts";
 
@@ -36,7 +38,31 @@ jest.mock("convex/react", () => ({
     mockCalls(require("convex/server").getFunctionName(fn), args),
   useAction: (fn: Parameters<typeof getFunctionName>[0]) => (args: unknown) =>
     mockCalls(require("convex/server").getFunctionName(fn), args),
+  useConvex: () => ({
+    query: (fn: Parameters<typeof getFunctionName>[0], args: unknown) =>
+      mockCalls(require("convex/server").getFunctionName(fn), args),
+  }),
 }));
+// React Native Web rejects even an empty string directly inside a layout View.
+// Guard the layout boundaries used by these real screens so optional text
+// conditions cannot regress to `error && <Notice>` (which returns "").
+jest.mock("../src/components/ui", () => {
+  const actual = jest.requireActual("../src/components/ui");
+  const React = require("react");
+  const checked = (name: string) => (props: React.PropsWithChildren) => {
+    React.Children.forEach(props.children, (child: unknown) => {
+      if (typeof child === "string" || typeof child === "number")
+        throw new Error(`Bare text in ${name}: ${JSON.stringify(child)}`);
+    });
+    return React.createElement(actual[name], props);
+  };
+  return {
+    ...actual,
+    Screen: checked("Screen"),
+    Card: checked("Card"),
+    Row: checked("Row"),
+  };
+});
 jest.mock("@convex-dev/auth/react", () => ({
   useAuthActions: () => ({ signIn: mockSignIn }),
 }));
@@ -313,5 +339,236 @@ test("secure adapter restores tokens across instances, separates deployments, an
   expect(await storage.getItem("refresh-token")).toBeNull();
   await waitFor(() =>
     expect(getFunctionName(api.conversations.post)).toBe("conversations:post"),
+  );
+});
+
+function styleResult(stale = false) {
+  return {
+    aiEnabled: true,
+    stale,
+    sources: [],
+    trendReview: "2026-10-15",
+    run: {
+      id: "invented-style",
+      state: "ready",
+      request: "A dinner look",
+      note: "Ideas, not products",
+      event: {
+        date: "2026-10-15",
+        timeZone: "Asia/Kolkata",
+        period: "evening",
+        setting: "indoors",
+      },
+      advice: {
+        summary: "Invented style guidance",
+        contextUsed: ["Your request"],
+        sections: [],
+        palette: [],
+        trends: [],
+        caveats: ["Fit is not guaranteed"],
+        looks: [
+          {
+            title: "Invented evening idea",
+            occasion: "Dinner",
+            pieces: ["A blue shirt"],
+            why: "A considered contrast",
+            styling: "Keep it relaxed",
+            alternative: "Try grey",
+            search: "Blue shirt",
+          },
+        ],
+      },
+    },
+  };
+}
+test("stylist keeps concepts separate, requests the validated shopping brief only on a tap, and starts one new chat", async () => {
+  mockQueries["stylist:latest"] = styleResult();
+  mockCalls.mockImplementation(async (fn: string) =>
+    fn === "stylist:shoppingBrief"
+      ? {
+          text: "Server-validated single-piece brief",
+          version: "stylist-shopping.v1",
+        }
+      : null,
+  );
+  await render(<Stylist />);
+  expect(mockCalls).not.toHaveBeenCalled();
+  expect(screen.getByText("Invented evening idea")).toBeTruthy();
+  const button = screen.getByText("Find the main piece");
+  await fireEvent.press(button);
+  await waitFor(() =>
+    expect(mockCalls).toHaveBeenCalledWith("conversations:post", {
+      text: "Server-validated single-piece brief",
+      newSearch: true,
+    }),
+  );
+  expect(mockCalls.mock.calls.map((call) => call[0])).toEqual([
+    "stylist:shoppingBrief",
+    "conversations:post",
+  ]);
+  expect(mockRoute).toHaveBeenCalledWith("/");
+});
+test("stale style advice never shows outfit ideas or a shopping action, and a new request omits the old parent", async () => {
+  mockQueries["stylist:latest"] = styleResult(true);
+  await render(<Stylist />);
+  expect(screen.queryByText("Invented evening idea")).toBeNull();
+  expect(screen.queryByText("Find the main piece")).toBeNull();
+  await fireEvent.changeText(
+    screen.getByLabelText("What would you like help with?"),
+    "अब नीले रंग से बचें",
+  );
+  await fireEvent.press(screen.getByText("Create my style brief"));
+  await waitFor(() =>
+    expect(mockCalls).toHaveBeenCalledWith(
+      "stylist:request",
+      expect.objectContaining({ text: "अब नीले रंग से बचें" }),
+    ),
+  );
+  expect(mockCalls.mock.calls[0][1]).not.toHaveProperty("parentId");
+});
+test("a focused stylist refinement uses only the current parent and failed submission keeps the question", async () => {
+  mockQueries["stylist:latest"] = styleResult();
+  mockCalls.mockRejectedValueOnce(new Error("Connection interrupted"));
+  await render(<Stylist />);
+  await fireEvent.changeText(
+    screen.getByLabelText("What would you like help with?"),
+    "No layers, keep it cool",
+  );
+  await fireEvent(
+    screen.getByLabelText("Refine the latest style brief"),
+    "valueChange",
+    true,
+  );
+  await fireEvent.press(screen.getByText("Refine my style brief"));
+  await waitFor(() =>
+    expect(screen.getByText("Connection interrupted")).toBeTruthy(),
+  );
+  expect(mockCalls).toHaveBeenCalledWith(
+    "stylist:request",
+    expect.objectContaining({
+      text: "No layers, keep it cool",
+      parentId: "invented-style",
+    }),
+  );
+  expect(
+    screen.getByLabelText("What would you like help with?").props.value,
+  ).toBe("No layers, keep it cool");
+  expect(mockCalls).toHaveBeenCalledTimes(1);
+});
+
+test("styling photo selection needs explicit consent before upload", async () => {
+  mockQueries["styling:get"] = { photoState: "empty", photoUrl: null };
+  mockPick.mockResolvedValue({
+    uri: "file:///invented.jpg",
+    jpegBase64: "invented-jpeg",
+    bytes: 30,
+  });
+  await render(<StylingPhoto />);
+  await fireEvent.press(screen.getByText("Choose styling photo"));
+  await waitFor(() =>
+    expect(screen.getByText("Upload & analyse photo")).toBeTruthy(),
+  );
+  await fireEvent.press(screen.getByText("Upload & analyse photo"));
+  expect(mockCalls).not.toHaveBeenCalled();
+  await fireEvent(
+    screen.getByLabelText("I agree to share this styling photo"),
+    "valueChange",
+    true,
+  );
+  await fireEvent.press(screen.getByText("Upload & analyse photo"));
+  await waitFor(() =>
+    expect(mockCalls).toHaveBeenCalledWith("stylingPhoto:upload", {
+      jpegBase64: "invented-jpeg",
+      consent: true,
+    }),
+  );
+});
+test("photo guesses need separate confirmation tied to the current photo", async () => {
+  const profile = {
+    photoState: "ready",
+    photoId: "invented-photo",
+    photoUrl: null,
+    analysis: {
+      usable: true,
+      canEstimate: true,
+      proportions: "AI guess",
+      visibleStyle: "AI outfit",
+      limitations: ["Pose affects this reading."],
+    },
+  };
+  mockQueries["styling:get"] = profile;
+  const view = await render(<StylingPhoto />);
+  expect(mockCalls).not.toHaveBeenCalled();
+  await fireEvent.changeText(
+    screen.getByLabelText("Body context to keep"),
+    "My corrected description",
+  );
+  await fireEvent.press(screen.getByText("Confirm body context"));
+  await waitFor(() =>
+    expect(mockCalls).toHaveBeenCalledWith("styling:confirmProportions", {
+      photoId: "invented-photo",
+      text: "My corrected description",
+    }),
+  );
+  await waitFor(() =>
+    expect(screen.getByText("Body context saved.")).toBeTruthy(),
+  );
+  await fireEvent.changeText(
+    screen.getByLabelText("Visible outfit note to keep"),
+    "Blue shirt",
+  );
+  await fireEvent.press(screen.getByText("Confirm visible outfit note"));
+  await waitFor(() =>
+    expect(mockCalls).toHaveBeenCalledWith("styling:confirmVisualStyle", {
+      photoId: "invented-photo",
+      text: "Blue shirt",
+    }),
+  );
+  mockQueries["styling:get"] = {
+    ...profile,
+    photoId: "replacement-photo",
+    analysis: {
+      ...profile.analysis,
+      proportions: "New draft",
+      canEstimate: false,
+    },
+  };
+  await view.rerender(<StylingPhoto />);
+  expect(screen.queryByText("Confirm body context")).toBeNull();
+  expect(screen.getByLabelText("Visible outfit note to keep").props.value).toBe(
+    "AI outfit",
+  );
+});
+test("failed photo analysis retries deliberately and removal needs confirmation", async () => {
+  mockQueries["styling:get"] = {
+    photoState: "failed",
+    photoId: "invented-photo",
+    photoUrl: null,
+  };
+  await render(<StylingPhoto />);
+  expect(mockCalls).not.toHaveBeenCalled();
+  await fireEvent.press(screen.getByText("Retry photo analysis"));
+  expect(mockCalls).not.toHaveBeenCalled();
+  await fireEvent(
+    screen.getByLabelText("I agree to share this styling photo"),
+    "valueChange",
+    true,
+  );
+  await fireEvent.press(screen.getByText("Retry photo analysis"));
+  await waitFor(() =>
+    expect(mockCalls).toHaveBeenCalledWith("stylingPhoto:retry", {
+      consent: true,
+    }),
+  );
+  await waitFor(() =>
+    expect(
+      screen.getByLabelText("I agree to share this styling photo").props.value,
+    ).toBe(false),
+  );
+  await fireEvent.press(screen.getByText("Remove saved styling photo"));
+  expect(mockCalls).not.toHaveBeenCalledWith("styling:removePhoto", {});
+  await fireEvent.press(screen.getByText("Confirm removal"));
+  await waitFor(() =>
+    expect(mockCalls).toHaveBeenCalledWith("styling:removePhoto", {}),
   );
 });

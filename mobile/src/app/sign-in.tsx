@@ -18,6 +18,7 @@ import {
 } from "../components/ui";
 import { useTask } from "../hooks/useTask";
 import { otpProvider } from "../platform/otp";
+import OtpChallenge from "../components/OtpChallenge";
 import { finishPhoneSignIn, normalizePhone, providerValue } from "../core/otp";
 
 export default function SignIn() {
@@ -37,6 +38,7 @@ function PhoneForm() {
     verify = useAction(api.otp.verifyWidget),
     { signIn } = useAuthActions();
   const { isAuthenticated } = useConvexAuth();
+  const [providerReady, setProviderReady] = useState(Platform.OS !== "web");
   const [phone, setPhone] = useState(""),
     [code, setCode] = useState(""),
     [attempt, setAttempt] = useState<{
@@ -73,10 +75,8 @@ function PhoneForm() {
     );
   async function sendCode() {
     const number = normalizePhone(phone);
-    if (Platform.OS === "web")
-      throw new Error(
-        "Phone verification needs an installed development build. This browser preview only checks screens.",
-      );
+    if (!providerReady) throw new Error("Wait for the security check to load.");
+    otpProvider.beforeSend?.();
     const challenge = await begin({ phone: number });
     if (!active.current) return;
     setRetryAt(Date.now() + 60_000);
@@ -136,6 +136,7 @@ function PhoneForm() {
             />
           </>
         )}
+        <OtpChallenge onReady={setProviderReady} hidden={!!attempt} />
         <Button
           label={
             attempt
@@ -146,9 +147,10 @@ function PhoneForm() {
           }
           busy={task.busy}
           disabled={
-            attempt
+            !providerReady ||
+            (attempt
               ? code.length < 4 && !proof
-              : phone.length !== 10 || remaining > 0
+              : phone.length !== 10 || remaining > 0)
           }
           onPress={() =>
             void task.run(async () => {
@@ -188,7 +190,7 @@ function PhoneForm() {
           </>
         )}
       </Card>
-      {task.error && <Notice error>{task.error}</Notice>}
+      {!!task.error && <Notice error>{task.error}</Notice>}
     </Screen>
   );
 }

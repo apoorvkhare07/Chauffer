@@ -294,7 +294,7 @@ function PreferenceForm({
           can add them later.
         </Notice>
       )}
-      {task.error && <Notice error>{task.error}</Notice>}
+      {!!task.error && <Notice error>{task.error}</Notice>}
       <Button
         secondary
         label="Go to Discover"
@@ -313,6 +313,11 @@ function BodyPreferences({ initial }: { initial: Style }) {
   return (
     <Card>
       <Heading>Optional body context</Heading>
+      <Button
+        secondary
+        label="Review an optional styling photo"
+        onPress={() => router.push("/styling-photo")}
+      />
       <Muted>
         Describe only what you want considered. No photo is required, and this
         is not a measurement or a fit guarantee. Saving here can replace a
@@ -350,7 +355,7 @@ function BodyPreferences({ initial }: { initial: Style }) {
             : "Body context cleared."}
         </Notice>
       )}
-      {task.error && <Notice error>{task.error}</Notice>}
+      {!!task.error && <Notice error>{task.error}</Notice>}
     </Card>
   );
 }

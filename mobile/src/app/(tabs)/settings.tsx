@@ -35,7 +35,7 @@ export default function Settings() {
         </Copy>
         <Muted>
           {Platform.OS === "web"
-            ? "Browser screen preview. Native sign-in and photo handling require an installed development build."
+            ? "Browser testing uses the website’s phone verification and photo tools. iPhone sign-in, camera and session checks still need an installed build."
             : "Mobile foundation. Device integration checks are still in progress."}
         </Muted>
         {config && (
@@ -48,6 +48,11 @@ export default function Settings() {
         )}
       </Card>
       <Card>
+        <Button
+          secondary
+          label="Ask my personal stylist"
+          onPress={() => router.push("/stylist")}
+        />
         <Heading>Your information</Heading>
         <Copy>
           Chauffer uses Gemini to interpret requests and give styling advice.
@@ -148,7 +153,7 @@ function AccountActions() {
         />
       </Card>
       {forgot && <Notice>Remembered taste cleared.</Notice>}
-      {task.error && <Notice error>{task.error}</Notice>}
+      {!!task.error && <Notice error>{task.error}</Notice>}
     </>
   );
 }

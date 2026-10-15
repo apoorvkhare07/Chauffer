@@ -297,7 +297,7 @@ function GarmentEditor({ item }: { item?: WardrobeItem }) {
           />
         </Card>
       )}
-      {(task.error || photoTask.error) && (
+      {!!(task.error || photoTask.error) && (
         <Notice error>{task.error || photoTask.error}</Notice>
       )}
       <Button

@@ -78,7 +78,7 @@ function SavedItems() {
           </Card>
         ))
       )}
-      {task.error && <Notice error>{task.error}</Notice>}
+      {!!task.error && <Notice error>{task.error}</Notice>}
     </Screen>
   );
 }
