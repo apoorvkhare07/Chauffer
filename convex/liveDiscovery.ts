@@ -115,10 +115,10 @@ export async function discoverAcrossStores(requirements:Requirements,excludeUrls
    return {options,result:{store,status:options.length?'matched':'no_matches',searchUrl} as StoreResult};
   }catch(error){console.warn('Store discovery unavailable',store,error instanceof Error?error.message.slice(0,120):'Unknown response');return {options:[] as Option[],result:{store,status:'unavailable',searchUrl} as StoreResult};}
  }));
- // Direct readers stay first. Spend browser calls only on the four sources that
+ // Direct readers stay first. Spend browser calls only on the seven sources that
  // passed real access checks, and only when direct evidence was unreadable.
  // Two at a time matches the free account's concurrency, max one page per store.
- const eligible=new Set(['Flipkart','AJIO','Bewakoof','The Souled Store']);
+ const eligible=new Set(['Flipkart','AJIO','Bewakoof','The Souled Store','Amazon','Myntra','Meesho']);
  const recoveries=process.env.BROWSERLESS_API_KEY?results.filter(x=>x.result.status==='unavailable'&&eligible.has(x.result.store)):[];
  for(let offset=0;offset<recoveries.length;offset+=2)await Promise.all(recoveries.slice(offset,offset+2).map(async entry=>{
   try{

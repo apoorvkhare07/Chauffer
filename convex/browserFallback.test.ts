@@ -20,11 +20,28 @@ test('combined discovery preserves direct results and recovers only eligible unr
  const result=await discoverAcrossStores(r);
  expect(result.options.map(o=>o.store)).toEqual(['Amazon','AJIO']);expect(maxActive).toBeLessThanOrEqual(2);
  const calls=fetch.mock.calls.filter(([input])=>new URL(String(input)).hostname==='production-sfo.browserless.io');
- expect(calls).toHaveLength(4);
+ expect(calls).toHaveLength(6);
  const targets=calls.map(([,init])=>new URL(JSON.parse(init!.body as string).url).hostname);
  expect(targets).toEqual(expect.arrayContaining(['www.flipkart.com','www.ajio.com','www.bewakoof.com','www.thesouledstore.com']));
- expect(targets).not.toContain('www.amazon.in');expect(targets).not.toContain('www.meesho.com');
+ expect(targets).not.toContain('www.amazon.in');
+ for(const [input,init] of calls){const endpoint=new URL(String(input)),target=new URL(JSON.parse(init!.body as string).url);const india=['www.myntra.com','www.meesho.com'].includes(target.hostname);expect(endpoint.searchParams.get('proxy')).toBe(india?'residential':null);expect(endpoint.searchParams.get('proxyCountry')).toBe(india?'in':null);}
  expect(result.stores.find(s=>s.store==='AJIO')?.status).toBe('matched');
+});
+test('Amazon, Myntra and Meesho recover with one India listing each, while failed target responses stay unavailable',async()=>{
+ vi.stubEnv('BROWSERLESS_API_KEY','invented-test-key');
+ const fetch=vi.spyOn(globalThis,'fetch').mockImplementation(async(input,init)=>{
+  const endpoint=new URL(String(input));if(endpoint.hostname!=='production-sfo.browserless.io')return new Response('Unavailable',{status:403});
+  const target=new URL(JSON.parse(init!.body as string).url);
+  let html='<h1>Access Denied</h1>';
+  if(target.hostname==='www.amazon.in')html='<div data-component-type="s-search-result" data-asin="B012345678"><h2>Men Sneakers</h2><span class="a-price"><span class="a-offscreen">₹999</span></span></div>';
+  if(target.hostname==='www.myntra.com')html=`<script>window.__myx=${JSON.stringify({searchData:{results:{products:[{gender:'Men',productName:'Blue Sneakers',landingPageUrl:'/shoes/brand/blue-sneakers/123/buy',price:1200}]}}})};</script>`;
+  if(target.hostname==='www.meesho.com')html='<a href="/men-blue-sneakers/p/abc123"><p class="NewProductCardstyled__StyledDesktopProductTitle-sc-1">Men Blue Sneakers</p><div class="NewProductCardstyled__PriceRow-sc-1"><h5>₹512</h5></div></a>';
+  return new Response(html,{headers:{'x-response-code':target.hostname==='www.amazon.in'?'503':'200'}});
+ });
+ const result=await discoverAcrossStores(r);
+ expect(result.options.map(o=>o.store)).toEqual(['Meesho','Myntra']);expect(result.stores.find(s=>s.store==='Amazon')?.status).toBe('unavailable');
+ const calls=fetch.mock.calls.filter(([input])=>new URL(String(input)).hostname==='production-sfo.browserless.io');expect(calls).toHaveLength(7);
+ for(const [input,init]of calls){const endpoint=new URL(String(input)),target=new URL(JSON.parse(init!.body as string).url);if(['www.amazon.in','www.myntra.com','www.meesho.com'].includes(target.hostname)){expect(endpoint.searchParams.get('proxy')).toBe('residential');expect(endpoint.searchParams.get('proxyCountry')).toBe('in');}}
 });
 test('readable nonmatches, hard constraints and missing provider configuration do not trigger needless browser reads',async()=>{
  vi.stubEnv('BROWSERLESS_API_KEY','invented-test-key');
