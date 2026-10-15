@@ -267,3 +267,6 @@ Canonical components and usage notes: `brand/README.md`. Portable static/animate
 
 ### Banner simplification and continuous app loading
 Public banner “you.”, submit-button background (including its empty state), and both floating decorative symbols now use exact primary blue #2950B8. Removed the three public banner suggestion chips; retained examples elsewhere. Account loading now uses one persistent FashionLoader while both authentication and account setup resolve, then renders the app directly.
+
+### Shopping-first app discovery
+For you is now the entry point for both personal home and shopping results; the separate Chat navigation item is removed. Submitting the home search opens a new shopping need immediately with saved preferences, while retaining the previous session in history. Old #/chat links continue to open the discovery view. Results emphasize a two-column mobile / three-column desktop product grid, with compact assistant guidance, visible preference chips, in-place refinement, and a sticky request field. Whole product previews open native product-detail dialogs with merchant links, saving, matching evidence and feedback. Earlier conversation text is collapsed by default. Real merchant uncertainty is retained; no sample recommendations, unsupported discounts or ratings are added.

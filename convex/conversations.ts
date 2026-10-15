@@ -17,14 +17,15 @@ export const current=query({args:{},returns:currentValidator,handler:async (ctx)
  const rows=await ctx.db.query('messages').withIndex('by_conversation_session',q=>q.eq('conversationId',c._id).eq('session',c.session)).order('desc').take(80);
  return {aiEnabled:Boolean(process.env.GEMINI_API_KEY),pendingPhase:c.aiTurn?'thinking':'searching',requirements:c.requirements,pending:c.pending&&c.updatedAt>Date.now()-120000,messages:rows.reverse().map(r=>({id:r._id,role:r.role,text:r.text,...(r.result?{result:r.result}:{})}))};
 }});
-export const post=mutation({args:{text:v.string(),rejectUrl:v.optional(v.string()),reference:v.optional(v.object({messageId:v.id('messages'),url:v.string()}))},returns:v.null(),handler:async(ctx,{text,rejectUrl,reference}):Promise<null>=>{
+export const post=mutation({args:{text:v.string(),newSearch:v.optional(v.boolean()),rejectUrl:v.optional(v.string()),reference:v.optional(v.object({messageId:v.id('messages'),url:v.string()}))},returns:v.null(),handler:async(ctx,{text,newSearch,rejectUrl,reference}):Promise<null>=>{
  const owner=await getAuthUserId(ctx);if(!owner)throw new Error('Please sign in.');
  text=text.trim();if(!text||text.length>1000)throw new Error('Use a message between 1 and 1,000 characters.');
  const profile=await ctx.db.query('profiles').withIndex('by_owner',q=>q.eq('owner',owner)).unique();
  const defaults=profileDefaults(profile?.preferences);
- const conversation=await getConversation(ctx,`web:${owner}`,defaults);
+ let conversation=await getConversation(ctx,`web:${owner}`,defaults);
  if(profile){await ctx.db.patch(conversation._id,{language:profile.preferences.language});conversation.language=profile.preferences.language;}
  if(!conversation.requirements.audience&&defaults.audience)conversation.requirements={...conversation.requirements,audience:defaults.audience};
+ if(newSearch){await beginTurn(ctx,conversation,'reset',defaults);conversation=(await ctx.db.get(conversation._id))!;await ctx.db.patch(conversation._id,{taste:profile?.taste??emptyTaste,language:profile?.preferences.language??'en'});}
  let referenceProduct;
  if(reference){
   const message=await ctx.db.get(reference.messageId);

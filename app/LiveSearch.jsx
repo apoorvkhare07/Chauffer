@@ -1,47 +1,79 @@
 import BrandIcon from '../brand/BrandIcon.jsx';
 import React,{useEffect,useRef,useState} from 'react';
 import {useMutation,useQuery} from 'convex/react';
-import {Send,RotateCcw,Asterisk} from 'lucide-react';
+import {ArrowLeft,ArrowUpRight,ArrowUp,Heart,Sparkles,X,SlidersHorizontal} from 'lucide-react';
 import {api} from '../convex/_generated/api';
-import ProductPreview from './ProductPreview.jsx';
-import ShoppingInput from './ShoppingInput.jsx';
+import ProductPreview from './ProductPreview';
+import PersonalHome from './PersonalHome';
+import ShoppingInput from './ShoppingInput';
 import {validSize,sizeKind} from '../convex/fashionRules';
 
-const welcome="Hi! I'm Chauffeur. Tell me what you're looking for and I'll check Flipkart and Amazon. Clothing, shoes or accessories—for women, men or unisex?";
-const suggestions=r=>!r.category?["Men’s shirt","Women’s kurta",'Unisex sneakers','Bag']:!r.budget?['Under ₹500','Under ₹1,000','Under ₹2,000']:!validSize(r.category,r.size)?sizeKind(r.category)==='shoe'?['UK 6','UK 8','EU 42']:sizeKind(r.category)==='waist'?['Waist 30 inches','Waist 32 inches','Size M']:['Size S','Size M','Size L','Size XL']:['Show more options','Under ₹1,500','Make it black'];
-export default function LiveSearch({active=true,incomingRequest}){
+const suggestions=r=>!r.category?(r.audience==='men'?["Casual shirts","Everyday T-shirts","Sneakers","Bags"]:r.audience==='women'?["Everyday kurtas","Casual shirts","Sneakers","Bags"]:['Shirts','Kurtas','Sneakers','Bags']):!r.budget?['Under ₹500','Under ₹1,000','Under ₹2,000']:!validSize(r.category,r.size)?sizeKind(r.category)==='shoe'?['UK 6','UK 8','EU 42']:sizeKind(r.category)==='waist'?['Waist 30 inches','Waist 32 inches','Size M']:['Size S','Size M','Size L','Size XL']:['Show more options','Something different','Lower budget'];
+const price=option=>`${option.priceFrom?'From ':''}₹${option.price.toLocaleString('en-IN')}`;
+
+export default function LiveSearch({active=true,showHome=false,onExplore,onHome}){
  const post=useMutation(api.conversations.post),cancel=useMutation(api.conversations.cancel),conversation=useQuery(api.conversations.current),saveProduct=useMutation(api.savedProducts.save),savedProducts=useQuery(api.savedProducts.list);
- const messages=conversation?.messages??[{id:'welcome',role:'assistant',text:welcome}],requirements=conversation?.requirements??{};
- const [draft,setDraft]=useState(()=>new URLSearchParams(window.location.search).get('q')?.slice(0,1000)??''),[submitting,setSubmitting]=useState(false),[error,setError]=useState(''),[saving,setSaving]=useState(''),[notice,setNotice]=useState('');
- useEffect(()=>{if(incomingRequest)setDraft(incomingRequest.text);},[incomingRequest]);
+ const messages=conversation?.messages??[],requirements=conversation?.requirements??{};
+ const [draft,setDraft]=useState(''),[submitting,setSubmitting]=useState(false),[error,setError]=useState(''),[saving,setSaving]=useState(''),[notice,setNotice]=useState(''),[selected,setSelected]=useState(null),[optimistic,setOptimistic]=useState('');
+ const input=useRef(null),busy=useRef(false),initialHandled=useRef(false),dialog=useRef(null),opener=useRef(null);
  const pending=submitting||!conversation||conversation.pending;
- const thread=useRef(null),input=useRef(null),busy=useRef(false);
- useEffect(()=>{if(active&&!pending&&window.matchMedia('(min-width: 761px)').matches)input.current?.focus();const el=thread.current;if(el){const last=el.lastElementChild;el.scrollTop=messages.at(-1)?.result&&last?last.offsetTop-16:el.scrollHeight;}},[conversation,pending,active]);
- async function send(text,rejectUrl,reference){
+ const latestResult=messages.findLast(m=>m.result),options=latestResult?.result.options??[];
+ const lastUser=messages.findLast(m=>m.role==='user');
+ const lastUserIndex=messages.findLastIndex(m=>m.role==='user');
+ const currentReplies=messages.slice(lastUserIndex+1).filter(m=>m.role==='assistant');
+ const reply=currentReplies.at(-1)?.text;
+ const isSaved=option=>savedProducts?.some(item=>item.option.url===option.url);
+ useEffect(()=>{if(selected&&!dialog.current?.open)dialog.current?.showModal();},[selected]);
+ useEffect(()=>{if(!active||showHome)closeProduct();},[active,showHome]);
+ useEffect(()=>{
+  const text=new URLSearchParams(window.location.search).get('q')?.trim();
+  if(active&&!showHome&&conversation&&!pending&&text&&!initialHandled.current){initialHandled.current=true;send(text,undefined,undefined,true);}
+ },[active,showHome,conversation,pending]);
+ function closeProduct(){dialog.current?.close();setSelected(null);opener.current?.focus();}
+ function openProduct(message,option,event){opener.current=event.currentTarget;setSelected({message,option});}
+ async function send(text,rejectUrl,reference,newSearch=false){
   text=text.trim();if(!text||busy.current||pending||!conversation)return;
-  busy.current=true;setSubmitting(true);setError('');setDraft('');
-  try{await post({text,...(rejectUrl?{rejectUrl}:{}),...(reference?{reference}:{})});}catch(e){setDraft(text);setError(String(e.message).includes('wait a minute')?'Please wait a minute before searching again.':"That message couldn't be sent. Please try again.");}
-  finally{busy.current=false;setSubmitting(false);}
+  busy.current=true;setSubmitting(true);setError('');setNotice('');setDraft('');setOptimistic(text);closeProduct();onExplore?.();
+  window.scrollTo({top:0,behavior:'instant'});
+  try{await post({text,...(newSearch?{newSearch:true}:{}),...(rejectUrl?{rejectUrl}:{}),...(reference?{reference}:{})});
+   const url=new URL(window.location.href);if(url.searchParams.has('q')){url.searchParams.delete('q');window.history.replaceState(null,'',url);}
+  }catch(e){setDraft(text);setError(String(e.message).includes('wait a minute')?'Please wait a minute before searching again.':"That request couldn't be sent. Please try again.");}
+  finally{busy.current=false;setSubmitting(false);setOptimistic('');}
  }
- function reset(){send('reset');}
- async function save(message,option){setSaving(option.url);setNotice('');try{await saveProduct({messageId:message.id,url:option.url});setNotice('Saved. Open Saved items to compare your favourites.');}catch(e){setNotice(String(e.message).includes('50 products')?'Your shortlist is full. Remove an item before saving another.':'Could not save this option. Please try again.');}finally{setSaving('');}}
- return <section className="shopping-chat" aria-labelledby="chat-title">
-  <header className="chat-header"><div className="chat-avatar" aria-hidden="true"><BrandIcon size={30}/></div><div><h1 id="chat-title">Chauffeur</h1><p>{!conversation?'Loading your conversation…':conversation.aiEnabled?'Your personal shopping assistant':'Basic shopping search'}</p></div><button className="chat-reset" type="button" onClick={reset} disabled={pending} aria-label="Start a new chat"><RotateCcw size={16}/><span>Start again</span></button></header>
-  <div className="chat-thread" ref={thread} role="log" aria-label="Shopping messages" aria-live="polite" aria-relevant="additions">
-   <p className="chat-date">Saved conversation · Live discovery</p>
-   {messages.map(message=><div className={`chat-message chat-${message.role} ${message.result?'chat-result-message':''}`} key={message.id}><span className="chat-sender">{message.role==='user'?'You':'Chauffeur'}</span><p className="chat-text">{message.text}</p>
-    {message.result&&<>
-     <div className="chat-store-status">{message.result.stores.map(store=><p key={store.store}><strong>{store.store}</strong>: {store.status==='matched'?'live matches found':store.status==='unavailable'?'live access unavailable':'no verified matches'}{store.status!=='matched'&&<> · <a href={store.searchUrl} target="_blank" rel="noopener noreferrer">Open store search</a></>}</p>)}</div>
-     <div className="chat-products">{message.result.options.map((option,optionIndex)=><article className="chat-product" key={option.url}><ProductPreview option={option}/><button className="product-save" type="button" aria-label={savedProducts?.some(item=>item.option.url===option.url)?`Saved ${option.title}`:`Save ${option.title}`} disabled={Boolean(saving)||savedProducts===undefined||savedProducts.some(item=>item.option.url===option.url)} onClick={()=>save(message,option)}>{savedProducts?.some(item=>item.option.url===option.url)?'♥':'♡'}</button><span className="chat-store">Option {optionIndex+1} · {option.store}</span><h2>{option.title}</h2><p className="chat-price">{option.priceFrom?'From ':''}₹{option.price.toLocaleString('en-IN')}</p><details className="product-extra"><summary>Details & actions</summary><p>{option.colour||'Colour not confirmed'} · {option.fabric||'Fabric not confirmed'}</p>{option.reasons?.length>0&&<div className="chat-reasons"><strong>Why this option</strong><ul>{option.reasons.map(reason=><li key={reason}>{reason}</li>)}</ul></div>}{option.unknownPreferences?.length>0&&<p className="chat-product-note">Not confirmed in store details: {option.unknownPreferences.join(', ')}.</p>}<p className="chat-product-note">{option.source==='listing'?'From the live store search; details and variants need checking.':'Product details checked.'} Checked {new Date(option.observedAt).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}.</p><a href={option.url} className="chat-product-link" target="_blank" rel="noopener noreferrer">View on {option.store}</a><button className="chat-chip" type="button" disabled={Boolean(saving)||savedProducts===undefined||savedProducts.some(item=>item.option.url===option.url)} onClick={()=>save(message,option)}>{savedProducts?.some(item=>item.option.url===option.url)?'Saved':saving===option.url?'Saving…':'Save'}</button><button className="chat-chip" type="button" disabled={pending||!conversation?.aiEnabled} onClick={()=>send('More like this product, keeping my budget and size.',undefined,{messageId:message.id,url:option.url})}>More like this</button><button className="chat-chip" type="button" disabled={pending||!conversation?.aiEnabled} onClick={()=>send('I like this product. Keep that preference for this conversation; do not save it permanently or search yet.',undefined,{messageId:message.id,url:option.url})}>I like this</button><button className="chat-chip chat-dislike" type="button" disabled={pending} onClick={()=>send(`Not this one: ${option.title}`,option.url)}>Not for me</button></details></article>)}</div>
-     {message.result.options.length>0&&<p className="chat-disclosure">Requested size availability is not verified. “From” prices may vary by size or variant. Account, location, delivery and offers may change the total. Confirm details on the store; Chauffeur won't place orders.</p>}
-    </>}
-   </div>)}
-   {notice&&<p className="account-feedback" role="status">{notice}</p>}{error&&<p className="chat-error" role="alert">{error}</p>}
-   {pending&&<div className="chat-message chat-assistant chat-checking" role="status"><span className="chat-sender">Chauffeur</span><span className="assistant-pulse" aria-hidden="true"><i/><i/><i/></span><p>{!conversation?'Loading your conversation…':conversation.pending?(conversation.pendingPhase==='thinking'?'Understanding your request…':'Checking Flipkart and Amazon… This can take a minute.'):'Saving your message…'}</p>{conversation?.pending&&<button className="chat-chip" type="button" onClick={async()=>{try{await cancel();}catch{setError('Could not stop the request. Try again.');}}}>Stop this request</button>}</div>}
-  </div>
-  <div className="chat-suggestions" aria-label="Suggested replies">{(messages.some(m=>m.result?.options.length)?['Show more options','None of these',...suggestions(requirements).filter(s=>s!=='Show more options')]:suggestions(requirements)).map(text=><button className="chat-chip" type="button" key={text} onClick={()=>send(text)} disabled={pending}>{text}</button>)}</div>
-  <ShoppingInput disabled={pending} onDraft={text=>{setDraft(text);input.current?.focus();}}/>
-  <form className="chat-composer" onSubmit={e=>{e.preventDefault();send(draft);}} aria-busy={pending}><label className="sr-only" htmlFor="chat-message">Message Chauffeur</label><input id="chat-message" ref={input} value={draft} onChange={e=>setDraft(e.target.value)} placeholder={conversation?.aiEnabled?'Try: men’s sneakers, UK 8, under ₹2,000':'Try: blue cotton kurta, M, under ₹1,000'} maxLength={1000} autoComplete="off" disabled={pending}/><button type="submit" className="chat-send" aria-label="Send message" disabled={pending||!draft.trim()}><Send size={20}/></button></form>
-  <p className="chat-footer">Discovery only. Your chat is saved. Start again opens a fresh conversation.</p>
+ async function save(message,option){setSaving(option.url);setNotice('');try{await saveProduct({messageId:message.id,url:option.url});setNotice('Saved to your shortlist.');}catch(e){setNotice(String(e.message).includes('50 products')?'Your shortlist is full. Remove an item before saving another.':'Could not save this option. Please try again.');}finally{setSaving('');}}
+ function refine(text){if(text==='Something different')send('None of these');else if(text==='Lower budget'){setDraft('Show me options under ₹');input.current?.focus();}else send(text);}
+ const card=(message,option)=><article className="discovery-card" key={option.url}>
+  <button className="discovery-card-main" onClick={event=>openProduct(message,option,event)} aria-label={`View details for ${option.title}`}>
+   <ProductPreview option={option} linkedFallback={false}/>
+   <div className="discovery-card-copy"><span className="discovery-store">{option.store}{option.brand?` · ${option.brand}`:''}</span><h2>{option.title}</h2><strong className="discovery-price">{price(option)}</strong><span className="discovery-attributes">{[option.colour,option.fabric].filter(Boolean).join(' · ')||'Explore this find'}</span></div>
+  </button>
+  <button className={`discovery-save ${isSaved(option)?'is-saved':''}`} aria-label={`${isSaved(option)?'Saved':'Save'} ${option.title}`} disabled={Boolean(saving)||savedProducts===undefined||isSaved(option)} onClick={()=>save(message,option)}><Heart size={19} fill={isSaved(option)?'currentColor':'none'}/></button>
+  {option.reasons?.[0]&&<p className="discovery-reason"><Sparkles size={13}/>{option.reasons[0]}</p>}
+  <div className="discovery-card-actions"><button disabled={pending||!conversation?.aiEnabled} onClick={()=>send('More like this product, keeping my budget and size.',undefined,{messageId:message.id,url:option.url})}><Sparkles size={14}/> More like this</button><a href={option.url} target="_blank" rel="noopener noreferrer" aria-label={`View ${option.title} on ${option.store}`}><ArrowUpRight size={18}/></a></div>
+ </article>;
+ if(showHome)return <div><PersonalHome onAsk={text=>send(text,undefined,undefined,true)} busy={pending}/>{error&&<p role="alert">{error}</p>}</div>;
+ return <section className="shopping-discovery" aria-labelledby="discovery-title">
+  <header className="discovery-heading"><button className="discovery-back" onClick={onHome}><ArrowLeft size={17}/> For you</button><a href="#/saved"><Heart size={16}/> Your shortlist</a></header>
+  <div className="discovery-intro"><span className="discovery-eyebrow">YOUR PERSONAL EDIT</span><h1 id="discovery-title">{requirements.category?`${requirements.category.charAt(0).toUpperCase()+requirements.category.slice(1)}, your way.`:'Let’s find your next favourite.'}</h1><p className="discovery-request">{optimistic||lastUser?.text||'Tell me what you’re looking for. We’ll find it together.'}</p><div className="discovery-filters">{[requirements.audience&&{men:'Men’s fashion',women:'Women’s fashion',unisex:'Unisex fashion'}[requirements.audience],requirements.budget&&`Up to ₹${requirements.budget.toLocaleString('en-IN')}`,requirements.size&&`Size ${requirements.size}`,requirements.colour,requirements.fabric].filter(Boolean).map(tag=><span key={tag}>{tag}</span>)}</div></div>
+  <div className="discovery-assistant" aria-live="polite"><BrandIcon size={29}/><div><strong>Your shopping assistant</strong><p>{pending?(!conversation?'Getting your search ready…':conversation.pendingPhase==='thinking'?'Working out what suits your request…':'Looking through Flipkart and Amazon for your next finds…'):reply||'Tell me your occasion, budget or a style you like. I’ll help narrow it down.'}</p></div>{conversation?.pending&&<button onClick={async()=>{try{await cancel();}catch{setError('Could not stop this search. Please try again.');}}}>Stop</button>}</div>
+  {error&&<p className="discovery-notice error" role="alert">{error}</p>}{notice&&<p className="discovery-notice" role="status">{notice} <a href="#/saved">View saved items</a></p>}
+  <div className="discovery-refinements" aria-label="Refine your search"><SlidersHorizontal size={16}/>{suggestions(requirements).map(text=><button key={text} disabled={pending} onClick={()=>refine(text)}>{text}</button>)}</div>
+  {pending&&!options.length?<div className="discovery-grid discovery-skeleton" aria-hidden="true">{[0,1,2,3].map(i=><div key={i}><div/><span/><span/></div>)}</div>:<>
+   {!!latestResult&&<div className="discovery-results-heading"><h2>{options.length?`${options.length} finds to explore`:'Let’s adjust the search'}</h2>{pending&&<span>Updating your picks…</span>}</div>}
+   {options.length>0&&<div className={`discovery-grid ${pending?'is-updating':''}`} aria-label="Product recommendations">{options.map(option=>card(latestResult,option))}</div>}
+   {latestResult&&!options.length&&!pending&&<div className="discovery-empty"><Sparkles size={26}/><h3>No verified matches this time.</h3><p>Try a different style, colour or budget. Your assistant can help find another direction.</p></div>}
+  </>}
+  {latestResult&&<div className="discovery-store-note">{latestResult.result.stores.map(store=><span key={store.store}>{store.store}: {store.status==='matched'?'matches found':<a href={store.searchUrl} target="_blank" rel="noopener noreferrer">{store.status==='unavailable'?'temporarily unavailable':'no verified matches'} <ArrowUpRight size={12}/></a>}</span>)}</div>}
+  {options.length>0&&<p className="discovery-disclosure">Store prices were observed during the search. Size availability, delivery and final offers need checking on the store.</p>}
+  {messages.length>1&&<details className="discovery-history"><summary>Your requests & assistant notes</summary><div>{messages.map(m=><p key={m.id}><strong>{m.role==='user'?'You':'Chauffer'}</strong>{m.text}{m.result&&<small>{m.result.options.length} options in this search</small>}</p>)}</div></details>}
+  <div className="discovery-composer-wrap"><ShoppingInput disabled={pending} onDraft={text=>{setDraft(text);input.current?.focus();}}/><form className="discovery-composer" onSubmit={e=>{e.preventDefault();send(draft);}} aria-busy={pending}><Sparkles size={19}/><label className="sr-only" htmlFor="shopping-refine">Refine your search</label><input id="shopping-refine" ref={input} value={draft} onChange={e=>setDraft(e.target.value)} placeholder={options.length?'A different colour? A little more casual?':'Tell me what you have in mind…'} maxLength={1000} autoComplete="off" disabled={pending}/><button aria-label="Search or refine" disabled={pending||!draft.trim()}><ArrowUp size={21}/></button></form></div>
+  <dialog ref={dialog} aria-label="Product details" className="discovery-dialog" onCancel={()=>setSelected(null)} onClick={event=>{if(event.target===dialog.current)closeProduct();}}>{selected&&<>
+   <button className="discovery-dialog-close" aria-label="Close product details" onClick={closeProduct}><X size={22}/></button>
+   <ProductPreview option={selected.option}/><div className="discovery-dialog-copy"><span className="discovery-store">{selected.option.store}</span><h2>{selected.option.title}</h2><strong className="discovery-price">{price(selected.option)}</strong><p>{[selected.option.colour,selected.option.fabric].filter(Boolean).join(' · ')}</p>
+   {!!selected.option.reasons?.length&&<div className="discovery-match"><h3>Why it’s in your edit</h3><ul>{selected.option.reasons.map(reason=><li key={reason}>{reason}</li>)}</ul></div>}
+   {!!selected.option.unknownPreferences?.length&&<p>Not confirmed by the store: {selected.option.unknownPreferences.join(', ')}.</p>}
+   <p className="discovery-disclosure">Checked {new Date(selected.option.observedAt).toLocaleString('en-IN')}. {selected.option.priceFrom?'Starting price; variants may cost more. ':''}Confirm size, delivery, final price and returns on the store.</p>
+   <a className="discovery-merchant" href={selected.option.url} target="_blank" rel="noopener noreferrer">View on {selected.option.store} <ArrowUpRight size={18}/></a><div className="discovery-dialog-actions"><button disabled={Boolean(saving)||savedProducts===undefined||isSaved(selected.option)} onClick={()=>save(selected.message,selected.option)}><Heart size={16}/>{isSaved(selected.option)?'Saved':saving?'Saving…':'Save for later'}</button><button disabled={pending||!conversation?.aiEnabled} onClick={()=>send('More like this product, keeping my budget and size.',undefined,{messageId:selected.message.id,url:selected.option.url})}>More like this</button><button disabled={pending} onClick={()=>send(`Not this one: ${selected.option.title}`,selected.option.url)}>Not for me</button></div>{notice&&<p role="status">{notice}</p>}</div>
+  </>}</dialog>
  </section>;
 }

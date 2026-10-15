@@ -163,3 +163,18 @@ test('settings repair an existing chat and fresh AI context uses saved age, audi
  expect((await user.query(api.profiles.get,{}))?.age).toBe(28);
  await expect(user.mutation(api.profiles.save,{preferences:{language:'en',age:28.5}})).rejects.toThrow('age');
 });
+
+test('a new For you search starts fresh while keeping saved preferences and prior history',async()=>{
+ const {t,user}=setup();vi.stubEnv('GEMINI_API_KEY','');
+ await user.mutation(api.profiles.save,{preferences:{language:'en',audience:'men',age:28,size:'M',budgetPaise:200000}});
+ const id=await t.run(async ctx=>{
+  const id=await ctx.db.insert('conversations',{key:'web:alice',language:'en',requirements:{category:'kurta',audience:'women',colour:'pink',size:'L',budget:1000},revision:3,session:0,pending:false,updatedAt:Date.now(),shownUrls:[],rejectedUrls:[]});
+  await ctx.db.insert('messages',{conversationId:id,session:0,role:'user',text:'Old gift search'});return id;
+ });
+ await user.mutation(api.conversations.post,{text:'hi',newSearch:true});
+ const current=await user.query(api.conversations.current,{});
+ expect(current.requirements).toEqual({audience:'men',size:'M',budget:2000});
+ expect(current.messages.some(m=>m.text==='Old gift search')).toBe(false);
+ expect((await user.query(api.conversations.history,{})).sessions[0].preview).toBe('Old gift search');
+ expect((await t.run(ctx=>ctx.db.get(id)))?.session).toBe(1);
+});
