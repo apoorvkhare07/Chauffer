@@ -290,3 +290,9 @@ All 90 tests passed. Browser verified six tiles, expanding/collapsing phases, wo
 
 ### App brand alignment
 All 90 tests and build passed. Verified live authenticated desktop home and phone home, chat, and wardrobe navigation; Inter heading weight 700 and sign-in button rgb(41,80,184) confirmed. Sign-in layout checked locally on desktop and 390px phone. Shared website/app logo uses the same component; reduced motion retained. No account data changed during browser checks.
+
+### Stable bag icon and reusable asset kit
+All 90 tests passed. Browser confirmed fixed bag path (no animation/transform), independently rotating spokes, full-logo and standalone loader SVG exports, and the three-asset library. Website/app share the same component. Reduced-motion disables the spoke rotation; old morph animation CSS removed. Full-logo export contains outlined text, with no external font required.
+
+### Loader motion refinement
+Kept the original opening acceleration. Centre-spoke rotation now uses linear timing from 28% to 94% of each loop (180° over 4.488 seconds), including the icon-collapse phase. Updated both React/CSS and the standalone SVG/ZIP exports; production build passed.

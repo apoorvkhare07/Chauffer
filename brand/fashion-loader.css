@@ -11,7 +11,7 @@
 @keyframes loader-emerge { 0%,5%,100% { transform:translate(0,0) scale(.2) rotate(-35deg); opacity:0; } 24%,72% { transform:translate(var(--x),var(--y)) scale(1) rotate(0); opacity:1; } 94% { transform:translate(0,0) scale(.2) rotate(35deg); opacity:0; } }
 @keyframes loader-orbit { to {transform:rotate(360deg);} }
 @keyframes loader-upright { to {transform:rotate(-360deg);} }
-@keyframes loader-core { 0% {transform:rotate(0) scale(1);} 28% {transform:rotate(180deg) scale(.85);} 72% {transform:rotate(300deg) scale(.85);} 100% {transform:rotate(360deg) scale(1);} }
+@keyframes loader-core { 0% {transform:rotate(0) scale(1);} 28% {transform:rotate(180deg) scale(.85);animation-timing-function:linear;} 72% {transform:rotate(300deg) scale(.85);animation-timing-function:linear;} 94%,100% {transform:rotate(360deg) scale(1);} }
 .fashion-loader-compact { padding:0; }
 .fashion-loader-compact .fashion-loader-stage { width:290px; height:290px; zoom:.55; }
 .fashion-loader-paused :is(.fashion-loader-orbit,.fashion-loader-node,.fashion-loader-upright,.fashion-loader-core svg) { animation-play-state:paused; }

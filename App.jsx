@@ -1,3 +1,4 @@
+import BrandAssetsPreview from './brand/BrandAssetsPreview.jsx';
 import Brand from './Brand.jsx';
 import React, { useState } from 'react';
 import { LoaderPreview } from './FashionLoader.jsx';
@@ -16,10 +17,11 @@ const liveLink = text => text ? `/app/?q=${encodeURIComponent(text)}` : '/app/';
 export default function App() {
   const [selected,setSelected]=useState(0);
   const example=scenarios[selected];
+  if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('preview') === 'brand') return <BrandAssetsPreview/>;
   if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('preview') === 'loader') return <LoaderPreview/>;
   return <div className="chauffeur-site">
     <a className="skip-link" href="#main-content">Skip to content</a>
-    <header className="cs-nav cs-wrap"><Brand orbit/><nav aria-label="Main navigation"><a href="#how-it-works">How it works</a><a href="#shop-by-occasion">Shopping ideas</a><a href="#the-details">Questions</a></nav><a className="cs-button cs-button-small" href="/app/">Chat to shop <MessageCircle size={16}/></a></header>
+    <header className="cs-nav cs-wrap"><Brand/><nav aria-label="Main navigation"><a href="#how-it-works">How it works</a><a href="#shop-by-occasion">Shopping ideas</a><a href="#the-details">Questions</a></nav><a className="cs-button cs-button-small" href="/app/">Chat to shop <MessageCircle size={16}/></a></header>
     <main id="main-content">
       <FashionHero scenarios={scenarios} liveLink={liveLink}/>
       <section className="cs-store-band"><div className="cs-wrap"><p>Your next find could be anywhere.</p><div className="cs-store-names"><span>Flipkart</span><span>amazon<span className="cs-amazon-line"/></span></div><p className="cs-store-note">Live discovery on Flipkart and Amazon. Buy directly on the store.</p></div></section>

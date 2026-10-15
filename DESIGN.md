@@ -260,3 +260,7 @@ Reusable `FashionLoader.jsx` uses the original rotating six-spoke icon surrounde
 
 ### Shared app branding
 Website and authenticated app now share `Brand.jsx`, Inter font declarations, and the animated asterisk/bag wordmark with blue full stop. App primary colour is #2950B8; legacy purple accents are coordinated blue, with semantic success/error colours preserved. App headings are bold upright Inter. Phone header is 62px with chat height adjusted to keep the composer above navigation. The fictional demo remains separate.
+
+### Approved everyday brand kit
+The main icon is now a stationary outlined shopping bag with only its inner six-spoke asterisk rotating (eight seconds). No morphing, bag rotation or disappearance. Full logo pairs this icon with the established “chauffer.” Inter wordmark and primary-blue dot. Website, app, chat avatar and favicon use this identity. The six-feature Fashion Loader remains separate and unchanged.
+Canonical components and usage notes: `brand/README.md`. Portable static/animated SVGs and ZIP are in `public/brand/`; logo text is outlined for font-independent reuse. Review/download library: `/?preview=brand`.

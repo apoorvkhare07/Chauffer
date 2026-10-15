@@ -1,0 +1,8 @@
+.chauffer-icon { display:block; flex-shrink:0; color:#2950B8; overflow:visible; }
+.chauffer-icon path { stroke:currentColor; stroke-linecap:round; stroke-linejoin:round; fill:none; }
+.chauffer-bag { stroke-width:2.6; }
+.chauffer-spokes { stroke-width:1.8; transform-origin:22px 28px; }
+.chauffer-icon-animated .chauffer-spokes { animation:chauffer-spoke-turn 8s linear infinite; }
+@keyframes chauffer-spoke-turn { to { transform:rotate(360deg); } }
+.chauffeur-site:has(.scene-paused) .chauffer-spokes { animation-play-state:paused; }
+@media(prefers-reduced-motion:reduce) { .chauffer-icon-animated .chauffer-spokes { animation:none; } }

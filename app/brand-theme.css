@@ -36,3 +36,5 @@
  .chat-workspace .shopping-chat { height:calc(var(--app-height,100dvh) - 132px - env(safe-area-inset-bottom)); }
  .keyboard-open .chat-workspace .shopping-chat { height:calc(var(--app-height,100dvh) - 62px); }
 }
+
+.account-shell .chat-avatar { background:var(--soft); }
