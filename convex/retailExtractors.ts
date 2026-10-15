@@ -54,6 +54,25 @@ export function retailOptions(store:Store,html:string,r:Requirements,observedAt:
    if(!prices.length||p.post_status==='trash')continue;
    add({title:'Women '+asText(p.name),url:'/product/'+p.slug,price:Math.min(...prices),fabric:asText(p.fabric_quality),image:p.image_url});
   }
+ }else if(store==='SNITCH'){
+  // The public website requests this JSON catalogue without a login or API key.
+  let data;try{data=JSON.parse(html);}catch{/* A page shell is not a catalogue. */}
+  if(data?.status?.code===200)products=data?.data?.products;
+  if(Array.isArray(products))for(const p of products.slice(0,25)){
+   if(p?.status!=='active'||!Array.isArray(p.variants)||!p.variants.length)continue;
+   // Null inventory is unknown, not zero. Never claim size/fulfilment verified.
+   // The catalogue does not identify the shoe size system, so do not translate
+   // UK/US/EU into its bare numbers. The existing size-check disclosure applies.
+   const variants=r.size&&!/\b(UK|US|EU)\b/i.test(r.size)?p.variants.filter((v:any)=>asText(v?.size).toUpperCase()===r.size!.toUpperCase()):p.variants;
+   if(!variants.length||variants.every((v:any)=>v?.inventory_quantity===0))continue;
+   if(!/^[a-z0-9-]+$/.test(asText(p.handle))||!/^\d+$/.test(String(p.shopify_product_id??'')))continue;
+   const category=asText(p.shopify_product_type).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+   if(!category)continue;
+   // `colors` describes OTHER colour variants. Only `color` belongs to this URL.
+   add({title:'Men '+asText(p.title),url:`/men-${category}/${p.handle}/${p.shopify_product_id}/buy`,price:p.selling_price,
+    colour:asText(p.color).replace(/[\[\]'"]/g,'').trim(),fabric:asText(p.material),image:p.preview_image,brand:'SNITCH',
+    attributes:['fit','pattern','sleeves','occassion'].filter(k=>typeof p[k]==='string').map(k=>`${k}: ${p[k].slice(0,120)}`)});
+  }
  }else if(store==='Bonkers Corner'){
   let data;try{data=JSON.parse(html);}catch{/* An HTML challenge is not product data. */}
   products=data?.resources?.results?.products;

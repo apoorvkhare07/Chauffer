@@ -344,3 +344,16 @@ Production browser check: existing chat request "Find casual shirts using my sav
 - Cloud acceptance and a real phone remain pending. This branch predates production phone/guest changes, so deployment requires combining the search changes with that newer implementation first.
 
 - Final verification: 4 website/demo checks plus 98 backend checks pass; TypeScript and production build pass. Build emits existing dependency “use client” warnings, without errors. Local Convex watcher pushed the final functions. No deployment to shared cloud or production, no Git commit/push.
+
+### Combined search release — 15 October 2026
+
+- Integrated main through b999c38 (phone/guest access plus required-onboarding enforcement), preserving the latest account screens/backend. Saved combined implementation as 9b3916c, fast-forwarded main and pushed it to GitHub.
+- 4 website/demo plus 109 backend checks pass; backend types and the production build pass. Published with npm run deploy to rare-chameleon-828.convex.site. An intervening deployment from another worktree briefly restored two-store code; the final deployment uses the combined main version.
+- Production direct sneaker probe initially returned three Amazon options. Production reported Meesho/AJIO/Bewakoof HTTP 403 and no readable catalogue for Myntra/SNITCH/The Souled Store. A fresh guest request after the final deployment completed with all ten store statuses but zero products; Amazon was unavailable on that request. The expanded search is deployed, but reliable cloud catalogue access remains unresolved.
+- Opened production FAQ in Chrome and verified the updated store disclosure. Website/app/demo/FAQ routes returned HTTP 200; final app opened the existing signed-in home. No SMS or purchase was triggered. Opened Meesho in Chrome and saw sneaker products after browser rendering; SNITCH also rendered product cards after its initial shell. Those browser checks do not establish an automated browser running inside the product: discovery still uses direct Convex page requests.
+
+## SNITCH public catalogue repair — 2026-10-15
+- Found that the existing search route (`/search?q=...`) and product URL rule did not match SNITCH's current website. Verified `/search/shirt` in Chrome and traced its public, unauthenticated `api.snitch.com/products/search` JSON response. No merchant credentials, browser cookies or additional service used.
+- Added a bounded 25-product reader using active products, `selling_price`, product-specific colour, material, images and exact product destinations. Rejects malformed links, known sold-out requested clothing sizes and mismatched category/audience/budget; does not infer a UK/US/EU system from bare shoe sizes. Existing size/location/checkout uncertainty disclosures remain.
+- Three new regression tests failed before the change and pass after it. Full checks: 4 website/demo tests plus 112 backend tests (116 total), backend type check and production build pass.
+- Local real search returned SNITCH sneakers alongside five other stores. First production request after deployment returned three real SNITCH sneakers (₹1,999–₹2,049). A subsequent request/browser check reverted to the old SNITCH query route, confirming a concurrent deployment overwrote the fix. Carrying the change into main before the final release; final live checks to follow.

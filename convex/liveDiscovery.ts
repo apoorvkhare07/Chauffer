@@ -77,6 +77,11 @@ export async function discoverAcrossStores(requirements:Requirements,excludeUrls
    }
    else{
     const urls=[searchUrl];
+    if(store==='SNITCH'){
+     const url=new URL('https://api.snitch.com/products/search');
+     url.searchParams.set('page','1');url.searchParams.set('limit','25');url.searchParams.set('platform','web');
+     url.searchParams.set('keyword',searchTerms({...requirements,audience:undefined}));urls[0]=url.href;
+    }
     if(store==='Bonkers Corner'){
      const url=new URL('https://www.bonkerscorner.com/search/suggest.json');
      // Brand-specific search need not repeat audience words; strict matching still
