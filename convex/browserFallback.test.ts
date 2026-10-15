@@ -4,6 +4,12 @@ import {discoverAcrossStores} from './liveDiscovery';
 const r={category:'sneakers',audience:'men' as const,budget:5000,size:'UK 8'};
 const ajio=(price=2000)=>`<script>window.__PRELOADED_STATE__=${JSON.stringify({grid:{entities:{one:{name:'Men Sneakers',url:'/men-sneakers/p/123_blue',price:{currencyIso:'INR',value:price}}}}})};</script>`;
 afterEach(()=>{vi.restoreAllMocks();vi.unstubAllEnvs();});
+test('slow direct requests exhaust the shared browser deadline rather than extending the guest wait',async()=>{
+ vi.stubEnv('BROWSERLESS_API_KEY','invented-test-key');let now=0;vi.spyOn(Date,'now').mockImplementation(()=>now);
+ const fetch=vi.spyOn(globalThis,'fetch').mockImplementation(async()=>{now=100000;return new Response('Unavailable',{status:403});});
+ const result=await discoverAcrossStores(r);expect(result.failed).toBe(true);
+ expect(fetch.mock.calls.some(([url])=>new URL(String(url)).hostname==='production-sfo.browserless.io')).toBe(false);
+});
 test('combined discovery preserves direct results and recovers only eligible unreadable stores through Browserless',async()=>{
  vi.stubEnv('BROWSERLESS_API_KEY','invented-test-key');
  let active=0,maxActive=0;

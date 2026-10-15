@@ -75,6 +75,7 @@ export async function discover(requirements:Requirements,excludeUrls:string[]=[]
  return matches.sort((a,b)=>a.price-b.price).slice(0,limit);
 }
 export async function discoverAcrossStores(requirements:Requirements,excludeUrls:string[]=[],taste:Taste=emptyTaste,perStoreLimit=3):Promise<{options:Option[];failed:boolean;stores:StoreResult[]}>{
+ const browserDeadline=Date.now()+90000;
  const results=await Promise.all(stores.map(async store=>{
   const searchUrl=storeSearchUrl(store,requirements);
   try{
@@ -122,7 +123,8 @@ export async function discoverAcrossStores(requirements:Requirements,excludeUrls
  const recoveries=process.env.BROWSERLESS_API_KEY?results.filter(x=>x.result.status==='unavailable'&&eligible.has(x.result.store)):[];
  for(let offset=0;offset<recoveries.length;offset+=2)await Promise.all(recoveries.slice(offset,offset+2).map(async entry=>{
   try{
-   const {html,targetHttpStatus}=await browserPage(entry.result.store,entry.result.searchUrl);
+   const remaining=browserDeadline-Date.now();if(remaining<1000)return;
+   const {html,targetHttpStatus}=await browserPage(entry.result.store,entry.result.searchUrl,undefined,remaining);
    if(targetHttpStatus&&targetHttpStatus>=400)return;
    const found=renderedOptions(entry.result.store,html,requirements,Date.now(),excludeUrls);
    if(!found.readable)return;
