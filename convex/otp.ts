@@ -38,6 +38,11 @@ export const consume=internalMutation({args:{id:v.id("otpChallenges"),hash:v.str
 }});
 export const cleanup=internalMutation({args:{id:v.id("otpChallenges")},returns:v.null(),handler:async(ctx,{id})=>{await ctx.db.delete(id);return null;}});
 // Browser widget completes CAPTCHA; only MSG91's server response proves identity.
+// Public browser configuration only; loading the form does not reserve an SMS attempt.
+export const widgetConfig=action({args:{},returns:v.object({widgetId:v.string(),tokenAuth:v.string()}),handler:async()=>{
+ if(!smsConfigured())throw new ConvexError("Phone sign-in is not configured yet.");
+ return {widgetId:process.env.MSG91_WIDGET_ID!,tokenAuth:process.env.MSG91_WIDGET_TOKEN!};
+}});
 export const beginWidget=action({args:{phone:v.string()},returns:v.object({id:v.id("otpChallenges"),widgetId:v.string(),tokenAuth:v.string()}),handler:async(ctx,{phone}):Promise<{id:Id<"otpChallenges">,widgetId:string,tokenAuth:string}>=>{
  if(!smsConfigured())throw new ConvexError("Phone sign-in is not configured yet.");
  const normalized=normalizePhone(phone);
