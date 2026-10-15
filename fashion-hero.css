@@ -51,7 +51,7 @@
 }
 @media(prefers-reduced-motion:reduce){.fashion-float{animation:none!important}.scene-motion{display:none}}
 
-.public-fashion-hero{margin:0 auto 35px;min-height:680px;background:radial-gradient(ellipse at center,#fff 10%,#eff2fa80 65%,transparent);border-radius:32px}
+.public-fashion-hero{width:100%;margin:0;min-height:680px;background:transparent;border-radius:0}
 .public-fashion-hero .scene-center{text-align:center;width:min(100%,600px);padding:55px 12px}
 .hero-kicker{display:flex;align-items:center;justify-content:center;gap:8px;color:#2950B8;font-size:12px;font-weight:700;letter-spacing:.08em}
 .public-fashion-hero h1{font-size:clamp(52px,5.5vw,76px);line-height:1.05;margin:24px 0;letter-spacing:-.05em}
@@ -62,6 +62,6 @@
 .fashion-entry-search button{border:0;border-radius:50%;width:46px;height:46px;flex-shrink:0;background:#2950B8;color:white;display:grid;place-items:center;cursor:pointer}.fashion-entry-search button:disabled{opacity:1;cursor:default}
 .hero-signin,.hero-language{font-size:11px;color:#717788;margin:13px 0 20px}
 .hero-prompts{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}.hero-prompts a{display:flex;align-items:center;gap:7px;font-size:11px;padding:10px 12px;border:1px solid #dfe3ee;background:#ffffffa8;border-radius:30px;min-height:44px}.hero-prompts a:hover{border-color:#62739e}
-@media(max-width:760px){.public-fashion-hero{width:calc(100% - 24px);min-height:690px;margin:0 auto 20px}.public-fashion-hero .scene-center{padding:200px 8px 40px}.public-fashion-hero h1{font-size:51px;margin:18px 0}.hero-kicker{font-size:10px}.hero-description{font-size:13px;margin-bottom:22px}.fashion-entry-search{gap:8px;padding-left:13px}.fashion-entry-search>svg{width:18px}.fashion-entry-search input{font-size:16px}.hero-prompts{gap:6px}.hero-prompts a{font-size:10px;padding:8px 10px}.hero-signin{font-size:10px}.hero-language{margin-bottom:8px}.public-fashion-hero .scene-motion{width:44px;height:44px}}
+@media(max-width:760px){.public-fashion-hero{width:100%;min-height:0;margin:0}.public-fashion-hero .scene-center{padding:210px 20px 56px}.public-fashion-hero h1{font-size:51px;margin:18px 0}.hero-kicker{font-size:10px}.hero-description{font-size:13px;margin-bottom:22px}.fashion-entry-search{gap:8px;padding-left:13px}.fashion-entry-search>svg{width:18px}.fashion-entry-search input{font-size:16px}.hero-prompts{gap:6px}.hero-prompts a{font-size:10px;padding:8px 10px}.hero-signin{font-size:10px}.hero-language{margin-bottom:8px}.public-fashion-hero .scene-motion{width:44px;height:44px}}
 
 .public-fashion-hero .hero-prompts{margin-top:24px}
