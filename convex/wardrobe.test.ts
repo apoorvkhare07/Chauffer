@@ -132,3 +132,20 @@ test('image generation sends the original and stores a separate generated image'
  const fetcher=vi.spyOn(globalThis,'fetch').mockImplementation(async(_url,init)=>{const body=JSON.parse(init!.body as string);expect(body.contents[0].parts[1].inlineData.data).toBe(jpeg);expect(body.generationConfig.responseModalities).toContain('IMAGE');return new Response(JSON.stringify({candidates:[{content:{parts:[{inlineData:{mimeType:'image/jpeg',data:jpeg}}]}}]}));});
  await t.action(internal.wardrobeImageAI.generate,{id,version:item!.cleanPhotoVersion!});expect(fetcher).toHaveBeenCalledOnce();const saved=await t.run(ctx=>ctx.db.get(id));expect(saved!.cleanPhotoState).toBe('ready');expect(saved!.photoId).toBe(item!.photoId);expect(saved!.cleanPhotoId).not.toBe(item!.photoId);
 });
+
+test.each([
+ [200,{candidates:[{content:{parts:[{text:'No image available'}]}}]},'no usable photo'],
+ [503,{},'temporarily unavailable'],
+ [429,{},'quota'],
+])('image failure %s preserves the original and explains the failure',async(status,body,expected)=>{
+ const {t,alice}=setup();const jpeg=readFileSync(new URL('../public/images/sneakers.jpg',import.meta.url)).toString('base64');
+ const id=await alice.action(api.wardrobePhoto.add,{details:top,jpegBase64:jpeg});
+ const item=await t.run(ctx=>ctx.db.get(id));
+ const fetcher=vi.spyOn(globalThis,'fetch').mockResolvedValue(new Response(JSON.stringify(body),{status}));
+ await t.action(internal.wardrobeImageAI.generate,{id,version:item!.cleanPhotoVersion!});
+ const saved=await t.run(ctx=>ctx.db.get(id));
+ expect(fetcher).toHaveBeenCalledOnce();expect(saved!.cleanPhotoState).toBe('failed');
+ expect(saved!.cleanPhotoNote).toContain(expected);expect(saved!.cleanPhotoId).toBeUndefined();
+ expect(saved!.photoId).toBe(item!.photoId);
+ await t.run(async ctx=>{expect(await ctx.storage.get(item!.photoId!)).not.toBeNull();});
+});

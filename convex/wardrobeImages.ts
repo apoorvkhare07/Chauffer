@@ -1,4 +1,4 @@
-import {v} from 'convex/values';
+import {v,ConvexError} from 'convex/values';
 import {mutation,internalQuery,internalMutation,type MutationCtx} from './_generated/server';
 import type {Id} from './_generated/dataModel';
 import {internal} from './_generated/api';
@@ -9,7 +9,7 @@ export async function queueCleanPhoto(ctx:MutationCtx,id:Id<'wardrobeItems'>){
  const item=await ctx.db.get(id);if(!item?.photoId)return;
  if(item.cleanPhotoState==='building')return;
  const day=new Date().toISOString().slice(0,10),attempts=item.cleanPhotoDay===day?(item.cleanPhotoAttempts??0):0;
- if(attempts>=3)throw new Error('Three clean-photo attempts per piece today. Try again tomorrow.');
+ if(attempts>=3)throw new ConvexError('Three clean-photo attempts per piece today. Try again tomorrow.');
  const version=(item.cleanPhotoVersion??0)+1;
  await ctx.db.patch(id,{cleanPhotoState:'building',cleanPhotoVersion:version,cleanPhotoDay:day,cleanPhotoAttempts:attempts+1,cleanPhotoNote:'Creating your clean wardrobe photo.'});
  await ctx.scheduler.runAfter(0,internal.wardrobeImageAI.generate,{id,version});
