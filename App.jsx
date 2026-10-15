@@ -23,7 +23,7 @@ export default function App() {
     <a className="skip-link" href="#main-content">Skip to content</a>
     <header className="cs-nav cs-wrap"><Brand/><nav aria-label="Main navigation"><a href="#how-it-works">How it works</a><a href="#shop-by-occasion">Shopping ideas</a><a href="#the-details">Questions</a></nav><a className="cs-button cs-button-small" href="/app/">Chat to shop <MessageCircle size={16}/></a></header>
     <main id="main-content">
-      <FashionHero scenarios={scenarios} liveLink={liveLink}/>
+      <FashionHero liveLink={liveLink}/>
       <section className="cs-store-band"><div className="cs-wrap"><p>Your next find could be anywhere.</p><div className="cs-store-names"><span>Flipkart</span><span>amazon<span className="cs-amazon-line"/></span></div><p className="cs-store-note">Live discovery on Flipkart and Amazon. Buy directly on the store.</p></div></section>
       <section className="cs-shopping-ideas cs-wrap" id="shop-by-occasion"><div><p className="cs-eyebrow"><ShoppingBag size={15}/> Start with what you need</p><h2>What’s on your<br/><em>shopping list?</em></h2></div><div className="cs-shopping-links">{[
         ['Find an outfit','Help me find an outfit for the office within my budget'],

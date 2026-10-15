@@ -296,3 +296,6 @@ All 90 tests passed. Browser confirmed fixed bag path (no animation/transform), 
 
 ### Loader motion refinement
 Kept the original opening acceleration. Centre-spoke rotation now uses linear timing from 28% to 94% of each loop (180° over 4.488 seconds), including the icon-collapse phase. Updated both React/CSS and the standalone SVG/ZIP exports; production build passed.
+
+### Banner colour and loading handoff
+All 90 tests and production build passed. Browser verified all four requested banner accents as rgb(41,80,184) with full opacity and zero public hero suggestion chips. Account setup query is gated on authentication; both pending stages share one loader branch rather than mounting a second loader in SignedIn.
