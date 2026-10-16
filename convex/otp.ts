@@ -2,7 +2,7 @@ import {action,mutation,internalMutation,internalAction} from "./_generated/serv
 import {internal} from "./_generated/api";
 import {v,ConvexError} from "convex/values";
 import type {Id} from "./_generated/dataModel";
-import {hashSecret,normalizePhone,smsConfigured,widgetRequest,verifiedPhone} from "./lib/otp";
+import {hashSecret,normalizePhone,smsConfigured,mobileSmsConfigured,widgetRequest,verifiedPhone} from "./lib/otp";
 
 export const reserve=internalMutation({args:{phone:v.string()},returns:v.id("otpChallenges"),handler:async(ctx,{phone})=>{
  const now=Date.now();
@@ -48,6 +48,14 @@ export const beginWidget=action({args:{phone:v.string()},returns:v.object({id:v.
  const normalized=normalizePhone(phone);
  const id=await ctx.runMutation(internal.otp.reserve,{phone:normalized});
  return {id,widgetId:process.env.MSG91_WIDGET_ID!,tokenAuth:process.env.MSG91_WIDGET_TOKEN!};
+}});
+// Native clients get a separate widget so enabling MSG91 Mobile Integration
+// does not disable the website's OTP widget.
+export const beginMobileWidget=action({args:{phone:v.string()},returns:v.object({id:v.id("otpChallenges"),widgetId:v.string(),tokenAuth:v.string()}),handler:async(ctx,{phone}):Promise<{id:Id<"otpChallenges">,widgetId:string,tokenAuth:string}>=>{
+ if(!mobileSmsConfigured())throw new ConvexError("Mobile phone sign-in is not configured yet. Ask the backend owner to set up the mobile MSG91 widget.");
+ const normalized=normalizePhone(phone);
+ const id=await ctx.runMutation(internal.otp.reserve,{phone:normalized});
+ return {id,widgetId:process.env.MSG91_MOBILE_WIDGET_ID!,tokenAuth:process.env.MSG91_MOBILE_WIDGET_TOKEN!};
 }});
 export const widgetSent=mutation({args:{id:v.id("otpChallenges"),requestId:v.string()},returns:v.null(),handler:async(ctx,{id,requestId})=>{
  const c=await ctx.db.get(id);

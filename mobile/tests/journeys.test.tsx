@@ -277,7 +277,7 @@ test("denied camera has recovery and makes no upload", async () => {
 test("wrong OTP and rejected server proof never create an authenticated session", async () => {
   mockAuthenticated = false;
   mockCalls.mockImplementation(async (name) => {
-    if (name === "otp:beginWidget")
+    if (name === "otp:beginMobileWidget")
       return {
         id: "invented-challenge",
         widgetId: "public-widget",

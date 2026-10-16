@@ -7,6 +7,9 @@ export function normalizePhone(value: string) {
   return phone;
 }
 export function smsConfigured(){return Boolean(process.env.MSG91_WIDGET_ID && process.env.MSG91_WIDGET_TOKEN && process.env.MSG91_AUTHKEY);}
+// Keep the native-only MSG91 widget separate: enabling Mobile Integration on a
+// widget disables that widget on the web, per MSG91's dashboard guidance.
+export function mobileSmsConfigured(){return Boolean(process.env.MSG91_MOBILE_WIDGET_ID && process.env.MSG91_MOBILE_WIDGET_TOKEN && process.env.MSG91_AUTHKEY);}
 export async function hashSecret(value:string){
   return Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(value)))).map(b=>b.toString(16).padStart(2,"0")).join("");
 }

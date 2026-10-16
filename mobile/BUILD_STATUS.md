@@ -50,9 +50,9 @@ The local configuration supports guest discovery. SMS is deliberately off becaus
 
 | Item | What is needed | What can proceed without it |
 | --- | --- | --- |
-| Development backend | Backend owner provides an approved-IP development deployment with the integrated stylist/photo functions and MSG91 settings; existing local guest server works | All implemented screens, tests and bundles |
+| Development backend | Backend owner provides an approved development deployment with the integrated stylist/photo functions and a separate MSG91 mobile widget configured as described in `README.md`; existing local guest server works for guest discovery | All implemented screens and unauthenticated flows |
 | Physical-device installation | iOS simulator build and launch are verified. Physical iPhone signing/account setup and Android SDK/JDK or configured Expo cloud build remain needed | Continue simulator and browser development |
-| MSG91 native compatibility | Confirm the existing widget has mobile integration enabled and its native proof works with existing `verifyWidget`; test correct/wrong/expired codes, resend and provider rejection on both OSes | No auth bypass or alternative provider required for screen work |
+| MSG91 native compatibility | Create a separate mobile OTP widget, enable Mobile Integration, disable CAPTCHA for mobile as MSG91 recommends, set `MSG91_MOBILE_WIDGET_ID`/`MSG91_MOBILE_WIDGET_TOKEN` on development Convex, then test correct/wrong/expired codes, resend and provider rejection on an iPhone | Website keeps its current widget; no auth bypass or alternative provider |
 | Native photo behavior | Real HEIC/JPEG/rotated/oversized files and denied-camera tests; verify payload bounds, metadata removal, upload/confirmation, cache cleanup and original-photo access | Manual clothing and mocked confirmation tests |
 | Launch identity/accounts | Builder chooses seller/legal identity, final identifiers, developer account enrollment and any build costs | Development identifiers already distinct |
 | Shared release features | Comprehensive account/file/auth deletion and AI-content reporting are still missing. Backend owner defines contracts before native implementation | Settings explains current limits; no false deletion/report control |

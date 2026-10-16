@@ -33,7 +33,7 @@ export default function SignIn() {
   );
 }
 function PhoneForm() {
-  const begin = useAction(api.otp.beginWidget),
+  const begin = useAction(api.otp.beginMobileWidget),
     sent = useMutation(api.otp.widgetSent),
     verify = useAction(api.otp.verifyWidget),
     { signIn } = useAuthActions();
