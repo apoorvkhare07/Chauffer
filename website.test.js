@@ -6,7 +6,6 @@ import { pathToFileURL } from "node:url";
 import { resolve } from "node:path";
 import React from "react";
 import { renderToString } from "react-dom/server";
-
 test("the separate homepage renders its full content without crashing", async () => {
   await mkdir("tmp", { recursive: true });
   const output = await mkdtemp(resolve("tmp/website-check-"));
@@ -28,6 +27,7 @@ test("the separate homepage renders its full content without crashing", async ()
     );
     const html = renderToString(React.createElement(Homepage));
     assert.match(html, /More options/);
+    assert.doesNotMatch(html, /Sample demo|href="\/demo\//);
     assert.match(html, /href="\/faq\/"/);
     assert.doesNotMatch(html, /Can I actually buy something here/);
     assert.match(html, /href="\/roadmap\/"/);

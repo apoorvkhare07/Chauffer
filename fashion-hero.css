@@ -8,7 +8,7 @@
 .fashion-scene .personal-search-note{font-size:10px}
 .fashion-floats{position:absolute;inset:0;pointer-events:none;z-index:0}
 .fashion-float{position:absolute;width:135px;padding:8px;background:#ffffffdb;border:1px solid #fff;border-radius:22px;box-shadow:0 15px 35px #323a4e13;transform:rotate(var(--tilt));animation:fashion-drift 7s ease-in-out infinite;animation-delay:var(--delay,0s)}
-.fashion-float img{width:100%;height:150px;object-fit:cover;border-radius:16px;display:block}
+.fashion-float img{width:100%;height:150px;object-fit:contain;background:#fff;border-radius:16px;display:block}
 .fashion-float span{display:block;font-size:9px;text-align:center;padding:10px 0 4px;letter-spacing:.02em;color:#646b7c}
 .float-shirt{left:4%;top:27px;--tilt:-11deg;--delay:-2s}
 .float-shirt img{object-position:50% 73%}
@@ -59,6 +59,10 @@
 .hero-description{font-size:15px;line-height:1.8;color:#686d7b;margin-bottom:27px}
 .fashion-entry-search{display:flex;gap:12px;align-items:center;background:white;border:1px solid #d5dae8;border-radius:100px;padding:8px 8px 8px 20px;box-shadow:0 8px 30px #333b4f0d}
 .fashion-entry-search>svg{color:#697490;flex-shrink:0}.fashion-entry-search input{width:100%;min-width:0;border:0;background:none;outline:none;font:inherit;font-size:16px;padding:12px 0}.fashion-entry-search:focus-within{outline:3px solid #c9d3ed;outline-offset:3px}
+.search-prompt-field{position:relative;display:block;flex:1;min-width:0}.search-prompt-field input{display:block;position:relative;z-index:1}.search-prompt{position:absolute;inset:0;display:flex;align-items:center;overflow:hidden;white-space:nowrap;color:#858da1;font:inherit;font-size:16px;pointer-events:none}.search-prompt i{display:inline-block;width:1px;height:1.15em;margin-left:2px;background:#2950B8;animation:search-caret .82s steps(2,end) infinite;flex:0 0 1px}@keyframes search-caret{50%{opacity:0}}
+.search-prompt-field input:focus{outline:none}
+.fashion-search-origin .search-handoff-source{view-transition-name:search-handoff}
+@media(prefers-reduced-motion:reduce){.search-prompt i{animation:none}}
 .fashion-entry-search button{border:0;border-radius:50%;width:46px;height:46px;flex-shrink:0;background:#2950B8;color:white;display:grid;place-items:center;cursor:pointer}.fashion-entry-search button:disabled{opacity:1;cursor:default}
 .hero-signin,.hero-language{font-size:11px;color:#717788;margin:13px 0 20px}
 .hero-prompts{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}.hero-prompts a{display:flex;align-items:center;gap:7px;font-size:11px;padding:10px 12px;border:1px solid #dfe3ee;background:#ffffffa8;border-radius:30px;min-height:44px}.hero-prompts a:hover{border-color:#62739e}

@@ -19,7 +19,7 @@ http.route({path:'/whatsapp',method:'POST',handler:httpAction(async(ctx,request)
  const body=await request.text();if(body.length>1000000)return new Response('Too large',{status:413});
  if(!await validSignature(body,request.headers.get('x-hub-signature-256'),secret))return new Response('Forbidden',{status:403});
  let payload:unknown;try{payload=JSON.parse(body);}catch{return new Response('Invalid JSON',{status:400});}
- await ctx.runMutation(internal.whatsapp.receive,parsePayload(payload,phoneId));return new Response('EVENT_RECEIVED');
+ await ctx.runMutation(internal.whatsappChannel.receive,parsePayload(payload,phoneId));return new Response('EVENT_RECEIVED');
 })});
 // Multi-page Vite output needs explicit directory redirects; preserve query strings.
 for (const page of ['app', 'demo', 'roadmap', 'faq']) {

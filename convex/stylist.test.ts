@@ -34,7 +34,7 @@ test('saved profile changes invalidate existing advice and late results',async()
  await expect(a.query(api.stylist.shoppingBrief,{id,index:0})).rejects.toThrow();
 });
 test('stylist refuses parallel runs; timeout rejects late advice; clearing preserves daily cap',async()=>{
- const {t,a}=setup();const id=await a.mutation(api.stylist.request,{text:'Dinner'});
+ const {t,a}=setup();await t.run(ctx=>ctx.db.insert('userPlans',{owner:'alice',plan:'pro',status:'active',source:'test',updatedAt:Date.now()}));const id=await a.mutation(api.stylist.request,{text:'Dinner'});
  await expect(a.mutation(api.stylist.request,{text:'Office'})).rejects.toThrow('still working');
  await t.mutation(internal.stylist.timeout,{id});await t.mutation(internal.stylist.finish,{id,advice});
  expect((await a.query(api.stylist.latest,{})).run?.state).toBe('failed');
@@ -42,14 +42,34 @@ test('stylist refuses parallel runs; timeout rejects late advice; clearing prese
  await a.mutation(api.stylist.clear,{});
  await expect(a.mutation(api.stylist.request,{text:'Another'})).rejects.toThrow('Twenty');
 });
+test('free plan includes three stylist sessions each UTC month',async()=>{
+ const {t,a}=setup();
+ for(let i=0;i<3;i++){const id=await a.mutation(api.stylist.request,{text:`Brief ${i}`});await t.mutation(internal.stylist.timeout,{id});}
+ expect((await a.query(api.planAccess.current,{})).usage.stylistSessions).toBe(3);
+ await expect(a.mutation(api.stylist.request,{text:'One more brief'})).rejects.toThrow('3 free stylist sessions');
+});
 test('model receives confirmed context, no raw photos or inventory, and outputs are stored safely',async()=>{
  const {t,a}=setup();await a.mutation(api.styling.saveSetup,{preferences:{language:'en',size:'M',heightCm:175},style:{...emptyStyle,stylePreferences:'Classic'}});
  const mock=vi.spyOn(Agent.prototype,'generateObject').mockResolvedValue({object:advice,usage:{}} as any);
  const id=await a.mutation(api.stylist.request,{text:'A classic dinner look'});
  await t.action(internal.stylistAI.generate,{id});
  expect(mock).toHaveBeenCalledOnce();const prompt=JSON.parse(mock.mock.calls[0][2].prompt as string);
- expect(prompt.context.shopper.topSize).toBe('M');expect(prompt.context.shopper.body.source).toBe('none');expect(prompt.owner).toBeUndefined();expect(prompt.items).toBeUndefined();
+ expect(prompt.context.shopper.topSize).toBe('M');expect(prompt.context.shopper.body.source).toBe('none');expect(prompt.owner).toBeUndefined();expect(prompt.references).toEqual([]);
  expect((await a.query(api.stylist.latest,{})).run?.state).toBe('ready');
+});
+test('stylist can only use selected owner sources and returns only those image references',async()=>{
+ const {t,a,b}=setup();
+ const details={name:'Navy cotton shirt',category:'top' as const,colour:'Navy',fabric:'Cotton'};
+ const aliceItem=await a.mutation(api.wardrobe.add,{details}),bobItem=await b.mutation(api.wardrobe.add,{details});
+ await expect(a.mutation(api.stylist.request,{text:'Style this shirt',references:[`w:${bobItem}`]})).rejects.toThrow('Choose current items');
+ const generated={...advice,looks:[{...advice.looks[0],references:[`w:${aliceItem}`,`w:${bobItem}`]}]};
+ let modelPrompt:any;
+ vi.spyOn(Agent.prototype,'generateObject').mockImplementation(async(_ctx,_thread,config:any)=>{modelPrompt=JSON.parse(config.prompt);return {object:generated,usage:{}} as any;});
+ const id=await a.mutation(api.stylist.request,{text:'Style this shirt',references:[`w:${aliceItem}`]});
+ await t.action(internal.stylistAI.generate,{id});
+ const result=(await a.query(api.stylist.latest,{})).run?.advice;
+ expect(modelPrompt.references).toMatchObject([{key:`w:${aliceItem}`,title:'Navy cotton shirt',colour:'Navy'}]);
+ expect(result?.looks[0].references).toEqual([`w:${aliceItem}`]);
 });
 test('trend evidence expires and invalid palette values cannot become styles',()=>{
  expect(currentTrends(trendExpiry+1)).toEqual([]);

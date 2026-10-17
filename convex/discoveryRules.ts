@@ -13,7 +13,7 @@ export const requirementsValidator = v.object({
  occasion:v.optional(v.string()),style:v.optional(v.string()),fit:v.optional(v.string()),pattern:v.optional(v.string()),sleeve:v.optional(v.string()),length:v.optional(v.string()),mustHave:v.optional(v.array(v.string())),
 });
 export type Requirements = import('convex/values').Infer<typeof requirementsValidator>;
-export const optionValidator = v.object({title:v.string(), url:v.string(), price:v.number(), colour:v.string(), fabric:v.string(), observedAt:v.number(),brand:v.optional(v.string()),manufacturerCode:v.optional(v.string()), store:v.optional(storeValidator), source:v.optional(v.union(v.literal('product'),v.literal('listing'))), priceFrom:v.optional(v.boolean()),imageUrl:v.optional(v.string()),attributes:v.optional(v.array(v.string())),reasons:v.optional(v.array(v.string())),unknownPreferences:v.optional(v.array(v.string()))});
+export const optionValidator = v.object({title:v.string(), url:v.string(), price:v.number(), colour:v.string(), fabric:v.string(), observedAt:v.number(),category:v.optional(v.string()),brand:v.optional(v.string()),manufacturerCode:v.optional(v.string()), store:v.optional(storeValidator), source:v.optional(v.union(v.literal('product'),v.literal('listing'))), priceFrom:v.optional(v.boolean()),imageUrl:v.optional(v.string()),attributes:v.optional(v.array(v.string())),reasons:v.optional(v.array(v.string())),unknownPreferences:v.optional(v.array(v.string()))});
 export type Option = import('convex/values').Infer<typeof optionValidator>;
 
 export function nextRequest(text: string, previous: Requirements = {}): {requirements:Requirements; reply:string; search:boolean} {

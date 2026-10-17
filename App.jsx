@@ -9,6 +9,7 @@ import { LoaderPreview } from './FashionLoader.jsx';
 import WardrobeSpiral from './WardrobeSpiral.jsx';
 import ShoppingIntro from './ShoppingIntro.jsx';
 import { Asterisk, ArrowUpRight, Plus, SlidersHorizontal, MessageCircle, ShoppingBag } from 'lucide-react';
+import Pricing from './Pricing.jsx';
 
 const scenarios = [
   { name: 'Find my next look', request: 'Help me find an understated outfit for the office, under ₹1,500. I like clean lines and easy fits.', reply: 'Let’s start with your occasion, usual size and budget. We can explore options, then refine the colours and details together.', tags: ['Office style', 'Your budget', 'Your fit'], art: 0 },
@@ -23,6 +24,7 @@ export default function App() {
   if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('preview') === 'brand') return <BrandAssetsPreview/>;
   if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('preview') === 'loader') return <LoaderPreview/>;
   const page = typeof window !== 'undefined' ? window.location.pathname.split('/')[1] : '';
+  if (page === 'pricing') return <Pricing/>;
   if (page === 'faq' || page === 'roadmap') return <InfoPages page={page}/>;
   return <div className="chauffeur-site">
     <a className="skip-link" href="#main-content">Skip to content</a>

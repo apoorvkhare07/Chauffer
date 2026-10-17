@@ -20,3 +20,9 @@ Additional free Unsplash photographs, downloaded at 1,000 pixels wide:
 - `sneakers.jpg`: Maria Fernanda Pissioli, [source photograph](https://unsplash.com/photos/a-pair-of-white-and-black-sneakers-on-a-white-surface-i8OruGmFXtw), free under the Unsplash License. Image source: https://images.unsplash.com/photo-1680204101400-aeac783c9d87 (downloaded 14 October 2026).
 
 - `leather-bag.jpg`: Irene Kredenets, [source photograph](https://unsplash.com/photos/brown-leather-bag-pSVYyO-XlJk), free under the Unsplash License. Image source: https://images.unsplash.com/photo-1575032617751-6ddec2089882 (downloaded 14 October 2026).
+
+## Generated homepage product photography
+Generated for Chauffeur with OpenAI ImageGen on 16 October 2026. These are illustrative, unbranded product images, not live listings or customer wardrobe photos. Each is a separate product image on a white studio background.
+
+- Story section, coordinated outfit groups: `story-men-polo.jpg`, `story-men-chinos.jpg`, `story-men-loafers.jpg`, `story-women-kurta.jpg`, `story-women-trousers.jpg`, `story-women-sandals.jpg`.
+- Wardrobe section, separate mixed-category selection: `wardrobe-slate-overshirt.jpg`, `wardrobe-canvas-tote.jpg`, `wardrobe-watch.jpg`, `wardrobe-indigo-blouse.jpg`, `wardrobe-ballet-flats.jpg`, `wardrobe-indigo-scarf.jpg`, `wardrobe-sand-trousers.jpg`, `wardrobe-white-sneakers.jpg`, `wardrobe-tan-crossbody.jpg`, `wardrobe-brown-loafers.jpg`.

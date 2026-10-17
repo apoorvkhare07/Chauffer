@@ -12,6 +12,7 @@ import {requirementsValidator,optionsReply} from './discoveryRules';
 import {discoveryResultValidator} from './marketplaces';
 import {emptyTaste,tasteValidator} from './taste';
 import {getConversation,beginTurn,searchClaim,welcome} from './conversationCore';
+import {consumeMonthly} from './planAccess';
 const messageValidator=v.object({id:v.string(),role:v.union(v.literal('user'),v.literal('assistant')),text:v.string(),result:v.optional(discoveryResultValidator),handoff:v.optional(discoveryHandoffValidator)});
 const currentValidator=v.object({discoveryStatus:discoveryStatusValidator,discoveryQuestion:v.optional(discoveryQuestionValidator),aiEnabled:v.boolean(),pendingPhase:v.string(),requirements:requirementsValidator,pending:v.boolean(),messages:v.array(messageValidator)});
 export const current=query({args:{},returns:currentValidator,handler:async (ctx):Promise<Infer<typeof currentValidator>>=>{
@@ -25,6 +26,9 @@ export const current=query({args:{},returns:currentValidator,handler:async (ctx)
 export const post=mutation({args:{text:v.string(),newSearch:v.optional(v.boolean()),rejectUrl:v.optional(v.string()),reference:v.optional(v.object({messageId:v.id('messages'),url:v.string()}))},returns:v.null(),handler:async(ctx,{text,newSearch,rejectUrl,reference}):Promise<null>=>{
  const owner=await getAuthUserId(ctx);if(!owner)throw new Error('Please sign in.');
  text=text.trim();if(!text||text.length>1000)throw new Error('Use a message between 1 and 1,000 characters.');
+ const existing=await ctx.db.query('conversations').withIndex('by_key',q=>q.eq('key',`web:${owner}`)).unique();
+ const startsConversation=!existing||Boolean(newSearch)||/^(reset|start)[!.\s]*$/i.test(text);
+ if(startsConversation)await consumeMonthly(ctx,owner,'conversations');
  const profile=await ctx.db.query('profiles').withIndex('by_owner',q=>q.eq('owner',owner)).unique();
  const defaults=profileDefaults(profile?.preferences);
  let conversation=await getConversation(ctx,`web:${owner}`,defaults);

@@ -1,0 +1,11 @@
+{
+ "version":"fashion-eval.v3",
+ "status":"Draft acceptance rubric, pending builder calibration; synthetic cases based on observed needs and failures.",
+ "levers":{
+  "requirements":{"1":"Violates an explicit exclusion, audience, budget, required language, ownership/availability, or changes confirmed constraints without consent.","2":"Preserves main intent but misses a minor detail or asks an avoidable question.","3":"Preserves every material explicit requirement and correctly uses current instructions over defaults."},
+  "evidence":{"1":"Invents facts, products, prices, ownership, body/skin traits, stock, weather, citations or a fit guarantee; follows data injection.","2":"No material fabrication but some overconfident generalisation or weak attribution.","3":"Claims match supplied evidence; uncertainty and concept-versus-fact boundaries are clear."},
+  "usefulness":{"1":"Unusable, internally contradictory, wrong occasion, incomplete outfit presented as complete, or empty generic answer.","2":"Usable answer with adequate reasons/appropriate next step, though generic or somewhat repetitive.","3":"Specific, practical and coherent answer with well-explained trade-offs; concise discovery or detailed requested styling, with at most one useful question."}
+ },
+ "pass":{"requirements":3,"evidence":3,"usefulness":2},
+ "judgeRule":"Give evidence excerpts and a first failure; may abstain. A case passes only if every repeat passes. Model scores are provisional, not human-certified accuracy."
+}

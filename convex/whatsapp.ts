@@ -1,3 +1,4 @@
+import {messagePayload,waButton} from './whatsappUi';
 import { internalMutation,internalQuery,internalAction } from './_generated/server';
 import { internal } from './_generated/api';
 import { v } from 'convex/values';
@@ -41,19 +42,23 @@ export const plan=internalQuery({args:{id:v.id('waInbox')},returns:v.union(v.nul
 export const claimSend=internalMutation({args:{id:v.id('waInbox'),phase:phaseValidator},returns:v.union(v.null(),v.object({outboxId:v.id('waOutbox'),phone:v.string()})),handler:async(ctx,{id,phase}):Promise<{outboxId:Id<'waOutbox'>;phone:string}|null>=>{
  const row=await ctx.db.get(id);if(!row||!testRecipientAllowed(row.phone)||row.timestamp<Date.now()-86400000+60000)return null;
  const c=await ctx.db.get(row.conversationId);if(c?.revision!==row.revision)return null;
+ if(row.sharedRevision!==undefined&&c.conversationId){const shared=await ctx.db.get(c.conversationId);if(shared?.revision!==row.sharedRevision)return null;}
  const key=`${id}:${phase}`;if(await ctx.db.query('waOutbox').withIndex('by_key',q=>q.eq('key',key)).unique())return null;
  const outboxId=await ctx.db.insert('waOutbox',{key,inboxId:id,state:'sending'});return {outboxId,phone:row.phone};
 }});
 export const sendResult=internalMutation({args:{id:v.id('waOutbox'),state:v.union(v.literal('sent'),v.literal('failed'),v.literal('uncertain')),providerMessageId:v.optional(v.string()),reason:v.optional(v.string())},returns:v.null(),handler:async(ctx,{id,...result})=>{
  const row=await ctx.db.get(id);if(row?.state==='sending')await ctx.db.patch(id,result);return null;
 }});
-export const send=internalAction({args:{id:v.id('waInbox'),phase:phaseValidator,text:v.string(),imageUrl:v.optional(v.string())},returns:v.null(),handler:async(ctx,{id,phase,text,imageUrl}):Promise<null>=>{
+export const send=internalAction({args:{id:v.id('waInbox'),phase:phaseValidator,text:v.string(),buttons:v.optional(v.array(waButton)),scheduled:v.optional(v.boolean()),imageStorageId:v.optional(v.id('_storage')),imageUrl:v.optional(v.string())},returns:v.null(),handler:async(ctx,{id,phase,text,imageUrl,buttons,imageStorageId,scheduled}):Promise<null>=>{
+ if(!scheduled){const delay=await ctx.runMutation(internal.whatsappChannel.reserveSend,{id});if(delay===null)return null;if(delay>0){await ctx.scheduler.runAfter(delay,internal.whatsapp.send,{id,phase,text,...(imageUrl?{imageUrl}:{}),...(imageStorageId?{imageStorageId}:{}),...(buttons?{buttons}:{}),scheduled:true});return null;}}
  const token=process.env.WHATSAPP_TOKEN,phoneId=process.env.WHATSAPP_PHONE_ID;if(!token||!phoneId)throw new Error('WhatsApp configuration missing');
  if(imageUrl&&!allowedImageUrl(imageUrl))throw new Error('Untrusted product photo.');
+ if(imageStorageId){const url=await ctx.runQuery(internal.whatsappChannel.ownedOutput,{id,storageId:imageStorageId});if(!url)return null;imageUrl=url;}
+ if(phase==='options'){const clean=await ctx.runQuery(internal.whatsappChannel.discoveryReply,{id});if(clean)text=clean;}
  const claim=await ctx.runMutation(internal.whatsapp.claimSend,{id,phase});if(!claim)return null;
  try{
-  const content=imageUrl?{type:'image',image:{link:imageUrl,caption:text.slice(0,1024)}}:{type:'text',text:{preview_url:false,body:text.slice(0,4000)}};
-  const response=await fetch(`https://graph.facebook.com/v25.0/${phoneId}/messages`,{method:'POST',headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({messaging_product:'whatsapp',to:claim.phone,...content}),signal:AbortSignal.timeout(15000)});
+  const content=messagePayload(claim.phone,text,buttons,imageUrl);
+  const response=await fetch(`https://graph.facebook.com/v25.0/${phoneId}/messages`,{method:'POST',headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify(content),signal:AbortSignal.timeout(15000)});
   const data=await response.json();const providerMessageId=data.messages?.[0]?.id;
   if(response.ok&&typeof providerMessageId==='string')await ctx.runMutation(internal.whatsapp.sendResult,{id:claim.outboxId,state:'sent',providerMessageId});
   else await ctx.runMutation(internal.whatsapp.sendResult,{id:claim.outboxId,state:'failed',reason:`Meta rejected message: HTTP ${response.status}, code ${Number(data.error?.code)||0}.`});

@@ -424,6 +424,13 @@ Production browser check: existing chat request "Find casual shirts using my sav
 - Signed-in Chrome production sneaker request (“Find men sneakers under ₹5000, size UK 8”) retained existing style preferences, reached eight matched sources, and showed six live cards. Amazon ₹599, Myntra ₹1,499 and Meesho ₹438 now appear alongside Flipkart ₹498, SNITCH ₹2,299 and AJIO ₹2,399. Bewakoof/Souled also matched without occupying a shortlist slot. Bonkers Corner/NEWME no verified sneaker matches. All ten configured stores have positive evidence across these two category requests, not all ten on every query.
 - Browser inspected loaded photos, Meesho product details, dated ₹438 starting price and final price/size uncertainty; modal opened/closed correctly and no captured browser errors. Left live results open. Screenshot: /tmp/chauffeur-india-production.png. No SMS, save, purchase or profile edits. New real-phone/mobile-data verification was not performed. Store recovery logs for the browser request ran from 17:05:02 to 17:05:43 (additional model/request setup time is not included), so long waits remain a possible improvement.
 
+## Session replay and footer cleanup — 2026-10-16
+- Removed “Sample demo” from the website footer.
+- PostHog project 666497’s replay screen showed “Recording is on. Waiting for the first session.” Website code was initializing PostHog with `disable_session_recording: true`, which prevented any session recording from starting even while other analytics events were delivered.
+- Enabled browser session replay with all text masked, all input values masked, and images/video/canvas blocked. This preserves interaction/layout diagnostics without exposing chat or personal wardrobe content.
+- Published web assets only with `npx @convex-dev/static-hosting upload --build --prod --no-spa`; Convex functions were not redeployed. Production homepage footer no longer includes the demo link. Production page loaded PostHog's `posthog-recorder.js` without browser console errors. Added an explicit `startSessionRecording()` call after SDK load and republished. PostHog now shows “1 recently active recording,” but after clearing the replay filters the list says “No recordings found”; a finished, playable replay is not yet confirmed. The activity indicates the client has started a recording; final ingestion/visibility still needs a later check.
+- `npm test` passed (4 website/demo + 194 backend tests); `npm run build` and `git diff --check` passed. Finished replay playback remains pending.
+
 ## Discovery intent and spending preference — 2026-10-15
 - Reproduced three production baselines: Nike men's sneakers ≤₹5,000 (first ₹2,148; ₹4,995 Nike option buried); women's dresses ≤₹3,000 (₹235–699 shortlist); men's casual shirts ≤₹2,500 (₹248–1,499 shortlist). Requests completed in 54.9s/55.6s/57.1s. Records are ignored under tmp/search-audit/discovery-baseline.json.
 - Added optional brand/spending preference to the shared requirements validator; existing records remain compatible. One brand question for footwear ≥₹3,000 follows required size questions, and brand-only answers refine the same search. Explicit cheap requests skip optional brand clarification. No brand consent inferred from model suggestions. Known sneaker typo understood. Multiple named brands ask which first.
@@ -543,3 +550,68 @@ Production browser check: existing chat request "Find casual shirts using my sav
 - Production shopping handoff: selected “Refined Coastal Classic”; discovery received the powder-blue linen/cotton shirt, previous dinner context and current exclusions, resolved men's/relaxed/solid preferences and asked for the missing maximum budget. No merchant purchase or profile write. No private brief appeared in the URL.
 - Browser at 390 × 844: colour cards and prose reflowed with no horizontal overflow (document width 381, viewport 390); More highlighted for Stylist. Temporary viewport reset. Screenshots: /tmp/chauffer-stylist-phone.png and /tmp/chauffer-personal-stylist.png. Physical-phone keyboard/camera remain untested.
 - Final release: all 190 tests pass, types/build/deployment pass. Live trend refresh is not implemented; dated curated references expire and are labelled accordingly.
+
+
+## 15 October 2026 — real three-agent evaluations
+
+Added 24 synthetic discovery/wardrobe/stylist scenarios, three real Gemini repeats each, independent rubric scoring and ten scorer checks. Latest combined evidence: 72/72 automated passes after fixes; this is not human-certified accuracy. Stock-photo reader rejected the cropped/obstructed case; two try-on generations succeeded technically but visual inspection remains partial (pose and underlayer fidelity). Fixed ambiguous brands/shoe systems, final Hindi confirmations, unavailable wardrobe context and several prompt constraints. 194 normal tests, backend types and build pass. No deployment/browser acceptance claimed. See [AI_EVAL_RESULTS.md](docs/AI_EVAL_RESULTS.md) for methodology, failed setup attempts, image flaws and remaining checks.
+
+## 16 October 2026 — app visual and language polish (local preview)
+
+- Added `docs/APP_STYLE_GUIDE.md`, linked from DESIGN.md, and the shared final styling layer `app/ui.css`: homepage Inter/denim identity, consistent type sizes, fields, controls, surfaces, spacing, focus and reduced motion.
+- Simplified customer copy across home, onboarding, discovery, wardrobe, stylist, try-on, saved items, daily picks, settings and account support. Removed provider names and repeated explanations; retained explicit photo processing/retention consent, editable estimates, real errors and merchant checks.
+- Wardrobe has separate clothes/outfit views; optional event details and saved-product tools expand on demand. Search shows the latest assistant response, retains the full conversation in history, avoids repeating the initial request and groups store availability links. Settings no longer shows an internal feature-readiness inventory.
+- Browser testing found development was missing `stylist:latest`. Synced the existing backend to the verified development deployment using `npx convex dev --once`; stylist then rendered. Added a recoverable page error screen so a failed page does not remove navigation. Production was not deployed.
+- Browser checks completed in signed-in local Chrome: home, wardrobe empty state, open/close photo editor, clothes/outfit switch, stylist initial form and expanded event fields, try-on photo consent/first-use state, settings form, saved empty and populated states, More navigation, daily disabled state, past chats and onboarding step 1. Checked desktop, 390 px phone layouts and 320 px saved/stylist/try-on/onboarding layouts. Saved and expanded stylist DOM width checks showed no document overflow at 320 px.
+- Live development discovery: a synthetic men's black cotton T-shirt request returned six sourced results. Opened the product dialog, saved one SNITCH item and verified it appeared in Saved items. This test adds one search and one saved product to the development account; no purchase, photo upload or preference change was made.
+- `npm test` passed: 4 frontend + 190 backend tests. `npm run build` passed; existing dependency directive and large HEIC chunk warnings remain. `npm run typecheck:backend` passed. Existing AI evaluation changes were preserved.
+- Remaining: real phone keyboard/camera/HEIC and mobile-data checks; fresh generated stylist/outfit/try-on result layouts were not rerun in this visual pass. Onboarding steps 2/3 use the shared photo/wardrobe components but were not resubmitted. No claim of production release acceptance. After the extension panel closed, completed the final 390 px home screenshot check; the page content fits without horizontal overflow.
+
+## 16 October 2026 — web asset release
+
+- Published the polished Vite website/app files to `https://rare-chameleon-828.convex.site` with `@convex-dev/static-hosting upload --build --prod --no-spa`.
+- Confirmed the production client was built with the production Convex URL, the static asset upload completed, and the live signed-in `/app/` home page loaded the updated copy and design.
+- Production Convex functions were not deployed. The combined `npm run deploy` reached its backend step, detected the checkout's development target and stopped for confirmation; it made no production function change. The static-only upload then completed successfully.
+
+## 16 October 2026 — For you daily picks
+- Moved Daily picks into the For you home page and removed its desktop, mobile and More-page navigation entries. The old `#/daily` route now opens For you.
+- Changed the feed from copies of one recent search into three separate live searches. Categories rotate across shirts/T-shirts, jeans and an accessory or outer layer. Results use the saved shopping audience, clothing/jeans sizes, optional budget, preferred/avoided terms and saved fit/style preferences; a confirmed photo-style note can guide search wording. The feed no longer depends on the latest chat, and it excludes recent feed picks and saved products.
+- Kept daily picks opt-in, with pause/resume controls on For you. A style change hides stale picks and offers a same-day refresh. No footwear-size field exists in onboarding, so footwear is not selected automatically. Weather is not yet part of this feed.
+- Removed the daily price-observation work and all price-change explanation from this page. The feed shows the current listing price only; it does not claim sale or price-drop intelligence.
+- Checks: 190 automated tests pass, backend type check passes, production build passes. A signed-in local browser run returned three distinct live options (T-shirt, jeans, jacket); at 390 px the cards scroll horizontally without expanding the page into a long stack. Production browser confirms the home section and no separate Daily picks navigation. Production account was left opted out. Screenshot: `/tmp/chauffer-daily-picks-production.png`; phone layout: `/tmp/chauffer-daily-picks-phone.png`.
+- Published website and Convex functions to `https://rare-chameleon-828.convex.site`. The production browser check was read-only; live daily recommendations were verified in development, not generated in the production account.
+
+## 16 October 2026 — app navigation order
+- Reordered the signed-in app pages to For you, Stylist, Wardrobe, Try-on, Saved items, Past chats and Settings. On phones, the first three remain in the bottom bar; More contains Try-on, Saved items, Past chats and Settings in the same order.
+- Checks: `npm run build` and `git diff --check -- app/Account.jsx` passed. Production browser verified the desktop page order and the More-page links after deployment. No account data was changed.
+- Published the site and Convex functions to `https://rare-chameleon-828.convex.site` with `npm run deploy` targeting production.
+
+## 16 October 2026 — guest first-use previews
+- Expanded the signed-out web app to offer one discovery conversation, one AI try-on preview and one AI wardrobe-photo analysis before phone sign-in. Further chat turns, another try-on/wardrobe item and saving a piece require sign-in. The UI explains that an account keeps preferences and wardrobe data for better recommendations.
+- Guest try-on requires explicit photo-processing consent. Portrait, garment and generated preview are held in Convex storage temporarily and scheduled for deletion within 30 minutes; wardrobe tags expire at the same time. Capability tokens are hashed server-side, each feature is limited by Convex state, and server-side daily limits cap anonymous trials. Guest preview data expires after 24 hours.
+- Checks: guest quota/concurrency tests added; `npm test` passes (191 tests), backend type check and production build pass. Signed-out local browser confirmed Chat, Try-on and Wardrobe entry screens. Real Gemini wardrobe-photo analysis and image generation were not run; a real-image customer test remains.
+- Published the site and Convex functions to `https://rare-chameleon-828.convex.site`. A fresh signed-out browser origin against the production build confirmed all three guest entry screens and the public Convex connection. No account data or photos were submitted. Image-quality and full Gemini end-to-end checks remain for a controlled real-image session.
+
+## 16 October 2026 — Free and Pro plans (local verification)
+
+- Added a dedicated `/pricing/` page with Free and Pro plan cards, modeled on Relay’s clear plan comparison and primary call to action. The site header/footer and signed-in Settings link to it.
+- Convex now assigns every signed-in account a persisted Free plan by default. Server-side monthly counters enforce 10 new shopping conversations and 3 stylist sessions per UTC month; refinements remain in the same counted conversation. Free wardrobes cap at 3 pieces. Existing pieces are preserved.
+- Pro is priced at ₹99/month and removes the plan-level limits. Payment collection and Pro activation are explicitly pending; Razorpay has not been connected. Existing technical safety limits remain.
+- Automated tests cover default Free access, the conversation limit, the stylist limit and Free-to-Pro wardrobe capacity. `npm test`: 194 passed; backend typecheck and production build passed.
+- Local and live Chrome checks confirmed both pricing cards and the payment-pending state; the live URL is `/pricing/index.html` because Convex static hosting does not map `/pricing/` to the index file. The existing signed-in production account showed its Free plan and exhausted-wardrobe notice; no wardrobe data was changed.
+- Published the frontend and Convex functions to `https://rare-chameleon-828.convex.site`. No Razorpay calls, customer charges or plan upgrades were made.
+
+## 16 October 2026 — pricing layout correction
+
+- Centered plan button labels independently of the arrow icon, aligned both cards’ action rows, and adjusted phone spacing and card flow.
+- Checked full-page desktop and 390 px phone layouts in local Chrome and on the live `/pricing/index.html` page. Labels are centered and cards remain inside the viewport. Published static files only; no backend redeploy.
+- `npm run build` and `git diff --check` pass. Existing dependency directive and large HEIC chunk warnings remain.
+
+### 16 October — WhatsApp account channel
+
+- Added a native WhatsApp channel around existing discovery, stylist, wardrobe, input-reading and try-on services. Details and acceptance checklist: `docs/WHATSAPP_CHANNEL.md`.
+- Automated fixtures cover sender-account reuse, recipient isolation, duplicates, stale buttons/web changes, consent before media processing, shared monthly limits, private draft ownership, corrected photo draft confirmation, voice review before search, Meta-only bounded downloads and JPEG conversion. Existing web feature tests continue to exercise their unchanged public authentication wrappers.
+- Development backend compiled and pushed successfully. Production phone ID/token were saved from builder-provided configuration without printing values; read-only Meta number lookup succeeded. A separate verification token was generated in production. App secret, test-recipient setting, webhook subscription and real delivery still require setup/verification. No real WhatsApp message or private uploaded photo was used for these automated checks.
+- Full native parity is not claimed: settings/deletion/history/account management retain web handoffs; WhatsApp Flows, outside-window notifications, reply audio, location sharing and translated setup remain pending.
+- Final checks for this release: 4 frontend/demo tests + 212 backend tests passed; backend type-check and Vite build passed. Deployed with `npm run deploy` to `rare-chameleon-828` (static deployment `9d01168b-dd0f-4337-9bf5-d81c14d40618`). Production GET webhook challenge returned the expected value. Signed-in For You rendered in the browser after backend publication. This does not verify WhatsApp UI or delivery.
+- Last configuration check: `META_APP_SECRET` and `WHATSAPP_TEST_RECIPIENTS` still absent. Incoming WhatsApp POST processing therefore remains disabled with a configuration response. No proactive WhatsApp messages were sent.

@@ -226,7 +226,7 @@ Set the public project key as `VITE_POSTHOG_KEY` in `.env.local` and region endp
 
 Events: `$pageview`, `landing_page_viewed`, `button_clicked`, `form_submitted`, `login_completed`, `signup_completed`, `onboarding_step_completed`, `onboarding_completed`. Signups are emitted only when Convex Auth creates a new account. Returning logins do not increment signups. Buttons use static action tags where supplied; other controls are counted as generic buttons/links without recording their text. App page changes count as pageviews; homepage section anchors do not.
 
-Recording, heatmaps, automatic form capture, performance and exception capture are disabled. URL search terms, referrers and initial URL properties are removed before sending. No phone, name, profile details, photos or conversation text are sent. Signed-in activity uses the opaque Convex user ID. Existing visits/signups cannot be backfilled by this setup. Browser blockers may prevent client events; server signup delivery is best effort.
+Session replay is enabled with all visible text masked, all input values masked, and image/video/canvas elements blocked. This keeps conversation, profile, wardrobe and product-photo content out of replays while retaining page layout and interactions. Heatmaps, automatic event capture, performance and exception capture remain disabled. URL search terms, referrers and initial URL properties are removed before sending. No phone, name, profile details, photos or conversation text are sent. Signed-in activity uses the opaque Convex user ID. Existing visits/signups cannot be backfilled by this setup. Browser blockers may prevent client events; server signup delivery is best effort.
 
 Suggested PostHog dashboard: pageviews by page, unique landing visitors, button clicks grouped by action, daily `signup_completed`, and an onboarding completion trend. Verify incoming events in PostHog after enabling the project key.
 
@@ -254,3 +254,7 @@ Jeans results now prioritise a colour follow-up once fit is known. A short answe
 ## Additional discovery sources · October 2026
 
 Search now attempts twenty configured destinations. The additional ten, their public readers and access limitations are documented in [STORE_EXPANSION.md](docs/STORE_EXPANSION.md). Uniqlo access remains unverified for automatic discovery; unavailable stores retain a labelled direct search. This expands the candidate pool, keeps the six-card shortlist and retains the seven-page browser limit. New-source browser trials do not enable automatic paid recovery.
+
+### Account-bound WhatsApp channel
+
+The `/whatsapp` webhook now enters `whatsappChannel.ts`, reusing the web phone account and feature limits. Native menus cover shopping, stylist, wardrobe and try-on; clothing photos and short voice/photo shopping inputs have consent and confirmation steps. See [WhatsApp setup and test checklist](docs/WHATSAPP_CHANNEL.md). A configured callback and passing fixtures do not establish live Meta delivery; this channel remains restricted to `WHATSAPP_TEST_RECIPIENTS`.

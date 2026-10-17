@@ -1,18 +1,40 @@
 import React,{useState} from 'react';
 import {useQuery} from 'convex/react';
 import {api} from '../convex/_generated/api';
-import {ArrowUpRight,ArrowRight,Sparkles,Shirt,Heart,Search} from 'lucide-react';
+import {ArrowRight,ArrowUpRight,Sparkles,Shirt,Heart,Search,Compass,BriefcaseBusiness,PartyPopper,Sun} from 'lucide-react';
+import FashionLoader from '../FashionLoader.jsx';
+import DailyFeed from './DailyFeed.jsx';
+
 export default function PersonalHome({onAsk,busy=false}){
- const profile=useQuery(api.profiles.get),taste=useQuery(api.profiles.taste),conversation=useQuery(api.conversations.current),wardrobe=useQuery(api.wardrobe.list),saved=useQuery(api.savedProducts.list);
+ const conversation=useQuery(api.conversations.current),wardrobe=useQuery(api.wardrobe.list),saved=useQuery(api.savedProducts.list);
  const [text,setText]=useState('');
- const r=conversation?.requirements??{},budget=r.budget??(profile?.budgetPaise?profile.budgetPaise/100:undefined);
- const prompts=[['Find my next look','Help me find an outfit for an occasion.'],['Something to go with it','Help me shop for something that works with my wardrobe.'],['Find better options',r.category?`Help me refine my ${r.category} search, keeping my budget.`:'Help me find everyday fashion that suits my style.']];
- return <section className="personal-home" aria-labelledby="personal-home-title"><div className="personal-welcome"><header className="personal-greeting"><span className="personal-kicker"><Sparkles size={16}/> Your personal fashion assistant</span><h1 id="personal-home-title">What feels like <em>you</em> today?</h1><p>A new find, an outfit idea, or something to go with what you own.</p></header>
- <form className="personal-search" onSubmit={e=>{e.preventDefault();if(text.trim())onAsk(text.trim());}}><Search size={21} aria-hidden="true"/><label className="sr-only" htmlFor="personal-request">What are you looking for?</label><input id="personal-request" value={text} onChange={e=>setText(e.target.value)} maxLength={1000} placeholder="Tell me what you have in mind…"/><button aria-label="Find my options" disabled={busy||!text.trim()}><ArrowRight size={22}/></button></form><p className="personal-search-note">Search your way. Your assistant will help refine the picks.</p></div>
- <div className="personal-prompts">{prompts.map(([label,prompt])=><button key={label} disabled={busy} onClick={()=>onAsk(prompt)}>{label}<ArrowUpRight size={15}/></button>)}</div>
- <section className="personal-memory" aria-label="Your current preferences"><div><span className="personal-kicker">Your starting point</span><h2>{taste?.prefer?.length?'A little more your style.':'Let’s get to know your style.'}</h2><p>{taste?.prefer?.length?'Based on preferences you chose to remember.':'Tell your assistant what you like, or add a few preferences in Settings.'}</p></div><div className="personal-tags">{profile?.audience&&<span>{{men:"Men’s fashion",women:"Women’s fashion",unisex:"Unisex fashion"}[profile.audience]}</span>}{profile?.language&&<span>{{en:"English",hi:"Hindi",hinglish:"Hinglish"}[profile.language]}</span>}{budget&&<span>Up to ₹{budget.toLocaleString('en-IN')}</span>}{profile?.size&&<span>Clothing size {profile.size}</span>}{taste?.prefer?.slice(0,3).map(t=><span key={t}>{t}</span>)}<a href="#/settings">Edit preferences <ArrowUpRight size={14}/></a></div></section>
- <div className="personal-section-head"><h2>Pick up where you are</h2><span>Made around your day</span></div>
- <div className="personal-actions"><a href="#/chat" className="personal-action personal-continue"><div className="personal-action-icon"><Sparkles/></div><span>YOUR ASSISTANT</span><h3>{r.category?`Still thinking about ${r.category}?`:'Explore your next find.'}</h3><p>{r.category?'Your current search and feedback are ready to continue.':'Tell me your occasion, style or budget. We’ll work it out together.'}</p><strong>{r.category?'Continue your search':'Explore with your assistant'} <ArrowUpRight size={18}/></strong></a><a href="#/wardrobe" className="personal-action"><div className="personal-action-icon"><Shirt/></div><span>ALREADY YOURS</span><h3>More ways to wear it.</h3><p>{wardrobe===undefined?'Loading your wardrobe…':wardrobe.length?`${wardrobe.length} pieces in your wardrobe. Find a combination for today.`:'Add your own pieces to start putting outfits together.'}</p><strong>Open wardrobe <ArrowUpRight size={18}/></strong></a><a href="#/saved" className="personal-action"><div className="personal-action-icon"><Heart/></div><span>WORTH ANOTHER LOOK</span><h3>Your favourites, together.</h3><p>{saved===undefined?'Loading your saved items…':saved.length?`${saved.length} saved finds. Compare them or request a fresh price check.`:'Save finds from your searches, then compare them in one place.'}</p><strong>See saved items <ArrowUpRight size={18}/></strong></a></div>
- <a className="personal-daily" href="#/daily"><div><span className="personal-kicker">Your daily edit</span><h2>A few considered finds.</h2><p>Fresh picks for your current search, when daily picks are enabled.</p></div><ArrowUpRight size={24}/></a>
+ const pieces=(wardrobe??[]).filter(item=>item.available).slice(0,3);
+ const quickIdeas=[
+  {label:'Office outfit',prompt:'Help me put together an outfit for a day at the office.',Icon:BriefcaseBusiness},
+  {label:'Wedding guest',prompt:'Help me find an outfit for a wedding as a guest.',Icon:PartyPopper},
+  {label:'Weekend plans',prompt:'Suggest an outfit for my weekend plans.',Icon:Sun},
+ ];
+ return <section className="personal-home personal-home-agent" aria-labelledby="personal-home-title">
+  <div className="personal-welcome">
+   <header className="personal-greeting">
+    <div className="personal-agent-mark" aria-hidden="true"><FashionLoader decorative sustained label=""/></div>
+    <div className="personal-greeting-copy"><span className="personal-kicker"><Sparkles size={15}/> YOUR STYLE ASSISTANT</span><h1 id="personal-home-title">What are you looking for today?</h1></div>
+   </header>
+   <form className="personal-search" onSubmit={e=>{e.preventDefault();if(text.trim())onAsk(text.trim());}}><Search size={20} aria-hidden="true"/><label className="sr-only" htmlFor="personal-request">What are you looking for?</label><input id="personal-request" value={text} onChange={e=>setText(e.target.value)} maxLength={1000} placeholder="A look, a piece, an occasion…"/><button aria-label="Find my options" disabled={busy||!text.trim()}><ArrowRight size={21}/></button></form>
+   <div className="personal-prompts" aria-label="Try a common occasion">{quickIdeas.map(({label,prompt,Icon})=><button className="personal-idea-card" key={label} disabled={busy} onClick={()=>onAsk(prompt)}><span className="personal-idea-icon"><Icon size={18}/></span><strong>{label}</strong><ArrowUpRight className="personal-idea-arrow" size={15}/></button>)}</div>
+  </div>
+
+  <DailyFeed/>
+
+  {conversation?.requirements?.category&&<a className="personal-resume-strip" href="#/chat"><span className="personal-resume-icon"><Compass size={18}/></span><span><small>YOUR LAST SEARCH</small><strong>Continue exploring {conversation.requirements.category}</strong></span><ArrowRight size={19}/></a>}
+
+  <section className="personal-closet-card" aria-label="Your wardrobe">
+   <a href="#/wardrobe" className="personal-closet-link">
+    <div className="personal-closet-art" aria-hidden="true">{pieces.length?pieces.map((item,i)=><span className={`personal-closet-photo closet-photo-${i}`} key={item.id}>{item.cleanPhotoUrl?<img src={item.cleanPhotoUrl} alt=""/>:<Shirt size={22}/>}</span>):<span className="personal-closet-empty"><Shirt size={25}/></span>}</div>
+    <span className="personal-closet-copy"><small>YOUR CLOSET</small><strong>{wardrobe?.length?`${wardrobe.length} pieces, new combinations`:'Start with one piece you love'}</strong><span>{wardrobe?.length?'Ask your stylist what to wear today.':'Add a photo. Your assistant will organise it.'}</span></span>
+    <span className="personal-closet-action">{wardrobe?.length?'Style it':'Add clothes'} <ArrowUpRight size={16}/></span>
+   </a>
+   <div className="personal-saved-shortcut"><Heart size={15}/><span>{saved?.length??0} saved finds</span><a href="#/saved">Open shortlist <ArrowRight size={14}/></a></div>
+  </section>
  </section>;
 }

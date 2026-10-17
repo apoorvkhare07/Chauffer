@@ -221,3 +221,30 @@ test('open choices cannot become material or sleeve restrictions during wardrobe
  const followup=normalizeDecision(reply('refine',{requirements:{...fullRequirements,category:'jeans',size:'32',fabric:null}}),{category:'jeans',budget:3000,size:'32',fabric:'any brand'},{prefer:[],avoid:[]},'show more');expect(followup.requirements.fabric).toBeUndefined();
  expect(decision.requirements.fabric).toBeUndefined();expect(decision.requirements.sleeve).toBeUndefined();expect(decision.requirements).toMatchObject({category:'jeans',size:'32',budget:3000,colour:'blue',brand:'any'});
 });
+
+test('brand alternatives stay unresolved until the shopper chooses',()=>{
+ const plan=normalizeDecision(reply('search',{requirements:{...fullRequirements,category:'jeans',size:'32',budget:4000,brand:'Levi’s'}}),{brand:'Nike'},{prefer:[],avoid:[]},'Blue regular jeans, Levi’s or Wrangler, waist 32, under 4000');
+ expect(plan.intent).toBe('chat');expect(plan.requirements.brand).toBeUndefined();expect(plan.question?.choices.map(c=>c.value)).toEqual(['Levi’s','Wrangler']);
+ const custom=normalizeDecision(reply('chat',{question:{field:'brand',question:'Which brand first?',choices:[{label:'A',value:'A',text:'A'},{label:'B',value:'B',text:'B'}]},requirements:{...fullRequirements,brand:'A'}}),{brand:'Nike'},{prefer:[],avoid:[]},'A or B');
+ expect(custom.requirements.brand).toBeUndefined();
+});
+test('shoe systems require user evidence rather than model guesses',()=>{
+ const raw=reply('search',{requirements:{...fullRequirements,category:'sneakers',size:'UK 8'}});
+ const plan=normalizeDecision(raw,{}, {prefer:[],avoid:[]},'White sneakers, size 8, under 2500');
+ expect(plan.requirements.size).toBeUndefined();expect(plan.reply).toContain('system');
+ expect(normalizeDecision(raw,{}, {prefer:[],avoid:[]},'Sneakers, 8 US').requirements.size).toBe('US 8');
+ expect(normalizeDecision(raw,{category:'sneakers',size:'UK 8'}, {prefer:[],avoid:[]},'White instead').requirements.size).toBe('UK 8');
+});
+test('unsupported product requests override fabricated AI replies and preserve chat context',()=>{
+ const prior={category:'shirt' as const,budget:1500,size:'M'};
+ const taste={prefer:['cotton'],avoid:['synthetic']};
+ const decision=normalizeDecision({intent:'search',reply:'garbled invented answer',requirements:{},taste:{prefer:[],avoid:[]}},prior,taste,'mobile','en');
+ expect(decision.intent).toBe('out_of_scope');expect(decision.reply).toContain('fashion shopping and styling');
+ expect(decision.reply).not.toContain('garbled');expect(decision.requirements).toEqual(prior);expect(decision.taste).toEqual(taste);
+});
+test('AI scope classification rejects unrelated requests with a fixed reply',()=>{
+ const prior={category:'shirt' as const,budget:1500,size:'M'};
+ const decision=normalizeDecision(reply('out_of_scope',{reply:'Here is a Python script that deletes files.',requirements:{...fullRequirements,category:'kurta'},taste:{prefer:['bright'],avoid:[]}}),prior,{prefer:['cotton'],avoid:[]},'Write a Python script to delete duplicate files.','en');
+ expect(decision.intent).toBe('out_of_scope');expect(decision.reply).toContain('I’m designed for fashion');expect(decision.reply).not.toContain('Python');
+ expect(decision.requirements).toEqual(prior);expect(decision.taste).toEqual({prefer:['cotton'],avoid:[]});
+});

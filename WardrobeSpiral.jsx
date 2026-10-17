@@ -2,7 +2,7 @@ import React,{useEffect,useRef,useState} from 'react';
 import {ArrowUpRight,Sparkles} from 'lucide-react';
 import './wardrobe-spiral.css';
 import BrandIcon from './brand/BrandIcon';
-const pieces=[['mens-shirt.jpg','The everyday shirt'],['sneakers.jpg','Your weekend pair'],['white-floral-kurta.jpg','A softer statement'],['leather-bag.jpg','The finishing touch'],['office-kurta.jpg','Ready for the day'],['patterned-kurta.jpg','A little personality'],['green-floral-kurta.jpg','A favourite colour'],['kurta-palazzo.jpg','An easy pairing'],['everyday-kurta.jpg','Comfort comes first'],['mens-shirt.jpg','Wear it your way']];
+const pieces=[['wardrobe-slate-overshirt.jpg','Slate cotton overshirt'],['wardrobe-canvas-tote.jpg','Canvas everyday tote'],['wardrobe-watch.jpg','Classic leather-strap watch'],['wardrobe-indigo-blouse.jpg','Indigo block-print blouse'],['wardrobe-ballet-flats.jpg','Tan ballet flats'],['wardrobe-indigo-scarf.jpg','Indigo cotton scarf'],['wardrobe-sand-trousers.jpg','Sand linen trousers'],['wardrobe-white-sneakers.jpg','White everyday sneakers'],['wardrobe-tan-crossbody.jpg','Tan crossbody bag'],['wardrobe-brown-loafers.jpg','Brown leather loafers']];
 export default function WardrobeSpiral(){
  const ref=useRef(null),[visible,setVisible]=useState(false);
  useEffect(()=>{const observer=new IntersectionObserver(([entry])=>setVisible(entry.isIntersecting),{rootMargin:'100px'});observer.observe(ref.current);return()=>observer.disconnect();},[]);

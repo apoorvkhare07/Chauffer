@@ -3,7 +3,7 @@ import type {Option,Requirements} from './discoveryRules';
 export function budgetFloor(r:Requirements){return r.budget&&r.pricePreference!=='lowest_price'?Math.round(r.budget*.6):0;}
 export function budgetTier(o:Option,r:Requirements){return o.price<budgetFloor(r)?1:0;}
 export function comparePrices(a:number,b:number,r:Requirements){const floor=budgetFloor(r);return Number(a<floor)-Number(b<floor)||(floor&&a>=floor?Math.abs(a-r.budget!*.8)-Math.abs(b-r.budget!*.8):a-b);}
-const aliases:Record<string,string>={nike:'Nike',adidas:'Adidas',adidias:'Adidas',puma:'Puma',reebok:'Reebok',asics:'ASICS',skechers:'Skechers',converse:'Converse',vans:'Vans',zara:'Zara','h&m':'H&M',uniqlo:'Uniqlo',levis:"Levi’s",'levi’s':"Levi’s",'levi\'s':"Levi’s",snitch:'SNITCH'};
+const aliases:Record<string,string>={nike:'Nike',adidas:'Adidas',adidias:'Adidas',puma:'Puma',reebok:'Reebok',asics:'ASICS',skechers:'Skechers',converse:'Converse',vans:'Vans',zara:'Zara','h&m':'H&M',uniqlo:'Uniqlo',levis:"Levi’s",'levi’s':"Levi’s",'levi\'s':"Levi’s",snitch:'SNITCH',wrangler:'Wrangler'};
 export function namedBrands(text:string){return [...new Set(Object.entries(aliases).filter(([alias])=>new RegExp(`(?:^|[^a-z])${alias.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}(?:$|[^a-z])`,'i').test(text)).map(([,name])=>name))];}
 export function explicitDiscovery(text:string,previous:Requirements,proposed:Requirements={}):Pick<Requirements,'brand'|'pricePreference'>{
  const lower=text.toLowerCase();const result:Pick<Requirements,'brand'|'pricePreference'>={};

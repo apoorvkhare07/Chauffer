@@ -88,13 +88,13 @@ These are two routes to the same job; buying something is not required for wardr
 
 Current path in this branch:
 
-1. Open the website and type a request: no install and an obvious starting point.
-2. Run one discovery-only guest preview; phone sign-in through Convex Auth is required to continue, refine or save. Retain the request through access.
-3. Complete the current basic setup (name, age, gender choice and preferred styles); photo and wardrobe steps remain optional. This reflects the newer onboarding implementation integrated from main; no compulsory portrait or full inventory.
-4. Review the retained draft, send it and see real options with matching reasons and access limits: demonstrate understanding on this shopper’s case.
-5. Refine or save a choice; ask for extra styling context or wardrobe pieces when useful.
+1. Open the website and start a request, try-on or wardrobe photo preview without creating an account.
+2. Get one discovery conversation, one visual try-on and one AI-read wardrobe piece. Guest photos and results are temporary and cleared within 30 minutes; no guest preference or wardrobe profile is saved.
+3. On the next turn or when saving/continuing a preview, sign in with phone OTP. Explain that an account keeps preferences, wardrobe and history so recommendations can improve.
+4. Complete the basic setup (name, age, gender choice and preferred styles); photo and wardrobe steps remain optional. No compulsory portrait or full inventory.
+5. Continue refining, save a piece and get personalized recommendations from the account.
 
-**Login:** one discovery-only guest preview comes before phone sign-in. Private wardrobe, saved history and continued conversation require verified account access. The newer phone/guest implementation was integrated from main before this search release; SMS delivery and store access are separate checks.
+**Login:** one discovery conversation, one temporary try-on and one temporary wardrobe photo analysis come before phone sign-in. A second turn, another preview or saving wardrobe information requires a verified account. User photos used for guest try-on are sent for generation only with explicit consent, held temporarily and deleted within 30 minutes. SMS delivery and store access are separate checks.
 
 **Not asked on day one:** full wardrobe, compulsory body shape/photo, payment credentials, store accounts, WhatsApp connection, notifications or a tour.
 
@@ -121,6 +121,13 @@ Private accounts, persistence, correction and honest failure states support thes
 Listed-price/advertised-offer checks, daily picks, photo/voice drafts and try-on foundations already exist. Preserve these experiments; their presence does not make them V1 requirements or validated promises.
 
 **Nice to have:** better explanations, fewer repeated questions and better category relevance after all three loops work.
+
+### Plans (builder decision)
+
+- **Free:** 3 saved wardrobe pieces, 10 new shopping conversations per UTC calendar month, and 3 personal stylist sessions per UTC calendar month. Refinements within an existing conversation do not start another conversation.
+- **Pro:** ₹99 per month for unlimited plan access to the wardrobe, shopping conversations and stylist. Existing system safety limits still apply.
+- New signed-in accounts are assigned Free by default. Convex owns plan state and usage counts; limits are enforced on the server. At a limit, the app links to `/pricing/`.
+- Payment collection and automatic Pro activation are not connected. Razorpay is deferred; the pricing page states this clearly.
 
 **How we’ll know it worked:** proposed trial: of five shoppers with a current outfit need, at least three save or choose a relevant option and independently return for another need within two weeks. Ask what they actually wore and how it felt; count questions, browsing effort and rejected suggestions. Sign-ups and compliments alone do not establish success. These are proposed criteria, not results.
 
@@ -153,3 +160,7 @@ Source review finds separate `/`, `/app/` and `/demo/` entries; Gemini discovery
 Previous notes record development/production checks; authenticated V1 loops were not rerun for this writing task. Real try-on previously hit provider quota; WhatsApp delivery remains unverified. See [TESTING_LEDGER.md](TESTING_LEDGER.md), [README.md](README.md) and [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md). The older plan includes broader work; this brief controls the V1 cut.
 
 Method: [GrowthX Product thinking](https://growthx.club/learn/build-sprint#/product-thinking), including all five chapters, read in Chrome on 15 October 2026. Saathi’s product brief informed the structure, not Chauffeur’s market or features. No shopper validation or Shaktimaan approval is claimed.
+
+### WhatsApp implementation update — 16 October 2026
+
+The builder has now requested a WhatsApp interface alongside web. An account-bound v0 is implemented and deployed with discovery, reviewed photo/voice shopping input, stylist, wardrobe photo drafts/outfits, try-on and requested daily picks. This reuses the existing account and feature limits. Meta setup and real-phone acceptance are still pending; do not describe WhatsApp as an established working customer channel yet. Full settings/history/editing retain web handoffs. See `docs/WHATSAPP_CHANNEL.md` for exact scope and gaps.
