@@ -43,7 +43,7 @@ export const history=query({args:{id:v.id('savedProducts')},returns:v.array(v.ob
  return (await ctx.db.query('savedPriceHistory').withIndex('by_owner_url',q=>q.eq('owner',owner).eq('url',row.option.url)).order('desc').take(30)).map(({price,observedAt,priceFrom})=>({price,observedAt,...(priceFrom!==undefined?{priceFrom}:{})}));
 }});
 
-async function saveKnownOption(ctx:MutationCtx,owner:string,option:Option){
+export async function saveKnownOption(ctx:MutationCtx,owner:string,option:Option){
  const url=option.url;
  const existing=await ctx.db.query('savedProducts').withIndex('by_owner_url',q=>q.eq('owner',owner).eq('option.url',url)).unique();
  if(existing){if(option.observedAt>=existing.option.observedAt){await ctx.db.patch(existing._id,{option});await recordPrice(ctx,owner,option);}return null;}

@@ -7,6 +7,9 @@ import {createThread} from '@convex-dev/agent';
 import {components} from './_generated/api';
 import {emptyTaste} from './taste';
 import {nextRequest,type Requirements} from './discoveryRules';
+import {unsupportedFashionRequest} from './fashionRules';
+import {replyLanguage} from './conversationLanguage';
+import {outOfScopeReply} from './aiDecision';
 export const welcome="Hi! I'm Chauffeur. Tell me what you're looking for and I'll check supported fashion stores. Clothing, shoes or accessories—for women, men or unisex?";
 export async function getConversation(ctx:MutationCtx,key:string,defaults:Requirements={}):Promise<Doc<'conversations'>>{
  const existing=await ctx.db.query('conversations').withIndex('by_key',q=>q.eq('key',key)).unique();if(existing)return existing;
@@ -34,13 +37,14 @@ export async function beginTurn(ctx:MutationCtx,conversation:Doc<'conversations'
  const reset=/^(reset|start)[!.\s]*$/i.test(text);
  const previous=reset?defaults:conversation.requirements;
  const answer=reset?null:questionAnswer(text,conversation.discoveryQuestion);
- let plan=text==='[unsupported message]'?{requirements:previous,reply:'Please send your clothing request as a text message for this test.',search:false}:reset?{requirements:defaults,reply:welcome,search:false}:nextRequest(text,previous);
+ const outOfScope=unsupportedFashionRequest(text);
+ let plan=text==='[unsupported message]'?{requirements:previous,reply:'Please send your clothing request as a text message for this test.',search:false}:reset?{requirements:defaults,reply:welcome,search:false}:outOfScope?{requirements:previous,reply:outOfScopeReply(replyLanguage(text,conversation.language)),search:false}:nextRequest(text,previous);
  if(answer)plan=nextRequest('show more options',{...previous,...answer});
  if(rejectUrl){plan.requirements=previous;plan.search=false;plan.reply='Got it. I’ll skip that product. What should I change: colour, fabric or budget? Or ask for more options.';}
  // A bare batch rejection needs clarification, not a paid/model-dependent search.
  const bareRejection=/^(none of these|don.t like (any|these)|not interested|no thanks)[!.\s]*$/i.test(text);
  const sameSearchMore=/^(show (me )?more( options)?|more( options)?|try again|search again|another (set|batch))[!.\s]*$/i.test(text);
- const useAI=Boolean(process.env.GEMINI_API_KEY)&&!answer&&!reset&&!rejectUrl&&!bareRejection&&!sameSearchMore&&text!=='[unsupported message]';
+ const useAI=Boolean(process.env.GEMINI_API_KEY)&&!answer&&!reset&&!rejectUrl&&!bareRejection&&!sameSearchMore&&!outOfScope&&text!=='[unsupported message]';
  if(useAI){plan.requirements=previous;plan.search=false;}
  let discoveryQuestion;
  if(!useAI&&!answer&&plan.search&&shouldClarifyBefore(plan.requirements)&&!/no questions|don.t ask|just (?:search|show)/i.test(text)){discoveryQuestion=nextDiscoveryQuestion(plan.requirements,[],conversation.taste??emptyTaste);if(discoveryQuestion){plan.search=false;plan.reply=discoveryQuestion.question;plan.requirements.askedDiscoveryFields=[discoveryQuestion.field];}}

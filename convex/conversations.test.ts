@@ -49,6 +49,16 @@ test('older search completion cannot change a new conversation',async()=>{
  expect(await t.mutation(internal.conversations.complete,{conversationId:c!._id,revision:c!.revision,error:'old error'})).toBeNull();
  expect((await user.query(api.conversations.current,{})).messages).toHaveLength(1);
 });
+test('out-of-scope requests get a fixed reply without calling the AI',async()=>{
+ const originalKey=process.env.GEMINI_API_KEY;process.env.GEMINI_API_KEY='test-key';
+ try{
+  const t=convexTest(schema,modules);const user=t.withIdentity({subject:'scope-user',issuer:'https://test.chauffeur'});
+  await user.mutation(api.conversations.post,{text:'mobile'});
+  const current=await user.query(api.conversations.current,{});
+  expect(current.pending).toBe(false);
+  expect(current.messages.at(-1)?.text).toContain('fashion shopping and styling');
+ }finally{if(originalKey===undefined)delete process.env.GEMINI_API_KEY;else process.env.GEMINI_API_KEY=originalKey;}
+});
 test('product previews stay attached to their own result; unrelated image hosts are excluded',()=>{
  const html=`<div data-component-type="s-search-result" data-asin="B012345678"><h2>Women Blue Cotton Kurta</h2><span class="a-price"><span class="a-offscreen">₹500</span></span><img class="s-image" src="https://m.media-amazon.com/images/item.jpg"/></div>`;
  expect(amazonOptions(html,{category:'kurta',budget:1000},1)[0].imageUrl).toContain('m.media-amazon.com');

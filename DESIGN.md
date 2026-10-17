@@ -4,6 +4,8 @@ Updated 15 October 2026. Read before changing a screen or message. Follow [PRODU
 
 The current blue/Inter system below supersedes the old purple/Manrope and teal trials. Earlier detail is preserved in [the previous design record](docs/history/DESIGN-before-growthx.md). Historical painterly/desi/Renaissance direction in design/ remains useful for brand art, not a reason to replace current fashion photos or controls.
 
+The private app’s shared typography, spacing, controls and product language are specified in [the app style guide](docs/APP_STYLE_GUIDE.md).
+
 ## 1. The feeling, in labels
 
 - **Centred request field:** one wide rounded input beneath a two-line promise, with a blue submit action; fashion photos surround it without covering the input.

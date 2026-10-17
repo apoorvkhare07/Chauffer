@@ -24,3 +24,9 @@ test('offer benefits require evidence, eligibility, expiry and valid rules; cash
  expect(evaluateOffer(offer,100000,{},now).status).toBe('unverified');
  expect(canStack([offer,offer])).toBe(false);
 });
+
+test('explicit Hindi and Hinglish reply requests override a saved English default',()=>{
+ expect(replyLanguage('हिंदी में जवाब दें।','en')).toBe('hi');
+ expect(replyLanguage('Hinglish mein batao','en')).toBe('hinglish');
+ expect(replyLanguage('अंग्रेजी में जवाब दें','hi')).toBe('en');
+});

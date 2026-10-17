@@ -22,6 +22,9 @@ export const context=internalQuery({args:{conversationId:v.id('conversations'),r
 }});
 export const apply=internalMutation({args:{conversationId:v.id('conversations'),revision:v.number(),decision:decisionValidator,inboxId:v.optional(v.id('waInbox')),claimId:v.optional(v.id('webSearchRuns'))},returns:v.union(v.null(),v.object({search:v.boolean(),reply:v.string()})),handler:async(ctx,{conversationId,revision,decision,inboxId,claimId})=>{
  const c=await ctx.db.get(conversationId);if(!c||c.revision!==revision)return null;
+ const languageOwner=c.key.startsWith('web:')?c.key.slice(4):null;
+ const languageProfile=languageOwner?await ctx.db.query('profiles').withIndex('by_owner',q=>q.eq('owner',languageOwner)).unique():null;
+ const language=replyLanguage(c.inputText??'',languageProfile?.preferences.language??c.language);
  let reply=decision.reply;const missing=missingQuestion(decision.requirements);
  let search=['search','refine','more'].includes(decision.intent)||(decision.intent==='feedback'&&Boolean(decision.feedbackKind));
  if(missing&&search){reply=missing;search=false;}
@@ -50,8 +53,8 @@ export const apply=internalMutation({args:{conversationId:v.id('conversations'),
   discoveryQuestion=nextDiscoveryQuestion(decision.requirements,[],taste)??undefined;if(discoveryQuestion){search=false;reply=discoveryQuestion.question;decision.requirements.askedDiscoveryFields=[discoveryQuestion.field];}
  }
  if(discoveryQuestion){reply=discoveryQuestion.question;decision.requirements.askedDiscoveryFields=[...new Set([...(decision.requirements.askedDiscoveryFields??[]),discoveryQuestion.field])];}
- const update=discoveryUpdate(c.requirements,decision.requirements,c.taste??emptyTaste,taste);
- if(update&&!wantsMemory&&!missing)reply=search?`${update} I’ll search with these changes and keep the other details.`:`${update} ${reply}`;
+ const update=discoveryUpdate(c.requirements,decision.requirements,c.taste??emptyTaste,taste,language);
+ if(update&&!wantsMemory&&!missing)reply=search?`${update} ${language==='hi'?'इन बदलावों के साथ खोजूँगा, बाकी जानकारी वही रखूँगा।':language==='hinglish'?'In changes ke saath search karunga, baaki details wahi rakhunga.':'I’ll search with these changes and keep the other details.'}`:`${update} ${reply}`;
  if(!search&&claimId)await ctx.db.patch(claimId,{finishedAt:Date.now()});
  await ctx.db.patch(conversationId,{discoveryStatus:search?'refining':c.discoveryStatus??'exploring',discoveryQuestion:discoveryQuestion??undefined,requirements:decision.requirements,taste,rejectedUrls:rejected,shownUrls:[...new Set([...recent.slice().reverse().flatMap(m=>m.result?.options.map(o=>o.url)??[]),...c.shownUrls])].slice(-120),pending:search,aiTurn:false,updatedAt:Date.now()});
  await ctx.db.insert('messages',{conversationId,session:c.session,role:'assistant',text:reply,ai:true,...(!search?{handoff:buildDiscoveryHandoff({conversationId,session:c.session,revision,text:c.inputText,requirements:decision.requirements,taste,question:discoveryQuestion,status:discoveryQuestion||missing?'needs_clarification':'exploring'})}:{})});

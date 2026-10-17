@@ -176,3 +176,7 @@ Next integration: route appropriate discovery-chat requests to standalone wardro
 - Explicit validated stylist → discovery shopping handoff; concepts remain separate from actual wardrobe/merchant items.
 - Visible photo outfit style has separate confirmation. Try-on uses the available model directly, public errors, watchdog and stale garment protection.
 - Pending: live-person preview acceptance, automatic trend refresh, broader language/occasion quality checks and automatic routing. See docs/STYLIST_AGENT_HANDOFF.md.
+
+## WhatsApp interface — 16 October 2026
+
+Core account-bound channel is implemented, following Saathi's integration pattern with a separate Chauffeur Meta app. Reuses web discovery, wardrobe, stylist, try-on, daily feed and plan enforcement. Photo/voice shopping uses confirmation before search; wardrobe tags/body observations need review. See `docs/WHATSAPP_CHANNEL.md` for the capability map, remaining web handoffs and live acceptance steps. Meta credential setup and real-phone testing must complete before calling this a working delivery channel.

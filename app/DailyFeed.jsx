@@ -1,26 +1,42 @@
-import React,{useState} from 'react';
+import React,{useEffect,useRef,useState} from 'react';
 import {useMutation,useQuery} from 'convex/react';
-import {Sparkles,Pause,CalendarDays} from 'lucide-react';
+import {Sparkles,Pause,CalendarDays,ArrowRight,ArrowLeft,Heart,X,RotateCcw} from 'lucide-react';
 import {api} from '../convex/_generated/api';
 import ProductPreview from './ProductPreview.jsx';
+
 export default function DailyFeed(){
  const data=useQuery(api.dailyFeed.current),setEnabled=useMutation(api.dailyFeed.setEnabled),save=useMutation(api.savedProducts.saveDaily),saved=useQuery(api.savedProducts.list);
- const [busy,setBusy]=useState(false),[error,setError]=useState(''),[saving,setSaving]=useState('');
- async function toggle(enabled){setBusy(true);setError('');try{await setEnabled({enabled});}catch(e){setError(String(e.message).includes('Finish a chat')?'Finish a chat with clothing, size and budget first.':'Could not update daily picks. Please try again.');}finally{setBusy(false);}}
- async function saveOption(option){setSaving(option.url);setError('');try{await save({feedId:data.feed.id,url:option.url});}catch{setError('Could not save this pick. Check your shortlist has space and try again.');}finally{setSaving('');}}
- if(!data)return <section className="daily-feed shopping-library" aria-label="Daily picks"><p>Loading daily picks…</p></section>;
- const feed=data.feed,show=data.enabled&&!data.changed&&feed?.state==='ready';
- return <section className="daily-feed shopping-library" aria-labelledby="daily-feed-title"><header className="daily-feed-header"><div><span className="daily-kicker"><Sparkles size={15}/> A little shopping, done for you</span><h2 id="daily-feed-title">Your daily edit</h2><p>4–6 fresh picks for what you’re looking for, your style and your budget.</p></div><button className="chat-chip" type="button" disabled={busy||(!data.enabled&&!data.needReady)} onClick={()=>toggle(!data.enabled)}>{data.enabled?<><Pause size={14}/> Pause daily picks</>:<><CalendarDays size={14}/> {feed?'Resume daily picks':'Turn on daily picks'}</>}</button></header>
- {!data.enabled&&<p className="account-note">Turn on after a shopping chat. Your first edit starts now; then we check once a day around 9 am India time. This feed appears here—WhatsApp delivery isn’t connected.</p>}
- {!data.needReady&&<p className="daily-notice">Tell Chauffeur what clothing, size and budget you’re looking for. Needs older than 30 days aren’t used for new daily picks.</p>}
- {error&&<p role="alert">{error}</p>}
- {data.enabled&&<p className="account-note">Next check: {new Date(data.nextAt).toLocaleString('en-IN',{timeZone:'Asia/Kolkata',dateStyle:'medium',timeStyle:'short'})} India time. Pause when you’ve found what you need.</p>}
- {data.enabled&&data.changed&&<p className="daily-notice">Your shopping need has changed. We’ve hidden the old edit; tomorrow’s picks will follow your latest chat.</p>}
- {data.enabled&&!data.changed&&feed?.state==='building'&&<p role="status">Putting together your daily edit… Checking live stores and matching saved items. This can take a minute.</p>}
- {data.enabled&&!feed&&data.needReady&&<p role="status">Your daily edit is queued.</p>}
- {data.enabled&&feed?.state==='failed'&&<p role="status">{feed.note} We’ll check again tomorrow.</p>}
- {data.enabled&&feed?.state==='paused'&&!data.changed&&<p className="daily-notice">{feed.note} We’ll check your current need tomorrow.</p>}
- {show&&<><div className="daily-context"><strong>{feed.requirements.category} · {feed.requirements.size||'Size on store'} · under ₹{feed.requirements.budget?.toLocaleString('en-IN')}</strong><span>{feed.day} · Checked {new Date(feed.completedAt).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</span></div><div className="daily-grid">{feed.options.map(option=>{const drop=feed.drops.find(d=>d.url===option.url);return <article className="daily-product" key={option.url}><ProductPreview option={option}/><span className="chat-store">{option.store}</span>{drop&&<span className="daily-drop">Listed price fell ₹{(drop.previousPrice-drop.price).toLocaleString('en-IN')}</span>}<h3>{option.title}</h3><p className="chat-price">{option.priceFrom?'From ':''}₹{option.price.toLocaleString('en-IN')}{drop&&<del>₹{drop.previousPrice.toLocaleString('en-IN')}</del>}</p>{drop&&<p className="chat-product-note">Compared with the same listing observed {new Date(drop.previousObservedAt).toLocaleDateString('en-IN')}. Selected size and checkout total aren’t confirmed.</p>}<p>{option.colour||'Colour not confirmed'} · {option.fabric||'Fabric not confirmed'}</p>{option.reasons?.length>0&&<ul>{option.reasons.slice(0,3).map(reason=><li key={reason}>{reason}</li>)}</ul>}{option.unknownPreferences?.length>0&&<p className="chat-product-note">Not confirmed: {option.unknownPreferences.join(', ')}.</p>}<a className="chat-product-link" href={option.url} target="_blank" rel="noopener noreferrer">View on {option.store}</a><button type="button" className="chat-chip" disabled={Boolean(saving)||!saved||saved.some(s=>s.option.url===option.url)} onClick={()=>saveOption(option)}>{saved?.some(s=>s.option.url===option.url)?'Saved':saving===option.url?'Saving…':'Save'}</button></article>;})}</div><p className="account-note">{feed.note}</p>{feed.stores.filter(s=>s.status!=='matched').map(s=><p className="account-note" key={s.store}>{s.store}: {s.status==='unavailable'?'live access unavailable':'no new verified matches'}.</p>)}</>}
- <details className="daily-pricing"><summary>How the price intelligence works</summary><p>We check up to three matching saved Flipkart listings each day. A price-drop label needs a newer, lower observation of the same listing with the same title, colour and fabric. It isn’t a confirmed saving for your size.</p><p>Live coupon, bank-offer and sale-event detection isn’t connected yet. A crossed-out price or sale banner alone won’t be called a new deal. We’ll show those only after we can verify their terms and timing.</p></details>
+ const [busy,setBusy]=useState(false),[error,setError]=useState(''),[saving,setSaving]=useState(''),[index,setIndex]=useState(0),[dragX,setDragX]=useState(0);
+ const start=useRef(null),feed=data?.feed,options=feed?.options?.slice(0,3)??[],active=options[index],savedActive=Boolean(active&&saved?.some(s=>s.option.url===active.url));
+ useEffect(()=>{setIndex(0);setDragX(0);},[feed?.id]);
+ async function toggle(enabled){setBusy(true);setError('');try{await setEnabled({enabled});}catch{setError('Could not update daily picks. Please try again.');}finally{setBusy(false);}}
+ function pass(){setDragX(0);setIndex(current=>Math.min(options.length,current+1));}
+ async function saveOption(option){if(savedActive){pass();return;}setSaving(option.url);setError('');try{await save({feedId:feed.id,url:option.url});pass();}catch{setError('Could not save this pick. Please try again.');}finally{setSaving('');}}
+ function pointerDown(event){if(event.target.closest('button,a'))return;start.current=event.clientX;event.currentTarget.setPointerCapture?.(event.pointerId);}
+ function pointerMove(event){if(start.current!==null)setDragX(Math.max(-150,Math.min(150,event.clientX-start.current)));}
+ function pointerUp(){if(start.current===null)return;const dx=dragX;start.current=null;if(dx>72)saveOption(active);else if(dx< -72)pass();setDragX(0);}
+ if(!data)return <section className="daily-feed daily-feed-home" aria-label="Daily style picks"><p>Preparing your style edit…</p></section>;
+ const show=data.enabled&&!data.changed&&feed?.state==='ready'&&options.length>0;
+ const complete=show&&index>=options.length;
+ return <section className="daily-feed daily-feed-home daily-feed-agent" aria-labelledby="daily-feed-title">
+  <header className="daily-feed-header"><div><span className="daily-kicker"><Sparkles size={15}/> A FRESH EDIT, EACH DAY</span><h2 id="daily-feed-title">Picked for you</h2><p>{data.enabled?'A few finds, shaped around your style.':'A small, personal edit when you want it.'}</p></div><button className="chat-chip daily-toggle" type="button" disabled={busy||(!data.enabled&&!data.needReady)} onClick={()=>toggle(data.changed?true:!data.enabled)}>{data.changed?<><Sparkles size={14}/> Refresh edit</>:data.enabled?<><Pause size={14}/> Pause</>:<><CalendarDays size={14}/> {feed?'Resume':'Make my edit'}</>}</button></header>
+  {!data.enabled&&<div className="daily-agent-empty"><div className="daily-agent-orbit"><Sparkles size={25}/></div><div><strong>Your daily edit is ready when you are</strong><span>Three pieces, chosen for your taste and fit.</span></div><button type="button" disabled={!data.needReady||busy} onClick={()=>toggle(true)}>{data.needReady?'Build my edit':'Finish style setup'} <ArrowRight size={16}/></button></div>}
+  {!data.needReady&&<p className="daily-notice">Complete your style setup to get personal picks.</p>}
+  {data.enabled&&data.changed&&<p className="daily-home-note">Your saved style changed. Refresh today’s edit to match.</p>}
+  {data.enabled&&feed?.state==='building'&&<p role="status" className="daily-agent-status"><Sparkles size={16}/> Finding the right mix for today…</p>}
+  {data.enabled&&!feed&&<p role="status" className="daily-agent-status"><Sparkles size={16}/> Your first edit is being prepared.</p>}
+  {data.enabled&&!data.changed&&feed?.state==='failed'&&<p role="status">{feed.note}</p>}
+  {data.enabled&&!data.changed&&feed?.state==='ready'&&!options.length&&<p className="daily-home-note">No verified picks were available today. We’ll try again tomorrow.</p>}
+  {show&&<div className="daily-swipe-stage" aria-label="Swipe right to save, left to skip">
+   {complete?<div className="daily-swipe-complete"><div><Sparkles size={23}/></div><h3>That’s today’s edit.</h3><p>Your picks are ready whenever you want another look.</p><button type="button" onClick={()=>setIndex(0)}><RotateCcw size={16}/> See them again</button></div>:<>
+    <div className="daily-swipe-count">{String(index+1).padStart(2,'0')} <i/> {String(options.length).padStart(2,'0')}</div>
+    <article className="daily-swipe-card" style={{'--swipe-x':`${dragX}px`}} onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerUp} onPointerCancel={()=>{start.current=null;setDragX(0);}} onMouseDown={pointerDown} onMouseMove={pointerMove} onMouseUp={pointerUp}>
+     <div aria-hidden="true" className={`daily-swipe-stamp ${Math.abs(dragX)>8?'is-active':''} ${dragX>=0?'stamp-save':'stamp-skip'}`}>{dragX>=0?'SAVE':'PASS'}</div>
+     <ProductPreview option={active}/><div className="daily-swipe-copy"><div><span className="daily-swipe-type">{active.category||active.store}</span><strong>{active.title}</strong><span className="daily-swipe-price">{active.priceFrom?'From ':''}₹{active.price.toLocaleString('en-IN')}</span></div><a href={active.url} target="_blank" rel="noopener noreferrer" aria-label={`View ${active.title} on ${active.store}`}>View find <ArrowRight size={15}/></a></div>
+    </article>
+    <div className="daily-swipe-actions"><button type="button" className="daily-pass" aria-label="Skip this pick" disabled={Boolean(saving)} onClick={pass}><X size={22}/></button><span>Swipe to choose</span><button type="button" className="daily-like" aria-label={savedActive?'Already saved, skip to next':'Save this pick'} disabled={Boolean(saving)||saved===undefined} onClick={()=>saveOption(active)}>{saving===active.url?'…':savedActive?<ArrowRight size={21}/>:<Heart size={21}/>}</button></div>
+   </>}
+  </div>}
+  {error&&<p role="alert" className="account-error">{error}</p>}
  </section>;
 }

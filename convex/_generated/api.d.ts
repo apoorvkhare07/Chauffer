@@ -38,6 +38,8 @@ import type * as feedRules from "../feedRules.js";
 import type * as feedValidators from "../feedValidators.js";
 import type * as guestSearch from "../guestSearch.js";
 import type * as guestSearchWorker from "../guestSearchWorker.js";
+import type * as guestTrials from "../guestTrials.js";
+import type * as guestTrialsAI from "../guestTrialsAI.js";
 import type * as http from "../http.js";
 import type * as identity from "../identity.js";
 import type * as lib_otp from "../lib/otp.js";
@@ -47,6 +49,7 @@ import type * as offerEvidence from "../offerEvidence.js";
 import type * as offerRules from "../offerRules.js";
 import type * as offerValidators from "../offerValidators.js";
 import type * as otp from "../otp.js";
+import type * as planAccess from "../planAccess.js";
 import type * as priceIntelligence from "../priceIntelligence.js";
 import type * as priceIntelligenceRules from "../priceIntelligenceRules.js";
 import type * as priceIntelligenceWorker from "../priceIntelligenceWorker.js";
@@ -93,7 +96,10 @@ import type * as wardrobeWeather from "../wardrobeWeather.js";
 import type * as wardrobeWorkflow from "../wardrobeWorkflow.js";
 import type * as webDiscovery from "../webDiscovery.js";
 import type * as whatsapp from "../whatsapp.js";
+import type * as whatsappChannel from "../whatsappChannel.js";
+import type * as whatsappMedia from "../whatsappMedia.js";
 import type * as whatsappProtocol from "../whatsappProtocol.js";
+import type * as whatsappUi from "../whatsappUi.js";
 
 import type {
   ApiFromModules,
@@ -132,6 +138,8 @@ declare const fullApi: ApiFromModules<{
   feedValidators: typeof feedValidators;
   guestSearch: typeof guestSearch;
   guestSearchWorker: typeof guestSearchWorker;
+  guestTrials: typeof guestTrials;
+  guestTrialsAI: typeof guestTrialsAI;
   http: typeof http;
   identity: typeof identity;
   "lib/otp": typeof lib_otp;
@@ -141,6 +149,7 @@ declare const fullApi: ApiFromModules<{
   offerRules: typeof offerRules;
   offerValidators: typeof offerValidators;
   otp: typeof otp;
+  planAccess: typeof planAccess;
   priceIntelligence: typeof priceIntelligence;
   priceIntelligenceRules: typeof priceIntelligenceRules;
   priceIntelligenceWorker: typeof priceIntelligenceWorker;
@@ -187,7 +196,10 @@ declare const fullApi: ApiFromModules<{
   wardrobeWorkflow: typeof wardrobeWorkflow;
   webDiscovery: typeof webDiscovery;
   whatsapp: typeof whatsapp;
+  whatsappChannel: typeof whatsappChannel;
+  whatsappMedia: typeof whatsappMedia;
   whatsappProtocol: typeof whatsappProtocol;
+  whatsappUi: typeof whatsappUi;
 }>;
 
 /**

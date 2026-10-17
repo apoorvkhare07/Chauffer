@@ -9,7 +9,12 @@
     "test:backend": "vitest run",
     "typecheck:backend": "tsc --noEmit -p convex/tsconfig.json",
     "dev:backend": "convex dev",
-    "deploy": "npx @convex-dev/static-hosting deploy --no-spa"
+    "deploy": "npx @convex-dev/static-hosting deploy --no-spa",
+    "eval:ai": "node evals/run.mjs",
+    "eval:scorer": "EVAL_SUITE=calibration node evals/run.mjs",
+    "eval:images:download": "node evals/download-images.mjs",
+    "eval:images": "EVAL_SUITE=images node evals/run.mjs",
+    "usage:prod": "node scripts/convex-usage.mjs"
   },
   "devDependencies": {
     "@edge-runtime/vm": "^5.0.0",
@@ -34,6 +39,7 @@
     "posthog-js": "^1.438.10",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
+    "sharp": "^0.35.5",
     "zod": "^4.6.5"
   }
 }

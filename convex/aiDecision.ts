@@ -1,6 +1,6 @@
 import {discoveryFields,discoveryQuestionValidator} from './discoveryQuestions';
 import {explicitDiscovery,namedBrands} from './discoveryPolicy';
-import {requestedAudience,fashionCategories,validSize,sizeQuestion,sizeKind} from './fashionRules';
+import {requestedAudience,fashionCategories,validSize,sizeQuestion,sizeKind,unsupportedFashionRequest} from './fashionRules';
 import {z} from 'zod';
 import {v,type Infer} from 'convex/values';
 import {requirementsValidator,type Requirements} from './discoveryRules';
@@ -8,7 +8,7 @@ import {tasteValidator,cleanTerms,type Taste} from './taste';
 import {canonicalStyle,negativeStyle,positiveStyleTerms} from './styleTerms';
 const nullable=z.string().max(80).nullable();
 export const decisionSchema=z.object({
- intent:z.enum(['search','refine','more','feedback','chat','remember','forget']),
+ intent:z.enum(['search','refine','more','feedback','chat','out_of_scope','remember','forget']),
  reply:z.string().min(1).max(600),
  question:z.object({field:z.enum(['occasion','style','pattern','fit','colour','fabric','brand']),question:z.string().min(1).max(240),choices:z.array(z.object({label:z.string().min(1).max(40),text:z.string().min(1).max(100),value:z.string().min(1).max(60)})).min(2).max(4)}).nullable().optional(),
  requirements:z.object({brand:z.string().max(60).nullable().optional(),pricePreference:z.enum(['best_within_budget','lowest_price']).nullable().optional(),category:z.enum(fashionCategories).nullable(),audience:z.enum(['men','women','unisex']).nullable().optional(),budget:z.number().min(100).max(50000).nullable(),size:z.string().max(30).nullable(),colour:nullable,fabric:nullable,occasion:nullable,style:nullable,fit:nullable,pattern:nullable,sleeve:nullable,length:nullable,mustHave:z.array(z.string().min(2).max(40)).max(5)}),
@@ -16,15 +16,18 @@ export const decisionSchema=z.object({
  referenceOption:z.number().int().min(1).max(6).nullable(),
  feedbackKind:z.enum(['like','dislike','refine']).nullable(),
 });
-export const decisionValidator=v.object({intent:v.union(v.literal('search'),v.literal('refine'),v.literal('more'),v.literal('feedback'),v.literal('chat'),v.literal('remember'),v.literal('forget')),reply:v.string(),question:v.optional(discoveryQuestionValidator),requirements:requirementsValidator,taste:tasteValidator,referenceOption:v.optional(v.number()),feedbackKind:v.optional(v.union(v.literal('like'),v.literal('dislike'),v.literal('refine')))});
+export const decisionValidator=v.object({intent:v.union(v.literal('search'),v.literal('refine'),v.literal('more'),v.literal('feedback'),v.literal('chat'),v.literal('out_of_scope'),v.literal('remember'),v.literal('forget')),reply:v.string(),question:v.optional(discoveryQuestionValidator),requirements:requirementsValidator,taste:tasteValidator,referenceOption:v.optional(v.number()),feedbackKind:v.optional(v.union(v.literal('like'),v.literal('dislike'),v.literal('refine')))});
 export type Decision=Infer<typeof decisionValidator>;
 function clearOpenAttributes(requirements:Requirements){
  for(const field of ['colour','fabric','occasion','style','fit','pattern','sleeve','length'] as const){
   if(/^(?:any(?: (?:brand|fabric|material|colou?r|style|fit|pattern|occasion|sleeve|length))?|none|n\/a|not applicable|unspecified|null)$/i.test(requirements[field]?.trim()??''))delete requirements[field];
  }
 }
-export function normalizeDecision(raw:unknown,previous:Requirements,taste:Taste,text=""):Decision{
- const value=decisionSchema.parse(raw);const named=namedBrands(text);if(named.length>1){value.intent='chat';value.reply=`Which brand should I search first: ${named.join(' or ')}?`;value.question={field:'brand',question:value.reply,choices:named.map(brand=>({label:brand,text:brand,value:brand}))};}const requirements=Object.fromEntries(Object.entries(value.requirements).filter(([,v])=>v!==null)) as Requirements;
+export function normalizeDecision(raw:unknown,previous:Requirements,taste:Taste,text="",language='en'):Decision{
+ if(unsupportedFashionRequest(text))return {intent:'out_of_scope',reply:outOfScopeReply(language),requirements:previous,taste};
+ const value=decisionSchema.parse(raw);
+ if(value.intent==='out_of_scope')return {intent:'out_of_scope',reply:outOfScopeReply(language),requirements:previous,taste};
+ const named=namedBrands(text);if(named.length>1){value.intent='chat';value.reply=`Which brand should I search first: ${named.join(' or ')}?`;value.question={field:'brand',question:value.reply,choices:named.map(brand=>({label:brand,text:brand,value:brand}))};}const requirements=Object.fromEntries(Object.entries(value.requirements).filter(([,v])=>v!==null)) as Requirements;
  // Open/empty model values are not merchant attributes. In particular, “any brand” is never a fabric.
  clearOpenAttributes(requirements);
  // Carry the active chat's confirmed attributes when a short refinement omits them.
@@ -94,8 +97,24 @@ export function normalizeDecision(raw:unknown,previous:Requirements,taste:Taste,
   }
  }
  for(const field of ['fit','pattern','style','occasion'] as const){if(new RegExp(`\\b(?:any ${field}|no ${field} preference|no preference for ${field})\\b`,'i').test(text)){const old=previous[field];delete planned[field];if(old){planned.mustHave=planned.mustHave?.filter(term=>term!==old);plannedTaste.prefer=plannedTaste.prefer.filter(term=>term!==old);}}}
+ // A brand clarification is unresolved: do not silently select a named brand.
+ if(value.intent==='chat'&&value.question?.field==='brand')delete planned.brand;
+ if(sizeKind(planned.category)==='shoe'){
+  const explicit=text.match(/\b(UK|US|EU)\s*(\d{1,2}(?:\.5)?)\b/i);
+  const reversed=text.match(/\b(\d{1,2}(?:\.5)?)\s*(UK|US|EU)\b/i);
+  if(explicit)planned.size=explicit[1].toUpperCase()+' '+explicit[2];
+  else if(reversed)planned.size=reversed[2].toUpperCase()+' '+reversed[1];
+  else if(sizeKind(previous.category)!=='shoe'||!validSize(previous.category,previous.size)){
+   delete planned.size;value.reply=sizeQuestion(planned.category);
+  }
+ }
  clearOpenAttributes(planned);
  return {intent:value.intent,reply:value.reply,...(value.intent==='chat'&&value.question?{question:value.question}:{}),requirements:planned,taste:plannedTaste,...(value.referenceOption!==null?{referenceOption:value.referenceOption}:{}),...(value.feedbackKind?{feedbackKind:value.feedbackKind}:{})};
+}
+export function outOfScopeReply(language='en'){
+ if(language==='hi')return 'मैं फैशन शॉपिंग और स्टाइलिंग में मदद के लिए बना हूँ—कपड़े, जूते, एक्सेसरीज़ और आपकी वॉर्डरोब। मैं इस अनुरोध में मदद नहीं कर सकता। फैशन से जुड़ी किस चीज़ में मदद चाहिए?';
+ if(language==='hinglish')return 'Main fashion shopping aur styling—kapde, shoes, accessories aur wardrobe—mein help karta hoon. Is request mein help nahi kar sakta. Fashion se judi kis cheez mein help chahiye?';
+ return 'I’m designed for fashion shopping and styling: clothing, shoes, accessories and your wardrobe. I can’t help with that request. What fashion-related help do you need?';
 }
 export function missingQuestion(r:Requirements):string|null{
  if(!r.category)return 'What would you like: clothing, shoes or accessories?';

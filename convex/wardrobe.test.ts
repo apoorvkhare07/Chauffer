@@ -28,7 +28,7 @@ test('outfit AI receives available confirmed items; wear history is private and 
  const {t,alice,bob}=setup();const shirt=await alice.mutation(api.wardrobe.add,{details:top}),trousers=await alice.mutation(api.wardrobe.add,{details:bottom}),dress=await alice.mutation(api.wardrobe.add,{details:{name:'Green dress',category:'dress',colour:'green'}});
  await alice.mutation(api.wardrobe.setAvailable,{id:dress,available:false});
  await alice.mutation(api.wardrobeMetadata.saveStyle,{details:{bodyDescription:'Long torso',fitPreferences:'Relaxed',stylePreferences:'Colourful',avoid:'Tight sleeves'}});
- const generate=vi.spyOn(Agent.prototype,'generateObject').mockImplementation(async(_ctx,_thread,config:any)=>{const prompt=JSON.parse(config.prompt);expect(prompt.style.fitPreferences).toBe('Relaxed');expect(prompt.items.map((i:any)=>i._id)).not.toContain(dress);return {object:{outfits:[{title:'Easy office outfit',reason:'Cotton for the warm day you described.',itemIds:[shirt,trousers]},{title:'Unavailable',reason:'No',itemIds:[dress]}]},usage:{inputTokens:100,outputTokens:50}} as any;});
+ const generate=vi.spyOn(Agent.prototype,'generateObject').mockImplementation(async(_ctx,_thread,config:any)=>{const prompt=JSON.parse(config.prompt);expect(prompt.style.fitPreferences).toBe('Relaxed');expect(prompt.items.map((i:any)=>i._id)).not.toContain(dress);expect(prompt.unavailable).toHaveLength(1);expect(prompt.unavailable[0].category).toBe('dress');return {object:{outfits:[{title:'Easy office outfit',reason:'Cotton for the warm day you described.',itemIds:[shirt,trousers]},{title:'Unavailable',reason:'No',itemIds:[dress]}]},usage:{inputTokens:100,outputTokens:50}} as any;});
  await alice.mutation(api.wardrobe.request,{text:'Office today, warm weather, lots of walking.'});await t.finishAllScheduledFunctions(vi.runAllTimers);
  const result=await alice.query(api.wardrobe.latest,{});expect(generate).toHaveBeenCalledTimes(1);expect(result.state).toBe('ready');expect(result.outfits).toHaveLength(1);expect((await bob.query(api.wardrobe.latest,{})).outfits).toEqual([]);
  await expect(bob.mutation(api.wardrobe.wear,{id:result.id!,index:0})).rejects.toThrow('own outfit');await alice.mutation(api.wardrobe.wear,{id:result.id!,index:0});expect((await alice.query(api.wardrobe.latest,{})).wornIndex).toBe(0);expect((await alice.query(api.wardrobe.list,{})).find(i=>i.id===shirt)?.lastWornAt).toBeDefined();
@@ -148,4 +148,15 @@ test.each([
  expect(saved!.cleanPhotoNote).toContain(expected);expect(saved!.cleanPhotoId).toBeUndefined();
  expect(saved!.photoId).toBe(item!.photoId);
  await t.run(async ctx=>{expect(await ctx.storage.get(item!.photoId!)).not.toBeNull();});
+});
+test('free wardrobe additions renew monthly without blocking chats; Pro access is unlimited within the storage safety cap',async()=>{
+ vi.setSystemTime(new Date('2026-10-16T10:00:00Z'));const {t,alice}=setup();
+ for(let i=0;i<3;i++)await alice.mutation(api.wardrobe.add,{details:{name:`Piece ${i}`,category:'top',colour:'blue'}});
+ await expect(alice.mutation(api.wardrobe.add,{details:top})).rejects.toThrow('3 free wardrobe additions this month');
+ await alice.mutation(api.conversations.post,{text:'Find a blue shirt'});
+ expect((await alice.query(api.planAccess.current,{})).usage).toMatchObject({wardrobeItems:3,conversations:1});
+ vi.setSystemTime(new Date('2026-11-01T00:00:01Z'));await alice.mutation(api.wardrobe.add,{details:top});
+ expect((await alice.query(api.planAccess.current,{})).usage.wardrobeItems).toBe(1);
+ await t.run(async ctx=>{await ctx.db.insert('userPlans',{owner:'alice',plan:'pro',status:'active',source:'test',updatedAt:Date.now()});});
+ await alice.mutation(api.wardrobe.add,{details:top});expect(await alice.query(api.planAccess.current,{})).toMatchObject({plan:'pro',limits:{wardrobeItems:null,conversations:null,stylistSessions:null}});
 });

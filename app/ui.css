@@ -1,0 +1,237 @@
+/* Shared app design system. See docs/APP_STYLE_GUIDE.md. Loaded last. */
+.account-shell{--space:8px;--radius:20px;font-family:Inter,system-ui,sans-serif;font-size:16px;line-height:1.6;color:var(--ink)}
+.account-shell [hidden]{display:none!important}
+.account-shell :is(button,input,select,textarea){font-family:inherit}
+.account-shell :is(h1,h2,h3,h4){line-height:1.2;letter-spacing:-.035em;text-wrap:balance}
+.account-shell h1{font-size:36px}.account-shell h2{font-size:24px}.account-shell h3{font-size:20px}.account-shell h4{font-size:16px}
+.account-shell p{line-height:1.65}
+.account-shell :is(.account-note,.account-feedback,.photo-consent,.wardrobe-available,.compare-choice,.library-item p,.personal-action p,.personal-daily p,.personal-tags,.daily-notice){font-size:14px;line-height:1.6}
+.account-shell :is(.account-kicker,.daily-kicker,.personal-kicker){font-size:13px;text-transform:none;letter-spacing:0;font-weight:600}
+.account-shell .account-field{font-size:14px;gap:8px;font-weight:600}
+.account-shell :is(.account-field input,.account-field select,.account-field textarea,.wardrobe-intelligence textarea,.price-history input){font-size:16px;line-height:1.5;border:1px solid var(--line);border-radius:12px;background:#fff;padding:12px 14px;min-height:48px;width:100%;color:var(--ink)}
+.account-shell textarea{resize:vertical}
+.account-shell :is(input,textarea)::placeholder{color:#737c8b;opacity:1}
+.account-shell :is(input[type=checkbox],input[type=radio]){accent-color:var(--accent);width:18px;height:18px;flex-shrink:0}
+.account-shell :is(.button,.chat-chip,.library-actions button,.library-actions a,.price-history button,.account-support button,.stylist-prompts button,.personal-prompts button){font-size:14px;font-weight:600;line-height:1.4;min-height:44px;padding:11px 16px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
+.account-shell :is(.library-actions button,.library-actions a,.price-history button,.account-support button,.stylist-prompts button){background:white;border:1px solid var(--line);color:var(--accent);cursor:pointer}
+.account-shell .button.primary{background:var(--accent);color:#fff;border:1px solid var(--accent);box-shadow:none}
+.account-shell .button.primary:hover{background:#214299}
+.account-shell :is(button,a,summary,input,textarea,select):focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.account-shell button:disabled{opacity:.5;cursor:not-allowed}
+.account-shell summary{font-size:14px;font-weight:600;line-height:1.5;cursor:pointer;padding:12px 0;min-height:44px}
+.account-shell details[open]>summary{margin-bottom:12px}
+.account-shell :is(.account-card,.shopping-library,.stylist-page){border:0;background:transparent;padding:0;box-shadow:none}
+.account-shell :is(.shopping-library>header,.stylist-hero){background:none;border:0;border-radius:0;padding:0;margin:0 0 32px}
+.account-shell :is(.shopping-library>header h1,.stylist-hero h1){font-size:36px;margin:0 0 12px;line-height:1.15}
+.account-shell :is(.shopping-library>header p,.stylist-hero>p){font-size:16px;color:var(--muted);max-width:600px;margin:0}
+.account-shell :is(.stylist-hero nav,.wardrobe-header-actions){gap:12px;flex-wrap:wrap}
+.account-shell .stylist-hero nav{margin-top:20px}
+.account-shell :is(.stylist-context,.wardrobe-context,.wardrobe-style,.app-optional,.saved-details){background:transparent;border:0;border-top:1px solid var(--line);border-radius:0;padding:8px 0;margin:16px 0}
+.account-shell :is(.stylist-form,.wardrobe-intelligence,.wardrobe-editor,.account-form,.photo-styling){padding:24px;border:1px solid var(--line);border-radius:var(--radius);background:white}
+.account-shell :is(.stylist-form,.wardrobe-intelligence form){display:grid;gap:16px}
+.account-shell :is(.stylist-event,.wardrobe-event){gap:16px;margin-top:12px}
+.account-shell :is(.stylist-prompts,.wardrobe-prompts){display:flex;gap:8px;flex-wrap:wrap;margin:0}
+.account-shell .stylist-form>.button,.account-shell .wardrobe-intelligence form>.button{justify-self:start}
+.account-shell :is(.wardrobe-clock,.wardrobe-context-chips,.wardrobe-tag-list){font-size:13px;line-height:1.5}
+.account-shell .wardrobe-clock{margin:16px 0;color:var(--muted)}
+.account-shell :is(.library-grid,.wardrobe-grid,.daily-grid){gap:24px}
+.account-shell :is(.library-item,.wardrobe-piece,.wardrobe-outfit,.stylist-looks article,.stylist-sections article){border:1px solid var(--line);border-radius:var(--radius);background:#fff;padding:20px;box-shadow:none;min-width:0}
+.account-shell :is(.wardrobe-piece-title,.library-item h3){font-size:18px;margin:16px 0 12px}
+.account-shell .wardrobe-piece-photo{border-radius:12px;background:white}
+.account-shell .wardrobe-piece-actions{gap:8px;flex-wrap:wrap;margin-top:16px}
+.account-shell .wardrobe-empty{padding:48px 24px;border:1px dashed #bdc8df;border-radius:var(--radius);background:#fff;text-align:center}
+.account-shell .wardrobe-empty p{max-width:420px;margin:12px auto 24px;color:var(--muted)}
+.account-shell .app-view-switch{display:flex;gap:8px;border-bottom:1px solid var(--line);margin:0 0 24px;padding-bottom:12px}
+.account-shell .app-view-switch button{border:0;border-radius:12px;background:transparent;padding:12px 18px;font-size:14px;font-weight:600;min-height:44px;color:var(--muted);cursor:pointer}
+.account-shell .app-view-switch button[aria-pressed=true]{background:var(--soft);color:var(--accent)}
+.account-shell .personal-greeting h1{font-size:clamp(36px,4vw,48px);font-weight:700;line-height:1.12}
+.account-shell .personal-greeting p{font-size:16px;max-width:480px}
+.account-shell .personal-welcome{padding:32px 0 24px}
+.account-shell .personal-search{border-radius:20px;box-shadow:0 8px 32px #2950b80a}
+.account-shell .personal-prompts button{white-space:normal}
+.account-shell .personal-memory{background:linear-gradient(120deg,#edf2ff,#f7f9ff);border:1px solid #dfe6f5;padding:24px;border-radius:var(--radius)}
+.account-shell .personal-actions{gap:16px}
+.account-shell .personal-action{background:white;border:1px solid var(--line);padding:24px;border-radius:var(--radius)}
+.account-shell .personal-action h3{font-size:22px}.account-shell .personal-action strong{font-size:14px}
+.account-shell .personal-daily{background:var(--soft);border-radius:var(--radius);padding:24px}
+.account-shell .daily-feed-home{margin-top:32px;padding:26px;background:#f6f7fa;border:1px solid #e5e8ef;border-radius:var(--radius)}
+.account-shell .daily-feed-home .daily-feed-header{align-items:flex-end;margin-bottom:18px}
+.account-shell .daily-feed-home .daily-feed-header h2{margin:8px 0 4px;font-size:26px;letter-spacing:-.035em}
+.account-shell .daily-feed-home .daily-feed-header p{margin:0;color:var(--muted);font-size:14px}
+.account-shell .daily-feed-home .daily-kicker{display:flex;align-items:center;gap:7px;color:var(--accent);font-size:11px;font-weight:650;letter-spacing:.1em}
+.account-shell .daily-feed-home .daily-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.account-shell .daily-feed-home .daily-product{padding:12px;border-color:#e5e8ef;border-radius:16px}
+.account-shell .daily-feed-home .daily-product h3{min-height:42px;margin:9px 0 5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.account-shell .daily-feed-home .chat-product-link{display:flex;align-items:center;gap:6px;width:fit-content}
+.account-shell .daily-feed-home .daily-home-note{color:var(--muted);font-size:14px}
+.account-shell .app-menu a{font-size:14px;min-height:44px;border-radius:12px}
+.account-shell .photo-consent{display:flex;align-items:flex-start;gap:10px;margin:16px 0}
+.account-shell .photo-consent input{margin-top:3px}
+.account-shell input[type=file]{font-size:14px;max-width:100%}
+.account-shell input[type=file]::file-selector-button{font:inherit;padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:var(--soft);color:var(--accent);margin-right:12px;cursor:pointer}
+.account-shell .body-estimate{padding:20px;border-radius:16px;background:#f7f9fc;border:1px solid var(--line);margin-top:20px}
+.account-shell :is(.account-support,.conversation-history){margin-top:32px;border-top:1px solid var(--line);padding-top:16px}
+.account-shell .onboard-card{border-radius:24px}.account-shell .onboard-heading h1{font-size:36px}
+.account-shell .discovery-card h3{font-size:16px;line-height:1.45}
+.account-shell :is(.discovery-card p,.discovery-card button,.discovery-filters button,.discovery-refinements button){font-size:14px}
+.account-shell .discovery-results-heading h2{font-size:20px!important}
+.account-shell .chat-avatar{font-family:inherit}
+@media(max-width:760px){
+ .account-shell{font-size:16px}.account-shell :is(.shopping-library>header h1,.stylist-hero h1,.onboard-heading h1){font-size:30px}
+ .account-shell :is(.shopping-library>header,.stylist-hero){margin-bottom:24px}
+ .account-shell .shopping-library>header{flex-direction:column;gap:20px}
+ .account-shell .wardrobe-header-actions{width:100%;justify-content:space-between}
+ .account-shell :is(.stylist-form,.wardrobe-intelligence,.wardrobe-editor,.account-form,.photo-styling){padding:20px 16px;border-radius:16px}
+ .account-shell :is(.stylist-event,.wardrobe-event){grid-template-columns:1fr}
+ .account-shell :is(.library-grid,.daily-grid){grid-template-columns:1fr;gap:16px}
+ .account-shell .daily-feed-home{margin-top:22px;padding:18px 14px}
+ .account-shell .daily-feed-home .daily-feed-header{align-items:flex-start;flex-direction:column;gap:10px}
+ .account-shell .daily-feed-home .daily-grid{display:flex;gap:12px;overflow-x:auto;padding:1px 2px 10px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+ .account-shell .daily-feed-home .daily-product{flex:0 0 min(78vw,250px);scroll-snap-align:start}
+ .account-shell .wardrobe-grid{gap:12px}.account-shell .wardrobe-piece{padding:12px;border-radius:16px}
+ .account-shell .wardrobe-piece-title{font-size:16px}.account-shell .wardrobe-piece-actions .chat-chip{padding:10px;font-size:13px}
+ .account-shell .personal-welcome{padding:24px 0 16px}.account-shell .personal-greeting h1{font-size:36px}
+ .account-shell .personal-prompts{flex-wrap:wrap;overflow:visible;gap:8px}
+ .account-shell .personal-action{padding:20px}.account-shell .personal-memory{padding:20px}
+ .account-shell .stylist-form>.button,.account-shell .wardrobe-intelligence form>.button{width:100%}
+ .account-shell :is(.photo-consent,.account-note){overflow-wrap:anywhere}
+}
+@media(prefers-reduced-motion:reduce){.account-shell *, .account-shell *::before,.account-shell *::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+.account-shell .wardrobe-intelligence>header{display:block;margin-bottom:20px}
+.account-shell .wardrobe-intelligence>header h3{font-size:24px;margin:0 0 12px}
+.account-shell .wardrobe-intelligence>header p{font-size:16px;color:var(--muted);margin:0}
+.account-shell .account-support>button{margin:8px 12px 8px 0}
+.plan-summary{margin-top:24px}.plan-summary h2{margin:12px 0 6px;font-size:24px}.plan-summary p{color:var(--muted);line-height:1.65}.plan-summary .button{display:inline-flex;align-items:center;gap:8px;margin-top:8px;text-decoration:none}.plan-limit-banner{display:flex;align-items:center;justify-content:space-between;gap:18px;margin:0 0 22px;padding:17px 20px;border:1px solid #cfdaef;border-radius:16px;background:#f1f5ff}.plan-limit-banner>div{display:grid;gap:4px}.plan-limit-banner strong{font-size:14px}.plan-limit-banner span{font-size:13px;color:var(--muted)}.plan-limit-banner>a{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;color:#2950B8;font-weight:700;text-decoration:none;font-size:13px}
+@media(max-width:760px){.plan-limit-banner{align-items:flex-start;flex-direction:column;padding:16px}.plan-summary .button{width:100%;justify-content:center}}
+.account-shell .account-card>h1{margin:0 0 12px}
+.account-shell .app-page>section{animation:none}
+.account-shell .stylist-hero h1{color:var(--ink)}
+.account-shell .wardrobe-editor{margin-bottom:24px}
+.account-shell .personal-home{animation:none}
+.account-shell .account-card>h1{font-size:36px}
+.account-shell .preferences-form{grid-template-columns:1fr 1fr;max-width:800px}
+.account-shell .preferences-form>.button{grid-column:1/-1;justify-self:start}
+.account-shell .taste-summary{margin-top:32px}
+@media(max-width:760px){.account-shell .account-card>h1{font-size:30px}.account-shell .preferences-form{grid-template-columns:1fr}.account-shell .personal-prompts{display:grid;grid-template-columns:repeat(3,1fr)}.account-shell .personal-prompts button{font-size:13px;padding:10px 6px;gap:4px}.account-shell .personal-prompts button svg{display:none}}
+.account-shell .discovery-eyebrow{font-size:13px;letter-spacing:0;text-transform:none}
+.account-shell .discovery-intro h1{font-size:36px;line-height:1.15}
+.account-shell :is(.discovery-assistant p,.discovery-request,.discovery-latest-request){font-size:16px}
+.account-shell :is(.discovery-assistant strong,.discovery-store,.discovery-attributes,.discovery-reason,.discovery-store-note,.discovery-disclosure,.discovery-history,.discovery-filters span){font-size:13px;line-height:1.6}
+.account-shell .discovery-card h2{font-size:16px;line-height:1.45;min-height:46px}
+.account-shell .discovery-card-actions button{font-size:13px}
+.account-shell .discovery-composer-wrap .shopping-input summary{font-size:14px;min-height:44px}
+.account-shell .discovery-dialog-copy>p,.account-shell .discovery-match ul{font-size:14px}
+.account-shell .discovery-dialog-copy h2{font-size:24px}
+.account-shell .library-empty{padding:32px 24px;background:white;border:1px solid var(--line);border-radius:20px;color:var(--muted)}
+@media(max-width:760px){.account-shell .discovery-intro h1{font-size:30px}.account-shell .discovery-card h2{font-size:14px;min-height:41px}.account-shell .discovery-card-actions button{font-size:12px}.account-shell .discovery-card-actions button svg{display:none}}
+.account-shell .library-grid{grid-template-columns:repeat(3,minmax(0,1fr));align-items:start}
+.account-shell .library-item .chat-product-preview{height:auto;aspect-ratio:4/5;background:#f7f8fa;border-radius:12px}
+.account-shell .library-actions{gap:8px;flex-wrap:wrap}
+.account-shell .library-item .saved-details{margin-bottom:0}
+@media(max-width:1000px){.account-shell .library-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.account-shell .library-grid{grid-template-columns:1fr}.account-shell .library-item .chat-product-preview{max-height:340px}}
+.account-shell :is(.account-field input,.account-field textarea,.account-field select){font-weight:400}
+.account-shell .onboard-looks input{font-size:16px;font-weight:400}
+.account-shell .onboard-looks button{min-height:44px;font-size:14px}
+.account-shell .onboard-eyebrow{font-size:13px;letter-spacing:0}
+.account-shell .onboard-progress{gap:8px}
+.account-shell .onboard-progress>span{font-size:12px}
+.account-shell .personal-home-agent{max-width:1120px;padding:4px 0 40px}
+.personal-home-agent .personal-welcome{max-width:none;padding:25px 0 10px}
+.personal-home-agent .personal-greeting{display:flex;align-items:center;gap:22px;margin:0 auto 24px;max-width:760px;text-align:left}
+.personal-agent-mark,.wardrobe-agent-mark,.wardrobe-style-mark{display:grid;place-items:center;flex:0 0 auto;overflow:hidden}
+.personal-agent-mark{width:82px;height:82px;border-radius:25px;background:linear-gradient(145deg,#eef3ff,#fff);border:1px solid #dfe7fa}
+.personal-agent-mark .fashion-loader,.wardrobe-agent-mark .fashion-loader,.wardrobe-style-mark .fashion-loader{padding:0;zoom:.25}
+.personal-agent-mark .fashion-loader-label,.wardrobe-agent-mark .fashion-loader-label,.wardrobe-style-mark .fashion-loader-label{display:none}
+.personal-home-agent .personal-greeting-copy{min-width:0}
+.account-shell .personal-home-agent .personal-greeting h1{font-size:clamp(30px,4vw,42px);line-height:1.12;margin:6px 0 7px;max-width:650px}
+.account-shell .personal-home-agent .personal-greeting p{margin:0;font-size:15px;color:var(--muted)}
+.personal-home-agent .personal-kicker{display:flex;align-items:center;gap:7px;color:var(--accent);font-size:12px;font-weight:700;letter-spacing:.04em}
+.personal-home-agent .personal-search{max-width:760px;padding:10px 12px 10px 20px;border-radius:18px;border-color:#dfe5f2;box-shadow:0 14px 42px #2950b810}
+.personal-home-agent .personal-search:focus-within{transform:translateY(-2px);box-shadow:0 18px 46px #2950b81d}
+.personal-home-agent .personal-search button{border-radius:14px;width:48px;height:48px}
+.personal-home-agent .personal-prompts{max-width:760px;justify-content:flex-start;margin:12px auto 14px}
+.personal-home-agent .personal-prompts button{border-radius:14px;padding:9px 13px;color:#334979;background:#fff;border-color:#e2e8f4;font-size:13px}
+.personal-context-line{max-width:760px;margin:0 auto;display:flex;align-items:center;gap:9px;color:var(--accent)}
+.personal-context-line>div{display:flex;gap:7px;flex:1;overflow:hidden;white-space:nowrap}
+.personal-context-line span{padding:5px 10px;border-radius:30px;background:#edf2ff;color:#425273;font-size:12px}
+.personal-context-line a{display:flex;align-items:center;gap:4px;color:var(--accent);font-size:13px;min-height:40px}
+.personal-resume-strip{display:flex;align-items:center;gap:13px;margin:16px 0;padding:12px 16px;border:1px solid #e0e6f3;border-radius:18px;background:linear-gradient(105deg,#f0f4ff,#fff);text-decoration:none;color:var(--ink)}
+.personal-resume-strip>span:nth-child(2){display:grid;flex:1;gap:2px}.personal-resume-strip small{font-size:10px;letter-spacing:.08em;color:var(--accent);font-weight:700}.personal-resume-strip strong{font-size:14px}.personal-resume-icon{width:38px;height:38px;display:grid;place-items:center;border-radius:12px;background:#e1e9ff;color:var(--accent)}
+.personal-closet-card{margin-top:22px;padding:18px 20px 10px;border:1px solid #e3e8f3;border-radius:22px;background:linear-gradient(120deg,#f5f7fc,#fff)}
+.personal-closet-link{display:flex;align-items:center;gap:18px;text-decoration:none;color:var(--ink)}
+.personal-closet-art{position:relative;width:118px;height:90px;flex:0 0 118px}
+.personal-closet-photo,.personal-closet-empty{position:absolute;top:4px;width:66px;height:80px;display:grid;place-items:center;border:4px solid white;border-radius:15px;background:white;box-shadow:0 7px 18px #273b6915;overflow:hidden;color:#8794ae}
+.personal-closet-photo img{width:100%;height:100%;object-fit:contain}.closet-photo-0{left:0;transform:rotate(-9deg)}.closet-photo-1{left:27px;top:0;z-index:1;transform:rotate(2deg)}.closet-photo-2{left:53px;transform:rotate(9deg)}.personal-closet-empty{left:26px;width:64px;height:76px;background:linear-gradient(145deg,#e5ebfa,#fff)}
+.personal-closet-copy{display:grid;gap:3px;min-width:0;flex:1}.personal-closet-copy small{font-size:10px;color:var(--accent);letter-spacing:.08em;font-weight:700}.personal-closet-copy strong{font-size:16px}.personal-closet-copy>span{font-size:13px;color:var(--muted)}
+.personal-closet-action{display:flex;align-items:center;gap:6px;color:var(--accent);font-size:13px;font-weight:700;white-space:nowrap}
+.personal-saved-shortcut{display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:11px;border-top:1px solid #e3e8f3;color:var(--muted);font-size:12px}.personal-saved-shortcut svg{color:var(--accent)}.personal-saved-shortcut a{margin-left:auto;display:flex;align-items:center;gap:5px;color:var(--accent);min-height:36px}
+
+.account-shell .daily-feed-agent{position:relative;overflow:hidden;margin-top:22px;padding:24px;border:1px solid #dce4f5;border-radius:26px;background:radial-gradient(ellipse at 90% 0%,#edf2ff 0,transparent 48%),linear-gradient(135deg,#f7f9ff,#f0f4fc 58%,#fff)}
+.daily-feed-agent .daily-feed-header{display:flex;align-items:center;justify-content:space-between;gap:18px;margin:0 0 10px}.daily-feed-agent .daily-feed-header h2{margin:4px 0;font-size:27px}.daily-feed-agent .daily-feed-header p{font-size:14px;color:var(--muted);margin:0}.daily-feed-agent .daily-kicker{display:flex;align-items:center;gap:7px;color:var(--accent);font-size:11px;font-weight:700;letter-spacing:.08em}.daily-feed-agent .daily-toggle{background:#fff;border:1px solid #dce4f2;border-radius:13px;color:var(--accent)}
+.daily-agent-empty{display:grid;grid-template-columns:54px minmax(0,1fr) auto;align-items:center;gap:15px;padding:18px 4px 4px}.daily-agent-orbit{width:50px;height:50px;display:grid;place-items:center;border-radius:17px;background:#e7edfc;color:var(--accent);animation:agent-breathe 3.5s ease-in-out infinite}.daily-agent-empty>div:nth-child(2){display:grid;gap:4px}.daily-agent-empty strong{font-size:15px}.daily-agent-empty span{font-size:13px;color:var(--muted)}.daily-agent-empty>button,.daily-swipe-complete button{display:flex;align-items:center;gap:8px;min-height:44px;border:0;border-radius:13px;padding:10px 14px;background:#2950B8;color:#fff;font:inherit;font-size:13px;font-weight:650;cursor:pointer}
+.daily-agent-status{display:flex;align-items:center;gap:9px;padding:18px 4px;color:var(--accent);font-weight:600}.daily-agent-status svg{animation:agent-breathe 1.5s ease-in-out infinite}
+.daily-swipe-stage{position:relative;display:flex;flex-direction:column;align-items:center;max-width:500px;margin:20px auto 0;padding:8px 0 0;perspective:1000px}.daily-swipe-stage:before,.daily-swipe-stage:after{content:"";position:absolute;top:38px;bottom:78px;width:min(82%,380px);border:1px solid #e1e7f3;border-radius:25px;background:#fff;box-shadow:0 10px 30px #1e37640a;pointer-events:none}.daily-swipe-stage:before{transform:translateY(8px) rotate(2deg)}.daily-swipe-stage:after{transform:translateY(15px) rotate(-2deg)}
+.daily-swipe-count,.outfit-deck-count{z-index:2;display:flex;align-items:center;gap:8px;align-self:flex-end;margin:0 max(8%,34px) 8px;color:#71809f;font-size:11px;font-weight:700;letter-spacing:.1em}.daily-swipe-count i,.outfit-deck-count i{display:block;width:22px;height:1px;background:#b8c4dc}
+.daily-swipe-card{z-index:1;position:relative;width:min(100%,390px);padding:10px;border:1px solid #e0e6f0;border-radius:25px;background:white;box-shadow:0 18px 55px #1c326019;cursor:grab;touch-action:pan-y;transform:translate3d(var(--swipe-x,0),0,0) rotate(calc(var(--swipe-x,0px)*.035));transition:transform .2s ease}
+.daily-swipe-card:active{cursor:grabbing}.daily-swipe-card .chat-product-preview{height:auto;aspect-ratio:1/1.02;margin:0;border-radius:18px;background:linear-gradient(145deg,#fafbfc,#f3f5f8)}.daily-swipe-card .chat-product-preview img{object-fit:contain}.daily-swipe-copy{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 5px 7px}.daily-swipe-copy>div{display:grid;gap:3px;min-width:0}.daily-swipe-type{font-size:11px;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:.06em}.daily-swipe-copy strong{font-size:15px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.daily-swipe-price{font-size:16px;font-weight:700}.daily-swipe-copy>a{display:flex;align-items:center;gap:5px;min-height:42px;padding:0 10px;border:1px solid #e0e6f2;border-radius:12px;color:var(--accent);font-size:12px;font-weight:650;white-space:nowrap}.daily-swipe-stamp,.outfit-swipe-stamp{position:absolute;z-index:3;top:24px;left:24px;padding:7px 12px;border:2px solid;border-radius:8px;background:#ffffffdb;font-size:13px;font-weight:800;letter-spacing:.12em;opacity:clamp(0,calc(abs(var(--swipe-x,0px))/70),1);transform:rotate(-9deg);pointer-events:none}.daily-swipe-stamp.stamp-save,.outfit-swipe-stamp{color:#2950B8;border-color:#2950B8}.daily-swipe-stamp.stamp-skip{left:auto;right:24px;color:#6c7484;border-color:#6c7484;transform:rotate(9deg)}
+.daily-swipe-actions,.outfit-swipe-actions{z-index:2;display:flex;align-items:center;justify-content:center;gap:18px;margin:14px 0 0}.daily-swipe-actions>span,.outfit-swipe-actions>span{font-size:12px;color:var(--muted)}.daily-swipe-actions button,.outfit-swipe-actions button{width:50px;height:50px;display:grid;place-items:center;border:1px solid #dfe5ef;border-radius:50%;background:#fff;color:#737e95;box-shadow:0 5px 16px #20314a0a;cursor:pointer}.daily-swipe-actions .daily-like,.outfit-swipe-actions .outfit-wear{width:58px;height:58px;background:#2950B8;color:#fff;border-color:#2950B8;box-shadow:0 8px 22px #2950B82e}.daily-swipe-complete,.outfit-deck-done{position:relative;z-index:2;display:grid;justify-items:center;text-align:center;padding:54px 24px 70px;max-width:400px}.daily-swipe-complete>div,.outfit-deck-done>span{width:58px;height:58px;display:grid;place-items:center;background:#e9efff;border-radius:20px;color:var(--accent)}.daily-swipe-complete h3,.outfit-deck-done h3{margin:16px 0 4px;font-size:22px}.daily-swipe-complete p,.outfit-deck-done p{color:var(--muted);font-size:14px}.daily-swipe-complete button,.outfit-deck-done button{background:white;color:var(--accent);border:1px solid #dce4f3}
+@keyframes agent-breathe{50%{transform:scale(1.08);box-shadow:0 0 28px #2950B826}}
+
+.account-shell .wardrobe-agent{max-width:1100px}.wardrobe-agent-hero{display:flex!important;align-items:center;gap:20px;padding:22px!important;margin:0 0 20px!important;border:1px solid #dfe6f4!important;border-radius:24px!important;background:radial-gradient(ellipse at 0% 50%,#e9efff 0,transparent 48%),linear-gradient(100deg,#f8faff,#fff)!important}.wardrobe-agent-mark{width:78px;height:78px;border-radius:22px;background:#edf2ff;border:1px solid #e0e8fb}.wardrobe-agent-heading{flex:1;min-width:0}.wardrobe-agent-heading .daily-kicker{display:flex;align-items:center;gap:7px;color:var(--accent);font-size:11px;letter-spacing:.08em;font-weight:700}.account-shell .wardrobe-agent-heading h1{margin:4px 0;font-size:30px}.account-shell .wardrobe-agent-heading p{margin:0;color:var(--muted);font-size:14px}.wardrobe-agent-stats{display:flex;align-items:center;gap:8px;margin-top:9px;color:#53627e;font-size:12px}.wardrobe-agent-stats i{width:3px;height:3px;border-radius:50%;background:#a4afc4}.wardrobe-add-main{white-space:nowrap}
+.wardrobe-agent-tabs{display:flex;align-items:center;gap:7px;margin:0 0 20px;padding:5px;border:1px solid #e2e7f1;border-radius:15px;background:#f5f7fb;width:fit-content}.wardrobe-agent-tabs button{display:flex;align-items:center;gap:8px;min-height:42px;padding:8px 14px;border:0;border-radius:11px;background:transparent;color:#647089;font:inherit;font-size:13px;font-weight:650;cursor:pointer}.wardrobe-agent-tabs button[aria-pressed=true]{background:white;color:#2950B8;box-shadow:0 3px 12px #1d31550e}.wardrobe-agent-tabs button span{font-size:11px;color:#71809b}
+.wardrobe-empty-agent{display:grid;grid-template-columns:minmax(200px,.9fr) 1.1fr;align-items:center;gap:30px;min-height:310px;padding:34px;border:1px solid #e2e8f3;border-radius:25px;background:radial-gradient(ellipse at 20% 50%,#e9efff 0,transparent 54%),#fff}.wardrobe-empty-art{position:relative;height:230px;display:grid;place-items:center}.wardrobe-empty-art span{width:140px;height:180px;display:grid;place-items:center;border:1px solid #e0e7f5;border-radius:30px;background:#fff;color:#2950B8;box-shadow:0 24px 55px #253a6816;transform:rotate(-7deg)}.wardrobe-empty-art i,.wardrobe-empty-art b{position:absolute;width:126px;height:165px;border:1px solid #e0e7f5;border-radius:28px;background:#f5f7fc;transform:rotate(8deg);z-index:-1}.wardrobe-empty-art b{transform:rotate(16deg);background:#eef2fb}.wardrobe-empty-agent h2{font-size:25px;margin:9px 0}.wardrobe-empty-agent p{color:var(--muted);max-width:400px}.wardrobe-empty-agent .button{margin-top:8px}
+.wardrobe-gallery{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:18px!important}.account-shell .wardrobe-gallery .wardrobe-tile{padding:9px!important;border:1px solid #e1e6f0!important;border-radius:22px!important;background:white!important;overflow:hidden;transition:transform .25s,box-shadow .25s}.wardrobe-gallery .wardrobe-tile:hover{transform:translateY(-3px);box-shadow:0 15px 34px #20365014}.wardrobe-tile-image{position:relative;aspect-ratio:4/4.5;overflow:hidden;border-radius:16px;background:linear-gradient(145deg,#fafbfc,#f1f3f7)}.wardrobe-tile-image>.wardrobe-piece-photo{width:100%;height:100%;object-fit:contain;padding:12px;background:transparent}.wardrobe-tile-image .wardrobe-no-photo{height:100%;border-radius:0}.wardrobe-ready-badge{position:absolute;top:11px;left:11px;display:flex;align-items:center;gap:4px;padding:6px 9px;border:1px solid #ffffffbd;border-radius:30px;background:#ffffffdf;color:#68738a;font-size:11px;font-weight:650;backdrop-filter:blur(8px)}.wardrobe-ready-badge.is-ready{color:#28594d}.wardrobe-tile-title{position:absolute;inset:auto 0 0;padding:38px 14px 13px;background:linear-gradient(transparent,#172235c7);color:#fff}.wardrobe-tile-title small{display:block;font-size:10px;letter-spacing:.1em;font-weight:700;opacity:.85}.wardrobe-tile-title h3{margin:3px 0 0;font-size:17px;line-height:1.3;text-shadow:0 1px 6px #0005}.wardrobe-tile-info{padding:4px 6px 2px}.account-shell .wardrobe-tile-info .wardrobe-tag-list{gap:6px;margin:8px 0}.wardrobe-tile-info .wardrobe-tag-list span{background:#f0f3f9;color:#53627d;font-size:11px}.wardrobe-tile-info .account-note{margin:5px 0;font-size:12px}.wardrobe-tile-actions{display:flex;align-items:center;gap:6px;margin-top:9px;padding-top:8px;border-top:1px solid #edf0f5}.wardrobe-tile-actions .wardrobe-available{display:flex;align-items:center;gap:6px;flex:1;font-size:12px;color:#536078;cursor:pointer}.wardrobe-tile-actions .wardrobe-available input{width:16px;height:16px}.wardrobe-tile-actions>button{width:38px;height:38px;display:grid;place-items:center;border:1px solid #e2e7f0;border-radius:12px;background:#fff;color:#53627d;cursor:pointer}.wardrobe-tile-actions>button:hover{color:#2950B8;background:#f2f5ff}.wardrobe-tile .wardrobe-original{margin:6px 0 0;padding:0;border:0}.wardrobe-tile .wardrobe-original summary{font-size:12px;color:#647089;min-height:38px}.wardrobe-tile .wardrobe-original img{width:100%;max-height:220px;object-fit:contain;border-radius:12px;background:#f7f8fa}
+.wardrobe-loading{display:grid;place-items:center;min-height:190px}.wardrobe-style-agent{border:1px solid #e1e7f2!important;border-radius:24px!important;padding:22px!important;background:radial-gradient(ellipse at 100% 0%,#eef3ff,transparent 44%),#fff!important;margin-top:0!important}.wardrobe-style-agent .wardrobe-style-agent-head{display:flex!important;align-items:center;gap:16px;margin:0 0 16px!important}.wardrobe-style-mark{width:64px;height:64px;border-radius:19px;background:#edf2ff}.wardrobe-style-agent .daily-kicker{display:flex;align-items:center;gap:7px;color:var(--accent);font-size:11px;font-weight:700;letter-spacing:.08em}.account-shell .wardrobe-style-agent h3#wardrobe-agent-title{font-size:26px!important;margin:3px 0!important;color:var(--ink)}.wardrobe-style-agent>header p{margin:0!important;font-size:14px!important}.wardrobe-style-agent .wardrobe-clock{margin:15px 0;background:#f4f6fb;border:1px solid #e7ebf3;border-radius:13px}.wardrobe-style-agent .wardrobe-intelligence form{margin:0}.wardrobe-style-agent .wardrobe-prompts button{border-radius:30px!important}
+.outfit-deck{position:relative;display:grid;justify-items:center;perspective:1100px;margin-top:10px}.outfit-deck-count{justify-self:end;margin:0 18px 8px}.account-shell .wardrobe-outfit.outfit-swipe-card{position:relative;width:min(100%,670px);padding:15px!important;border:1px solid #e0e6f0!important;border-radius:23px!important;background:#fff!important;box-shadow:0 16px 45px #20334b12!important;cursor:grab;touch-action:pan-y;transform:translate3d(var(--swipe-x,0),0,0) rotate(calc(var(--swipe-x,0px)*.025));transition:transform .2s ease}.outfit-swipe-card:active{cursor:grabbing}.outfit-card-head{display:grid;gap:4px;padding:5px 5px 14px}.outfit-card-head>span{font-size:10px;color:var(--accent);letter-spacing:.1em;font-weight:700}.outfit-card-head>strong{font-size:21px}.outfit-swipe-card .outfit-pieces{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:9px;flex-wrap:nowrap}.outfit-swipe-card .outfit-piece-visual{position:relative;display:flex;flex-direction:column;gap:8px;max-width:none;min-width:0;padding:7px 7px 10px;border:1px solid #edf0f5;border-radius:15px;background:#fafbfc;font-size:12px}.outfit-piece-visual img,.outfit-piece-visual .wardrobe-outfit-placeholder{width:100%;height:clamp(120px,22vw,210px);object-fit:contain;border-radius:10px;background:white}.outfit-piece-visual strong{font-size:12px!important;line-height:1.35!important}.outfit-swipe-card>p{margin:12px 4px 0;color:#56637a;font-size:14px}.outfit-swipe-actions{padding-top:12px;border-top:1px solid #edf0f5}.outfit-swipe-actions .outfit-wear:disabled{background:#74809a;border-color:#74809a}.outfit-swipe-stamp{opacity:clamp(0,calc(var(--swipe-x,0px)/70),1);pointer-events:none}.outfit-extra-tips{margin-top:14px;border-top:1px solid #e9edf4}.outfit-deck-done{min-height:270px}.wardrobe-extra-tips summary{color:#596986}
+@media(max-width:760px){.account-shell .personal-home-agent{padding:0 0 24px}.personal-home-agent .personal-welcome{padding:14px 0 7px}.personal-home-agent .personal-greeting{gap:13px;margin-bottom:17px}.personal-agent-mark{width:62px;height:62px;border-radius:19px}.personal-agent-mark .fashion-loader{zoom:.2}.account-shell .personal-home-agent .personal-greeting h1{font-size:29px;margin:4px 0 5px}.account-shell .personal-home-agent .personal-greeting p{font-size:13px}.personal-home-agent .personal-kicker{font-size:10px}.personal-home-agent .personal-search{padding:7px 8px 7px 13px;border-radius:15px}.personal-home-agent .personal-search button{width:44px;height:44px}.personal-home-agent .personal-prompts{margin:10px 0 12px;overflow-x:auto;flex-wrap:nowrap;padding:2px 0 5px}.personal-home-agent .personal-prompts button{flex:0 0 auto;font-size:12px;min-height:40px;padding:8px 11px}.personal-context-line{gap:6px}.personal-context-line span{font-size:11px;padding:5px 8px}.personal-context-line>div{overflow-x:auto}.personal-context-line a{font-size:12px}.personal-resume-strip{margin:12px 0;padding:10px 12px}.personal-resume-strip strong{font-size:13px}.account-shell .daily-feed-agent{margin-top:16px;padding:17px 13px;border-radius:21px}.daily-feed-agent .daily-feed-header{align-items:flex-start;flex-direction:column;gap:10px}.daily-feed-agent .daily-feed-header h2{font-size:23px}.daily-feed-agent .daily-feed-header p{font-size:13px}.daily-agent-empty{grid-template-columns:44px minmax(0,1fr);gap:11px;padding:12px 0 2px}.daily-agent-orbit{width:42px;height:42px}.daily-agent-empty strong{font-size:13px}.daily-agent-empty span{font-size:12px}.daily-agent-empty>button{grid-column:1/-1;justify-content:center}.daily-swipe-stage{margin-top:13px}.daily-swipe-stage:before,.daily-swipe-stage:after{width:84%;top:35px;bottom:75px}.daily-swipe-card{width:min(100%,390px);padding:7px;border-radius:20px}.daily-swipe-card .chat-product-preview{border-radius:15px}.daily-swipe-copy{align-items:flex-start;padding:10px 4px 5px}.daily-swipe-copy strong{font-size:13px}.daily-swipe-copy>a{font-size:11px;padding:0 8px}.daily-swipe-actions{margin-top:12px}.daily-swipe-actions button{width:46px;height:46px}.daily-swipe-actions .daily-like{width:54px;height:54px}.daily-swipe-actions>span{font-size:11px}.personal-closet-card{margin-top:15px;padding:12px 13px 7px;border-radius:18px}.personal-closet-link{gap:10px}.personal-closet-art{width:85px;height:70px;flex-basis:85px;transform:scale(.8);transform-origin:left center;margin-right:-13px}.personal-closet-copy strong{font-size:13px;line-height:1.3}.personal-closet-copy>span{font-size:11px}.personal-closet-action{font-size:11px}.personal-saved-shortcut{font-size:11px}.wardrobe-agent-hero{display:grid!important;grid-template-columns:58px minmax(0,1fr);gap:12px;padding:14px!important;border-radius:20px!important}.wardrobe-agent-mark{width:58px;height:58px;border-radius:17px}.wardrobe-agent-mark .fashion-loader{zoom:.19}.account-shell .wardrobe-agent-heading h1{font-size:25px;margin:3px 0}.wardrobe-agent-heading .daily-kicker{font-size:9px;letter-spacing:.05em}.account-shell .wardrobe-agent-heading p{font-size:12px}.wardrobe-agent-stats{font-size:11px;margin-top:5px}.wardrobe-add-main{grid-column:1/-1;width:100%;min-height:44px}.wardrobe-agent-tabs{width:100%;margin-bottom:15px}.wardrobe-agent-tabs button{flex:1;justify-content:center;font-size:12px;padding:7px}.wardrobe-empty-agent{grid-template-columns:1fr;gap:12px;padding:20px;min-height:0;border-radius:20px}.wardrobe-empty-art{height:150px}.wardrobe-empty-art span{width:105px;height:132px;border-radius:24px}.wardrobe-empty-art i,.wardrobe-empty-art b{width:98px;height:122px}.wardrobe-empty-agent h2{font-size:21px}.wardrobe-empty-agent .button{width:100%;justify-content:center}.wardrobe-gallery{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}.account-shell .wardrobe-gallery .wardrobe-tile{padding:6px!important;border-radius:17px!important}.wardrobe-tile-image{aspect-ratio:4/4.7;border-radius:12px}.wardrobe-tile-image>.wardrobe-piece-photo{padding:6px}.wardrobe-ready-badge{top:7px;left:7px;padding:5px 7px;font-size:9px}.wardrobe-tile-title{padding:30px 9px 9px}.wardrobe-tile-title small{font-size:8px}.wardrobe-tile-title h3{font-size:13px;line-height:1.25}.wardrobe-tile-info{padding:2px 3px}.account-shell .wardrobe-tile-info .wardrobe-tag-list{gap:4px;margin:6px 0}.wardrobe-tile-info .wardrobe-tag-list span{font-size:9px;padding:4px 6px}.wardrobe-tile-actions{gap:4px;margin-top:6px;padding-top:6px}.wardrobe-tile-actions .wardrobe-available{font-size:10px;gap:4px}.wardrobe-tile-actions .wardrobe-available input{width:14px;height:14px}.wardrobe-tile-actions>button{width:32px;height:32px;border-radius:10px}.wardrobe-tile-actions>button svg{width:14px;height:14px}.wardrobe-tile .wardrobe-original summary{font-size:10px;min-height:36px}.wardrobe-style-agent{padding:15px 12px!important;border-radius:19px!important}.wardrobe-style-agent .wardrobe-style-agent-head{gap:10px;margin-bottom:12px!important}.wardrobe-style-mark{width:52px;height:52px;border-radius:16px}.wardrobe-style-mark .fashion-loader{zoom:.18}.account-shell .wardrobe-style-agent h3#wardrobe-agent-title{font-size:22px!important}.wardrobe-style-agent .daily-kicker{font-size:9px}.wardrobe-style-agent .wardrobe-clock{font-size:11px;padding:10px;margin:10px 0}.account-shell .wardrobe-style-agent form{padding:13px 11px}.wardrobe-style-agent .wardrobe-prompts{flex-wrap:nowrap;overflow-x:auto;padding:1px 0 6px}.wardrobe-style-agent .wardrobe-prompts button{white-space:nowrap;flex:0 0 auto;font-size:11px;padding:8px 10px}.account-shell .wardrobe-outfit.outfit-swipe-card{padding:9px!important;border-radius:17px!important}.outfit-card-head{padding:4px 3px 9px}.outfit-card-head>strong{font-size:17px}.outfit-swipe-card .outfit-pieces{grid-template-columns:repeat(auto-fit,minmax(85px,1fr));gap:5px}.outfit-swipe-card .outfit-piece-visual{padding:4px;border-radius:11px;font-size:10px}.outfit-piece-visual img,.outfit-piece-visual .wardrobe-outfit-placeholder{height:clamp(100px,34vw,155px);border-radius:8px}.outfit-piece-visual strong{font-size:10px!important}.outfit-swipe-card>p{font-size:12px;margin:8px 2px 0}.outfit-swipe-actions{gap:12px;padding-top:9px}.outfit-swipe-actions button{width:43px;height:43px}.outfit-swipe-actions .outfit-wear{width:52px;height:52px}}
+@media(max-width:380px){.personal-agent-mark{width:52px;height:52px}.account-shell .personal-home-agent .personal-greeting h1{font-size:26px}.personal-closet-action{font-size:0}.personal-closet-action svg{width:17px;height:17px}.wardrobe-gallery{gap:8px!important}.wardrobe-tile-title h3{font-size:12px}.wardrobe-tile-actions .wardrobe-available{font-size:9px}}
+.account-shell:has(.personal-home-agent) .account-nav>.account-note{transform:translateY(-8px)}
+@media(max-width:760px){
+ .personal-home-agent .personal-welcome{padding:8px 0 2px}
+ .personal-home-agent .personal-greeting{display:block;text-align:left;margin:0 0 12px}
+ .personal-home-agent .personal-agent-mark{display:none}
+ .personal-home-agent .personal-greeting-copy{width:100%}
+ .daily-feed-agent .daily-feed-header{align-items:center;flex-direction:row;gap:8px;margin-bottom:7px}
+ .daily-feed-agent .daily-feed-header>div{min-width:0}
+ .daily-feed-agent .daily-feed-header h2{font-size:21px;margin:3px 0}
+ .daily-feed-agent .daily-feed-header p{display:none}
+ .daily-feed-agent .daily-feed-header .daily-toggle{flex:0 0 auto;min-height:36px;padding:7px 9px;border-radius:11px;font-size:11px;white-space:nowrap}
+ .wardrobe-agent-hero{grid-template-columns:minmax(0,1fr)!important;align-items:start!important;gap:8px!important}
+ .wardrobe-agent-mark{display:none}
+ .wardrobe-agent-heading{width:100%}
+ .wardrobe-agent-heading .daily-kicker{font-size:10px}
+ .account-shell .wardrobe-agent-heading h1{font-size:27px;margin:4px 0}
+ .account-shell .wardrobe-agent-heading p{font-size:13px}
+}
+@media(max-width:380px){
+ .daily-feed-agent .daily-feed-header .daily-toggle{min-height:34px;padding:6px 8px;font-size:10px}
+ .wardrobe-agent-hero{padding:13px!important}
+ .account-shell .wardrobe-agent-heading h1{font-size:25px}
+}
+.account-shell .personal-home-agent .personal-greeting h1{margin-bottom:0}
+.personal-home-agent .personal-prompts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:15px auto 12px}
+.account-shell .personal-home-agent .personal-idea-card{position:relative;display:flex;align-items:center;justify-content:flex-start;gap:11px;min-width:0;min-height:72px;padding:11px 13px;border:1px solid #dfe6f3;border-radius:17px;background:linear-gradient(145deg,#fff,#f8faff);color:#253451;text-align:left;box-shadow:0 6px 18px #263f7009;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
+.account-shell .personal-home-agent .personal-idea-card:hover{transform:translateY(-2px);border-color:#b9c9ed;box-shadow:0 11px 24px #263f7014;background:#fff}
+.personal-idea-icon{display:grid;place-items:center;flex:0 0 36px;width:36px;height:36px;border-radius:12px;background:#edf2ff;color:#2950B8}
+.personal-idea-card strong{min-width:0;font-size:13px;line-height:1.3;font-weight:650}
+.personal-idea-arrow{margin-left:auto;flex:0 0 auto;color:#7183aa}
+@media(max-width:760px){
+ .personal-home-agent .personal-prompts{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:10px 0 12px;overflow:visible;padding:0}
+ .account-shell .personal-home-agent .personal-idea-card{display:grid;grid-template-rows:26px 1fr;justify-items:start;align-content:center;gap:5px;min-height:67px;padding:9px 8px;border-radius:14px;box-shadow:none}
+ .personal-idea-icon{width:25px;height:25px;flex-basis:25px;border-radius:8px}
+ .account-shell .personal-home-agent .personal-idea-icon svg{display:block;width:15px;height:15px}
+ .personal-idea-card strong{font-size:11px;line-height:1.15;overflow-wrap:anywhere}
+ .account-shell .personal-home-agent .personal-idea-card .personal-idea-arrow{display:none}
+}
+@media(max-width:360px){
+ .personal-home-agent .personal-prompts{gap:6px}
+ .account-shell .personal-home-agent .personal-idea-card{padding:8px 7px}
+ .personal-idea-card strong{font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){.daily-agent-orbit,.daily-agent-status svg{animation:none}.daily-swipe-card,.wardrobe-gallery .wardrobe-tile,.outfit-swipe-card,.personal-idea-card{transition:none}}
+
+/* Fine interaction states for the swipe decks. */
+.wardrobe-style-agent .wardrobe-style-agent-head{justify-content:flex-start!important}
+.daily-swipe-stamp,.outfit-swipe-stamp{opacity:0;transition:opacity .15s ease}
+.daily-swipe-stamp.is-active,.outfit-swipe-stamp.is-active{opacity:1}
