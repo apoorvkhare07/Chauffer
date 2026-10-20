@@ -27,7 +27,7 @@ export default function SearchPromptInput({id,value,onChange,onFocus,onBlur,...p
  const focus=event=>{setFocused(true);onFocus?.(event);};
  const blur=event=>{setFocused(false);onBlur?.(event);};
  return <span className="search-prompt-field">
-  {!value&&!focused&&<span className="search-prompt" aria-hidden="true">{prompt}<i/></span>}
+  {!value&&!focused&&<span className="search-prompt" aria-hidden="true"><span className="search-prompt-text">{prompt}</span><i/></span>}
   <input id={id} value={value} onChange={onChange} onFocus={focus} onBlur={blur} placeholder=" " {...props}/>
  </span>;
 }

@@ -121,3 +121,101 @@ html.shopping-scroll-page{scroll-snap-type:none;scroll-padding-top:0}
  .shopping-scroll-page .flow-visual{grid-area:1 / 1;align-self:start;margin-bottom:0}
  .shopping-scroll-page .flow-copy{grid-area:1 / 1;min-width:0}
 }
+
+/* On phones, the whole illustrated chapter docks at the top. The real
+   search stays in the hero so native scrolling never races a fixed input. */
+@media(max-width:760px){
+ html.shopping-scroll-page{scroll-snap-type:y proximity;scroll-padding-top:16px}
+ .shopping-scroll-page .flow-copy-step,.shopping-scroll-page .flow-copy-step:first-child,.shopping-scroll-page .flow-copy-step:last-child{scroll-snap-align:start;scroll-snap-stop:always}
+ .shopping-scroll-page .wardrobe-showcase{scroll-snap-align:start}
+ .shopping-scroll-page .public-fashion-hero{scroll-snap-align:start;scroll-margin-top:62px}
+ .shopping-scroll-page .flow-visual{top:16px}
+ .shopping-scroll-page .static-search-example{display:flex;min-width:0;white-space:nowrap;overflow:hidden;font-size:11px}
+ .shopping-scroll-page .fashion-entry-search{will-change:auto}
+ .shopping-intro .fashion-entry-search input{font-size:16px}
+ .shopping-scroll-page .flow-scene{transition:opacity .25s ease,visibility .25s;transform:none}
+}
+@media(prefers-reduced-motion:reduce){
+ html.shopping-scroll-page{scroll-snap-type:none}
+ .flow-scene{transition:none;transform:none}
+ .flow-scene *{animation:none!important}
+}
+
+@media(max-width:760px) and (max-height:740px){
+ .shopping-scroll-page .public-fashion-hero .scene-center{padding-top:248px}
+}
+
+/* Use the visible phone screen, including Safari's changing browser bars. */
+@media(max-width:760px){
+ html.shopping-scroll-page{--phone-gap:20px;scroll-padding-top:calc(var(--phone-screen-top,0px) + var(--phone-gap));scroll-padding-bottom:var(--phone-gap)}
+ .shopping-scroll-page .shopping-flow{--board-height:clamp(260px,calc(var(--phone-screen-height,100dvh) * .42),360px)}
+ .shopping-scroll-page .flow-visual{top:calc(var(--phone-screen-top,0px) + var(--phone-gap))}
+ .shopping-scroll-page .flow-copy-step,.shopping-scroll-page .flow-copy-step:first-child,.shopping-scroll-page .flow-copy-step:last-child{
+  min-height:calc(var(--phone-screen-height,100dvh) - 2 * var(--phone-gap));
+  padding:calc(var(--board-height) + 28px) 5px 20px;
+ }
+}
+
+/* Phone chapters stay in document flow: no pinned overlap or forced snapping. */
+.flow-phone-board{display:none}
+@media(max-width:760px){
+ html.shopping-scroll-page{scroll-snap-type:none;scroll-padding:0}
+ .shopping-scroll-page .shopping-flow{display:block;padding:24px 0 48px}
+ .shopping-scroll-page .flow-desktop-board{display:none}
+ .shopping-scroll-page .flow-copy-step,
+ .shopping-scroll-page .flow-copy-step:first-child,
+ .shopping-scroll-page .flow-copy-step:last-child{min-height:0;padding:0 0 64px;scroll-snap-align:none;scroll-snap-stop:normal}
+ .shopping-scroll-page .flow-phone-board{display:block;position:relative;top:auto;width:100%;height:340px;margin:0 0 28px;flex-shrink:0;grid-area:auto}
+ .shopping-scroll-page .flow-copy-step h2{font-size:32px}
+ .shopping-scroll-page .flow-copy-step>p:not(.cs-eyebrow){font-size:13px;line-height:1.7}
+}
+
+/* A phone chapter is one moving panel: artwork and copy share the same transform. */
+@media(max-width:760px) and (prefers-reduced-motion:no-preference){
+ .shopping-scroll-page .shopping-flow{height:calc(var(--journey-height,720px) + var(--journey-travel,2800px) + 40px);padding:0;position:relative}
+ .shopping-scroll-page .flow-copy{position:sticky;top:var(--journey-top,20px);height:var(--journey-height,720px);overflow:hidden}
+ .shopping-scroll-page .flow-copy-step,
+ .shopping-scroll-page .flow-copy-step:first-child,
+ .shopping-scroll-page .flow-copy-step:last-child{position:absolute;inset:0 0 auto;padding:0 0 20px;width:100%;will-change:transform}
+ .shopping-scroll-page .flow-phone-board{height:clamp(260px,38svh,320px);margin-bottom:22px}
+ .shopping-scroll-page .flow-copy-step h2{font-size:clamp(27px,4svh,32px)}
+ .shopping-scroll-page .flow-copy-step>p:not(.cs-eyebrow){font-size:12px;line-height:1.65}
+}
+
+/* Readable phone illustrations: one idea per frame, without miniature captions. */
+.flow-board-phone-title{display:none}
+@media(max-width:760px){
+ .shopping-scroll-page .flow-phone-board .flow-board-heading{top:18px;left:18px;right:18px;font-size:12px}
+ .flow-phone-board .flow-board-heading>svg,.flow-phone-board .flow-board-title{display:none}
+ .flow-phone-board .flow-board-phone-title{display:block}
+ .flow-phone-board .flow-board-heading b{font-size:12px}
+ .flow-phone-board figcaption,.flow-phone-board .style-board-brief,.flow-phone-board .style-board-footer,
+ .flow-phone-board .flow-caption,.flow-phone-board .flow-response,.flow-phone-board .flow-progress,
+ .flow-phone-board .flow-example-label,.flow-phone-board .flow-review-top span,.flow-phone-board .flow-review-top p,
+ .flow-phone-board .flow-check span,.flow-phone-board .flow-review-card>small,
+ .flow-phone-board .flow-small-label,.flow-phone-board .flow-buy-card p,.flow-phone-board .flow-next{display:none}
+ .shopping-scroll-page .flow-phone-board .flow-scene{inset:48px 16px 18px;display:flex;flex-direction:column;justify-content:center;gap:16px}
+ .shopping-scroll-page .flow-phone-board .shopping-search-dock{margin:0;min-height:44px}
+ .shopping-scroll-page .flow-phone-board .static-search-example{font-size:14px;white-space:normal;line-height:1.4}
+ .shopping-scroll-page .flow-phone-board .style-board-photos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:0;min-height:0}
+ .shopping-scroll-page .flow-phone-board .style-board-photos figure{width:auto;margin:0;padding:8px;transform:none;box-shadow:none;border-radius:12px}
+ .shopping-scroll-page .flow-phone-board .style-board-photos img{height:118px}
+ .flow-phone-board .flow-photo-grid{width:100%;gap:8px}
+ .flow-phone-board .flow-photo-grid figure{padding:8px;box-shadow:none}
+ .shopping-scroll-page .flow-phone-board .flow-photo-grid img{height:160px}
+ .shopping-scroll-page .flow-phone-board .flow-swipe-deck{height:145px;width:115px;margin:0 auto}
+ .shopping-scroll-page .flow-phone-board .flow-swipe-deck img{height:133px}
+ .flow-phone-board .flow-feedback{font-size:14px;padding:10px 14px;margin:0 auto}
+ .shopping-scroll-page .flow-phone-board .flow-review-card{width:100%;padding:16px;margin:0;box-sizing:border-box;box-shadow:none}
+ .shopping-scroll-page .flow-phone-board .flow-review-top{gap:10px;margin-bottom:10px}
+ .shopping-scroll-page .flow-phone-board .flow-review-top img{height:46px;width:36px}
+ .flow-phone-board .flow-review-top h3{font-size:17px;line-height:1.2;margin:0}
+ .shopping-scroll-page .flow-phone-board .flow-check{padding:10px 0;gap:8px}
+ .flow-phone-board .flow-check b{font-size:14px;line-height:1.3;font-weight:600}
+ .flow-phone-board .flow-check svg{flex-shrink:0}
+ .shopping-scroll-page .flow-phone-board .flow-buy-card{width:100%;box-sizing:border-box;margin:0;padding:14px;gap:12px;box-shadow:none}
+ .shopping-scroll-page .flow-phone-board .flow-buy-card img{height:158px}
+ .flow-phone-board .flow-buy-card h3{font-size:19px;margin:0 0 16px}
+ .flow-phone-board .flow-store-button{font-size:12px;line-height:1.4;padding:10px;gap:4px;margin:0}
+ .flow-phone-board .flow-store-button svg{flex-shrink:0}
+}

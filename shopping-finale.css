@@ -51,3 +51,14 @@
  .finale-intro-message { transform:none; opacity:1; }
  .chauffeur-site .finale-next-message { display:none; }
 }
+
+@media(max-width:760px) and (prefers-reduced-motion:no-preference){
+ .shopping-finale{height:calc(var(--phone-screen-height,100dvh) * 2.1);background:white}
+ .finale-viewport{top:var(--phone-screen-top,0px);height:var(--phone-screen-height,100dvh);min-height:0}
+ .shopping-finale .cs-footer{padding-bottom:max(18px,env(safe-area-inset-bottom))}
+}
+
+/* Give the white closing scene breathing room on desktop, including short windows. */
+@media(min-width:761px){
+ .finale-art{top:clamp(48px,8svh,80px)}
+}

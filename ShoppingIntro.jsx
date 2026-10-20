@@ -7,8 +7,25 @@ export default function ShoppingIntro({ liveLink }) {
   const root = useRef(null), source = useRef(null), search = useRef(null), dock = useRef(null);
   useEffect(() => {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const phone = window.matchMedia('(max-width: 760px)');
     const page = document.documentElement;
     page.classList.add('shopping-scroll-page');
+    // iOS can move/resize the visible viewport as its browser bars collapse.
+    // Keep chapter sizing and sticky/snap offsets in that same coordinate space.
+    const viewport = window.visualViewport;
+    const syncViewport = () => {
+      if (viewport && viewport.scale !== 1) return;
+      // Opening the keyboard must not resize the story under the focused input.
+      if (document.activeElement?.matches('input, textarea')) return;
+      page.style.setProperty('--phone-screen-height', `${viewport?.height ?? window.innerHeight}px`);
+      page.style.setProperty('--phone-screen-top', `${viewport?.offsetTop ?? 0}px`);
+    };
+    syncViewport();
+    viewport?.addEventListener('resize', syncViewport);
+    viewport?.addEventListener('scroll', syncViewport);
+    window.addEventListener('resize', syncViewport);
+    window.addEventListener('focusout', syncViewport);
+
     let frame = 0, geometry, rendered, previousTime = 0;
     const measure = () => {
       const origin = source.current, target = dock.current;
@@ -32,7 +49,7 @@ export default function ShoppingIntro({ liveLink }) {
         end: flowTop - stickyTop,
       };
       // Fixed positioning avoids combining compositor scrolling with a delayed JS transform.
-      if (!reduced.matches) {
+      if (!reduced.matches && !phone.matches) {
         Object.assign(search.current.style, { position: 'fixed', left: '0px', top: '0px', width: `${from.width}px` });
       }
       rendered = null;
@@ -41,7 +58,7 @@ export default function ShoppingIntro({ liveLink }) {
     const update = (time) => {
       frame = 0;
       if (!geometry || !search.current) return;
-      if (reduced.matches) {
+      if (reduced.matches || phone.matches) {
         for (const key of ['transform', 'position', 'left', 'top', 'width']) search.current.style.removeProperty(key);
         root.current.style.setProperty('--arrive', 1);
         rendered = null;
@@ -80,6 +97,13 @@ export default function ShoppingIntro({ liveLink }) {
     measure();
     return () => {
       cancelAnimationFrame(frame); observer.disconnect(); page.classList.remove('shopping-scroll-page');
+      viewport?.removeEventListener('resize', syncViewport);
+      viewport?.removeEventListener('scroll', syncViewport);
+      window.removeEventListener('resize', syncViewport);
+      window.removeEventListener('focusout', syncViewport);
+      page.style.removeProperty('--phone-screen-height');
+      page.style.removeProperty('--phone-screen-top');
+
       window.removeEventListener('scroll', schedule); window.removeEventListener('resize', measure);
       reduced.removeEventListener('change', measure);
     };

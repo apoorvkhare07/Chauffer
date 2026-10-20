@@ -116,3 +116,67 @@
  .public-fashion-hero .float-kurta{top:105px}
  .public-fashion-hero .float-kurta img{height:98px}
 }
+
+/* Draw decorative marks consistently, including on emoji-capable phones. */
+.public-fashion-hero .scene-spark{width:1em;height:1em;stroke-width:1.7}
+.search-prompt-text{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.search-prompt-field{overflow:hidden}
+
+/* Phone-first banner: promise, horizontal fashion reel, request, supporting copy. */
+.shopping-scroll-page .public-fashion-hero.hero-reel-layout{
+ display:flex;flex-direction:column;justify-content:center;align-items:center;
+ min-height:calc(100svh - 68px);padding:38px 0 48px;gap:0;
+}
+.hero-reel-heading{text-align:center;padding:0 20px;position:relative;z-index:2}
+.hero-reel-heading .hero-kicker{margin:0}
+.public-fashion-hero .hero-reel-heading h1{margin:18px 0 0}
+.hero-product-reel{position:relative;width:100%;max-width:1184px;margin:12px 0 24px}
+.hero-reel-entry{width:min(100% - 40px,570px);position:relative;z-index:2;text-align:center}
+.hero-reel-entry .hero-description{margin:22px 0 0}
+
+@media(max-width:760px){
+ .shopping-scroll-page .cs-nav{height:62px}
+ .shopping-scroll-page .public-fashion-hero.hero-reel-layout{min-height:calc(var(--phone-screen-height,100dvh) - 62px);padding:36px 0 48px;justify-content:space-between}
+ .public-fashion-hero .hero-reel-heading h1{font-size:clamp(42px,11.5vw,54px);line-height:1.05;margin:16px 0 0}
+ .hero-reel-heading .hero-kicker{font-size:10px;letter-spacing:.04em}
+ .hero-product-reel{margin:14px 0 26px}
+ .hero-reel-entry .hero-description{font-size:12px;line-height:1.8;margin:20px 0 0}
+}
+@media(max-width:760px) and (max-height:650px){
+ .shopping-scroll-page .public-fashion-hero.hero-reel-layout{padding:22px 0 26px}
+ .hero-product-reel{margin:8px 0 22px}
+}
+
+/* Two perspective lanes emerge at the centre and grow toward opposite edges. */
+.hero-product-flight{height:330px;overflow:hidden;--flight-span:clamp(280px,55vw,720px);mask-image:linear-gradient(to right,transparent,#000 3%,#000 97%,transparent)}
+.hero-flight-stage{position:absolute;inset:0;}
+.hero-flight-lane{position:absolute;inset:0}
+.hero-flight-card{position:absolute;left:50%;top:50%;width:180px;height:280px;margin:0;overflow:hidden;border-radius:16px;background:#f7f8fa;box-shadow:0 10px 24px #242a3825;backface-visibility:hidden;will-change:transform;animation:hero-card-flight 21s linear infinite;animation-delay:var(--flight-delay)}
+.hero-flight-card img{width:100%;height:100%;object-fit:cover;display:block}
+.hero-product-flight.is-paused .hero-flight-card{animation-play-state:paused}
+@keyframes hero-card-flight{
+ 0%{opacity:0;transform:translate(-50%,-50%) perspective(1330px) translate3d(calc(var(--side) * (40px + var(--flight-span) * 0)),0,-10000.00px) rotateY(calc(var(--side) * -0.00deg))}
+ 5%{opacity:1;transform:translate(-50%,-50%) perspective(1330px) translate3d(calc(var(--side) * (40px + var(--flight-span) * 0.05)),0,-8573.75px) rotateY(calc(var(--side) * -2.58deg))}
+ 10%{opacity:1;transform:translate(-50%,-50%) perspective(1330px) translate3d(calc(var(--side) * (40px + var(--flight-span) * 0.1)),0,-7290.00px) rotateY(calc(var(--side) * -5.12deg))}
+ 15%{opacity:1;transform:translate(-50%,-50%) perspective(1330px) translate3d(calc(var(--side) * (40px + var(--flight-span) * 0.15)),0,-6141.25px) rotateY(calc(var(--side) * -7.62deg))}
+ 20%{opacity:1;transform:translate(-50%,-50%) perspective(1330px) translate3d(calc(var(--side) * (40px + var(--flight-span) * 0.2)),0,-5120.00px) rotateY(calc(var(--side) * -10.07deg))}
+ 25%{opacity:1;transform:translate(-50%,-50%) perspective(1330px) translate3d(calc(var(--side) * (40px + var(--flight-span) * 0.25)),0,-4218.75px) rotateY(calc(var(--side) * -12.48deg))}
+ 30%{opacity:1;transform:translate(-50%,-50%) perspective(1330px) translate3d(calc(var(--side) * (40px + var(--flight-span) * 0.3)),0,-3429.99px) rotateY(calc(var(--side) * -14.84deg))}
+ 35%{opacity:1;transform:translate(-50%,-50%) perspective(1330px) translate3d(calc(var(--side) * (40px + var(--flight-span) * 0.35)),0,-2746.23px) rotateY(calc(var(--side) * -17.15deg))}
+ 40%{opacity:1;transform:translate(-50%,-50%) perspective(1330px) translate3d(calc(var(--side) * (40px + var(--flight-span) * 0.4)),0,-2159.95px) rotateY(calc(var(--side) * -19.41deg))}
+ 45%{opacity:1;transform:translate(-50%,-50%) perspective(1330px) translate3d(calc(var(--side) * (40px + var(--flight-span) * 0.45)),0,-1663.62px) rotateY(calc(var(--side) * -21.61deg))}
+ 50%{opacity:1;transform:translate(-50%,-50%) perspective(1330px) translate3d(calc(var(--side) * (40px + var(--flight-span) * 0.5)),0,-1249.69px) rotateY(calc(var(--side) * -23.75deg))}
+ 55%{opacity:1;transform:translate(-50%,-50%) perspective(1330px) translate3d(calc(var(--side) * (40px + var(--flight-span) * 0.55)),0,-910.58px) rotateY(calc(var(--side) * -25.83deg))}
+ 60%{opacity:1;transform:translate(-50%,-50%) perspective(1330px) translate3d(calc(var(--side) * (40px + var(--flight-span) * 0.6)),0,-638.66px) rotateY(calc(var(--side) * -27.85deg))}
+ 65%{opacity:1;transform:translate(-50%,-50%) perspective(1330px) translate3d(calc(var(--side) * (40px + var(--flight-span) * 0.65)),0,-426.20px) rotateY(calc(var(--side) * -29.78deg))}
+ 70%{opacity:1;transform:translate(-50%,-50%) perspective(1330px) translate3d(calc(var(--side) * (40px + var(--flight-span) * 0.7)),0,-265.39px) rotateY(calc(var(--side) * -31.64deg))}
+ 75%{opacity:1;transform:translate(-50%,-50%) perspective(1330px) translate3d(calc(var(--side) * (40px + var(--flight-span) * 0.75)),0,-148.24px) rotateY(calc(var(--side) * -33.40deg))}
+ 80%{opacity:1;transform:translate(-50%,-50%) perspective(1330px) translate3d(calc(var(--side) * (40px + var(--flight-span) * 0.8)),0,-66.58px) rotateY(calc(var(--side) * -35.06deg))}
+ 85%{opacity:1;transform:translate(-50%,-50%) perspective(1330px) translate3d(calc(var(--side) * (40px + var(--flight-span) * 0.85)),0,-11.95px) rotateY(calc(var(--side) * -36.60deg))}
+ 90%{opacity:1;transform:translate(-50%,-50%) perspective(1330px) translate3d(calc(var(--side) * (40px + var(--flight-span) * 0.9)),0,24.44px) rotateY(calc(var(--side) * -38.00deg))}
+ 95%{opacity:1;transform:translate(-50%,-50%) perspective(1330px) translate3d(calc(var(--side) * (40px + var(--flight-span) * 0.95)),0,51.82px) rotateY(calc(var(--side) * -39.19deg))}
+ 100%{opacity:0;transform:translate(-50%,-50%) perspective(1330px) translate3d(calc(var(--side) * (40px + var(--flight-span) * 1)),0,80.00px) rotateY(calc(var(--side) * -40.00deg))}
+}
+@media(max-width:760px){.hero-product-flight{height:270px;margin:4px 0 22px}.hero-flight-card{width:160px;height:248px;border-radius:13px}}
+@media(max-width:760px) and (max-height:650px){.hero-product-flight{height:235px}.hero-flight-card{width:144px;height:220px}}
+@media(prefers-reduced-motion:reduce){.hero-flight-card{animation-play-state:paused;will-change:auto}}
