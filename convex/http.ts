@@ -1,4 +1,3 @@
-import {go} from './affiliate';
 import { httpRouter } from 'convex/server';
 import { auth } from './auth';
 import { registerStaticRoutes } from '@convex-dev/static-hosting';
@@ -6,6 +5,8 @@ import { components } from './_generated/api';
 import { httpAction } from './_generated/server';
 import { internal } from './_generated/api';
 import { validSignature,parsePayload } from './whatsappProtocol';
+import { verifyWebhookSignature } from './billing';
+import {go} from './affiliate';
 const http = httpRouter();
 http.route({path:'/go',method:'GET',handler:go});
 auth.addHttpRoutes(http);
@@ -22,6 +23,14 @@ http.route({path:'/whatsapp',method:'POST',handler:httpAction(async(ctx,request)
  if(!await validSignature(body,request.headers.get('x-hub-signature-256'),secret))return new Response('Forbidden',{status:403});
  let payload:unknown;try{payload=JSON.parse(body);}catch{return new Response('Invalid JSON',{status:400});}
  await ctx.runMutation(internal.whatsappChannel.receive,parsePayload(payload,phoneId));return new Response('EVENT_RECEIVED');
+})});
+http.route({path:'/razorpay/webhook',method:'POST',handler:httpAction(async(ctx,request)=>{
+ const length=Number(request.headers.get('content-length')??0);if(length>200000)return new Response('Too large',{status:413});
+ const body=await request.text();if(body.length>200000)return new Response('Too large',{status:413});
+ if(!await verifyWebhookSignature(body,request.headers.get('x-razorpay-signature')))return new Response('Forbidden',{status:403});
+ const eventId=request.headers.get('x-razorpay-event-id');if(!eventId||eventId.length>200)return new Response('Missing event ID',{status:400});
+ try{JSON.parse(body);}catch{return new Response('Invalid JSON',{status:400});}
+ await ctx.runMutation(internal.billingCore.receiveWebhook,{eventId,payload:body});return new Response('OK');
 })});
 // Multi-page Vite output needs explicit directory redirects; preserve query strings.
 for (const page of ['app', 'demo', 'roadmap', 'faq']) {

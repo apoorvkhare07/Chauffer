@@ -92,3 +92,10 @@ test('AI context contains only the active session history and its current need',
  await ctx.db.insert('messages',{conversationId:id,session:1,role:'user',text:'Old chat: red party dresses'});await ctx.db.insert('messages',{conversationId:id,session:2,role:'user',text:'Relaxed jeans under 2500'});return id;});
  const context=await t.query(internal.aiConversations.context,{conversationId:id,revision:2});expect(context?.prompt.history.map(m=>m.text)).toEqual(['Relaxed jeans under 2500']);expect(context?.prompt.requirements).toMatchObject({fit:'relaxed',budget:2500,size:'32'});expect(context?.prompt.wardrobe).toEqual([]);
 });
+test('starting a new chat archives the current session without adding a blank user message',async()=>{
+ const t=convexTest(schema,modules);const user=t.withIdentity({subject:'new-chat-user',issuer:'https://test.chauffeur'});
+ await t.run(async ctx=>{const id=await ctx.db.insert('conversations',{key:'web:new-chat-user',requirements:{},revision:4,session:2,pending:false,updatedAt:Date.now(),shownUrls:[],rejectedUrls:[]});await ctx.db.insert('messages',{conversationId:id,session:2,role:'user',text:'blue shirts'});});
+ await user.mutation(api.conversations.newChat,{});
+ const current=await user.query(api.conversations.current,{});expect(current.messages).toHaveLength(1);expect(current.messages[0].role).toBe('assistant');expect(current.messages[0].text).toContain('Tell me what you\'re looking for');
+ const history=await user.query(api.conversations.history,{});expect(history.sessions).toHaveLength(1);expect(history.sessions[0].preview).toBe('blue shirts');expect(history.messages).toEqual([]);
+});

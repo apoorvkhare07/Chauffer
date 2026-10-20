@@ -25,6 +25,14 @@ test('shopping input requires sign-in and consent and passes audio without savin
  const {t,alice}=setup();const bytes=Buffer.alloc(200);bytes.write('RIFF');bytes.write('WAVE',8);const args={kind:'voice' as const,base64:bytes.toString('base64'),mime:'audio/wav',consent:true};
  await expect(t.action(api.shoppingInput.read,args)).rejects.toThrow('sign in');await expect(alice.action(api.shoppingInput.read,{...args,consent:false})).rejects.toThrow('agree');const spy=vi.spyOn(Agent.prototype,'generateObject').mockResolvedValue({object:{text:'A blue kurta under ₹1000, M',uncertainties:[]}} as any);expect((await alice.action(api.shoppingInput.read,args)).text).toContain('1000');const input=(spy.mock.calls[0][2] as any).messages[0].content[1];expect(input.type).toBe('file');expect(input.mediaType).toBe('audio/wav');expect(await t.run(ctx=>ctx.db.query('messages').take(1))).toEqual([]);
 });
+test('guest voice input transcribes into a draft without saving audio or messages',async()=>{
+ const {t}=setup();const bytes=Buffer.alloc(200);bytes.write('RIFF');bytes.write('WAVE',8);
+ vi.spyOn(Agent.prototype,'generateObject').mockResolvedValue({object:{text:'Blue shirt under ₹1500',uncertainties:[]}} as any);
+ const result=await t.action(api.guestVoice.read,{token:'a'.repeat(72),base64:bytes.toString('base64'),mime:'audio/wav'});
+ expect(result.text).toBe('Blue shirt under ₹1500');expect(await t.run(ctx=>ctx.db.query('messages').take(1))).toEqual([]);
+ const runs=await t.run(ctx=>ctx.db.query('webSearchRuns').collect());expect(runs).toHaveLength(2);expect(runs.every(row=>row.finishedAt!==undefined)).toBe(true);
+ await expect(t.action(api.guestVoice.read,{token:'bad',base64:bytes.toString('base64'),mime:'audio/wav'})).rejects.toThrow('reload');
+});
 test('data snapshot includes only owned shopping data and excludes auth secrets and image handles',async()=>{
  const {t,alice,bob}=setup();await alice.mutation(api.profiles.save,{preferences:{language:'en',size:'M'}});await alice.mutation(api.wardrobe.add,{details:{name:'Private dress',category:'dress',colour:'red'}});const exported=JSON.parse(await alice.query(api.accountSupport.download,{}));expect(exported.wardrobe[0].details.name).toBe('Private dress');expect(exported.scope).toContain('not a complete');expect(exported).not.toHaveProperty('authAccounts');expect(JSON.parse(await bob.query(api.accountSupport.download,{})).wardrobe).toEqual([]);await expect(t.query(api.accountSupport.download,{})).rejects.toThrow('sign in');
 });

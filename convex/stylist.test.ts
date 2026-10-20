@@ -43,6 +43,7 @@ test('stylist refuses parallel runs; timeout rejects late advice; clearing prese
  await expect(a.mutation(api.stylist.request,{text:'Another'})).rejects.toThrow('Twenty');
 });
 test('free plan includes three stylist sessions each UTC month',async()=>{
+ vi.stubEnv('PLAN_LIMITS_ENABLED','true');
  const {t,a}=setup();
  for(let i=0;i<3;i++){const id=await a.mutation(api.stylist.request,{text:`Brief ${i}`});await t.mutation(internal.stylist.timeout,{id});}
  expect((await a.query(api.planAccess.current,{})).usage.stylistSessions).toBe(3);

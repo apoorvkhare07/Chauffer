@@ -125,9 +125,9 @@ Listed-price/advertised-offer checks, daily picks, photo/voice drafts and try-on
 ### Plans (builder decision)
 
 - **Free:** 3 saved wardrobe pieces, 10 new shopping conversations per UTC calendar month, and 3 personal stylist sessions per UTC calendar month. Refinements within an existing conversation do not start another conversation.
-- **Pro:** ₹99 per month for unlimited plan access to the wardrobe, shopping conversations and stylist. Existing system safety limits still apply.
+- **Pro:** ₹99 for 30 days of unlimited plan access to the wardrobe, shopping conversations and stylist. This is a one-time purchase with manual renewal; existing system safety limits still apply.
 - New signed-in accounts are assigned Free by default. Convex owns plan state and usage counts; limits are enforced on the server. At a limit, the app links to `/pricing/`.
-- Payment collection and automatic Pro activation are not connected. Razorpay is deferred; the pricing page states this clearly.
+- Convex creates and verifies one-time Razorpay payments before enabling Pro. Each successful ₹99 payment grants 30 days; renewals are manual. Existing technical safety limits still apply. Live payment has not been verified until a production test charge is completed.
 
 **How we’ll know it worked:** proposed trial: of five shoppers with a current outfit need, at least three save or choose a relevant option and independently return for another need within two weeks. Ask what they actually wore and how it felt; count questions, browsing effort and rejected suggestions. Sign-ups and compliments alone do not establish success. These are proposed criteria, not results.
 

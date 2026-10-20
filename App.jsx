@@ -1,3 +1,4 @@
+import { PRO_VISIBLE } from './shared/features.js';
 import StoreUniverse from './StoreUniverse.jsx';
 import ShoppingFinale from './ShoppingFinale.jsx';
 import BrandAssetsPreview from './brand/BrandAssetsPreview.jsx';
@@ -24,7 +25,10 @@ export default function App() {
   if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('preview') === 'brand') return <BrandAssetsPreview/>;
   if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('preview') === 'loader') return <LoaderPreview/>;
   const page = typeof window !== 'undefined' ? window.location.pathname.split('/')[1] : '';
-  if (page === 'pricing') return <Pricing/>;
+  if (page === 'pricing') {
+    if (!PRO_VISIBLE) { window.location.replace('/'); return null; }
+    return <Pricing/>;
+  }
   if (page === 'faq' || page === 'roadmap') return <InfoPages page={page}/>;
   return <div className="chauffeur-site">
     <a className="skip-link" href="#main-content">Skip to content</a>

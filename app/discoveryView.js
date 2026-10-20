@@ -7,3 +7,4 @@ export function refinementSuggestions(r,question){
  return r.pricePreference==='lowest_price'?['Best within budget','Show more options','Lower budget']:['Show more options','Cheapest options','Lower budget'];
 }
 export function currentTurnReplies(messages){return messages.slice(messages.findLastIndex(m=>m.role==='user')+1).filter(m=>m.role==='assistant');}
+export function cleanDiscoveryReply(text){return text.replace(/^Here are \d+ options to narrow down\.\s*/i,'').replace(/\s*I prioritised [^.]+\.(?: Lower-priced alternatives follow\.)?/gi,'').replace(/\s*I couldn’t verify picks around [^.]+; these are lower-priced alternatives\./gi,'').replace(/\s*Lower-priced picks come first\./gi,'').trim();}

@@ -150,6 +150,7 @@ test.each([
  await t.run(async ctx=>{expect(await ctx.storage.get(item!.photoId!)).not.toBeNull();});
 });
 test('free wardrobe additions renew monthly without blocking chats; Pro access is unlimited within the storage safety cap',async()=>{
+ vi.stubEnv('PLAN_LIMITS_ENABLED','true');
  vi.setSystemTime(new Date('2026-10-16T10:00:00Z'));const {t,alice}=setup();
  for(let i=0;i<3;i++)await alice.mutation(api.wardrobe.add,{details:{name:`Piece ${i}`,category:'top',colour:'blue'}});
  await expect(alice.mutation(api.wardrobe.add,{details:top})).rejects.toThrow('3 free wardrobe additions this month');

@@ -262,3 +262,15 @@ The React Native + Expo app lives under `mobile/` and uses the shared Convex bac
 ### Account-bound WhatsApp channel
 
 The `/whatsapp` webhook now enters `whatsappChannel.ts`, reusing the web phone account and feature limits. Native menus cover shopping, stylist, wardrobe and try-on; clothing photos and short voice/photo shopping inputs have consent and confirmation steps. See [WhatsApp setup and test checklist](docs/WHATSAPP_CHANNEL.md). A configured callback and passing fixtures do not establish live Meta delivery; this channel remains restricted to `WHATSAPP_TEST_RECIPIENTS`.
+
+## Razorpay Pro payments
+
+The web app starts Pro checkout from **App → Settings → Your plan**. Convex creates a ₹99 INR Razorpay order, verifies the Checkout signature and confirms the payment is captured before granting 30 days of Pro access. Repeat purchases extend access by another 30 days; there is no automatic renewal. When access expires, an in-app renewal prompt appears on For you and in Settings. Signed webhooks handle delayed capture confirmation. Keep all values below in Convex deployment environment settings; never put them in `.env`, browser variables or Git.
+
+| Setting | Purpose |
+| --- | --- |
+| `RAZORPAY_KEY_ID` | Test or live API key ID for the selected deployment |
+| `RAZORPAY_KEY_SECRET` | Server-only API secret |
+| `RAZORPAY_WEBHOOK_SECRET` | Secret configured for that deployment's webhook in Razorpay |
+
+Use fresh test keys in development and live keys in production. No Razorpay plan is needed. The webhook endpoint is `/razorpay/webhook`; subscribe to `payment.captured` and `payment.failed`. Development URL: `https://mellow-spaniel-636.convex.site/razorpay/webhook`. Production URL: `https://rare-chameleon-828.convex.site/razorpay/webhook`. Checkout completion alone does not grant Pro: Convex verifies the signature and checks the captured amount, currency and associated order with Razorpay.

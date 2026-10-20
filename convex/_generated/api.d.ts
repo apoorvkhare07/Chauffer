@@ -8,15 +8,17 @@
  * @module
  */
 
+import type * as accountSupport from "../accountSupport.js";
 import type * as affiliate from "../affiliate.js";
 import type * as affiliateCore from "../affiliateCore.js";
-import type * as affiliateRules from "../affiliateRules.js";
 import type * as affiliateProviders from "../affiliateProviders.js";
-import type * as accountSupport from "../accountSupport.js";
+import type * as affiliateRules from "../affiliateRules.js";
 import type * as aiConversations from "../aiConversations.js";
 import type * as aiDecision from "../aiDecision.js";
 import type * as analytics from "../analytics.js";
 import type * as auth from "../auth.js";
+import type * as billing from "../billing.js";
+import type * as billingCore from "../billingCore.js";
 import type * as browserPages from "../browserPages.js";
 import type * as commerce from "../commerce.js";
 import type * as comparisonRules from "../comparisonRules.js";
@@ -44,6 +46,7 @@ import type * as guestSearch from "../guestSearch.js";
 import type * as guestSearchWorker from "../guestSearchWorker.js";
 import type * as guestTrials from "../guestTrials.js";
 import type * as guestTrialsAI from "../guestTrialsAI.js";
+import type * as guestVoice from "../guestVoice.js";
 import type * as http from "../http.js";
 import type * as identity from "../identity.js";
 import type * as lib_otp from "../lib/otp.js";
@@ -112,15 +115,17 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  accountSupport: typeof accountSupport;
   affiliate: typeof affiliate;
   affiliateCore: typeof affiliateCore;
-  affiliateRules: typeof affiliateRules;
   affiliateProviders: typeof affiliateProviders;
-  accountSupport: typeof accountSupport;
+  affiliateRules: typeof affiliateRules;
   aiConversations: typeof aiConversations;
   aiDecision: typeof aiDecision;
   analytics: typeof analytics;
   auth: typeof auth;
+  billing: typeof billing;
+  billingCore: typeof billingCore;
   browserPages: typeof browserPages;
   commerce: typeof commerce;
   comparisonRules: typeof comparisonRules;
@@ -148,6 +153,7 @@ declare const fullApi: ApiFromModules<{
   guestSearchWorker: typeof guestSearchWorker;
   guestTrials: typeof guestTrials;
   guestTrialsAI: typeof guestTrialsAI;
+  guestVoice: typeof guestVoice;
   http: typeof http;
   identity: typeof identity;
   "lib/otp": typeof lib_otp;

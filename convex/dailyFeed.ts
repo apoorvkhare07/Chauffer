@@ -3,7 +3,7 @@ import {v} from 'convex/values';
 import {query,mutation,internalQuery,internalMutation,type QueryCtx,type MutationCtx} from './_generated/server';
 import {internal} from './_generated/api';
 import {requireOwner} from './identity';
-import {feedDay,nextFeedAt,dailyContextKey,dailyRequirementsFor} from './feedRules';
+import {feedDay,nextFeedAt,dailyContextKey,dailyRequirementsFor,dailyTaste} from './feedRules';
 import {emptyTaste,tasteValidator} from './taste';
 import {requirementsValidator,optionValidator} from './discoveryRules';
 import {priceDropValidator} from './feedValidators';
@@ -19,8 +19,11 @@ async function context(ctx:Ctx,owner:string){
  const preferences=profile?.preferences;
  const ready=Boolean(preferences?.name?.trim()&&preferences.age!==undefined&&preferences.gender&&styleRow?.details.stylePreferences.trim());
  const style=styleRow?.details;
- const key=dailyContextKey(preferences?{audience:preferences.audience,size:preferences.size,jeansSize:preferences.jeansSize,budgetPaise:preferences.budgetPaise}:undefined,taste,style,styling?.confirmedVisualStyle);
- return {ready,key,profile,taste,style,photoStyle:styling?.confirmedVisualStyle};
+ const saved=await ctx.db.query('savedProducts').withIndex('by_owner',q=>q.eq('owner',owner)).order('desc').take(50);
+ const passed=await ctx.db.query('dailyPickFeedback').withIndex('by_owner_created',q=>q.eq('owner',owner)).order('desc').take(50);
+ const learnedTaste=dailyTaste(taste,saved.map(row=>row.option),passed);
+ const key=dailyContextKey(preferences?{audience:preferences.audience,gender:preferences.gender,size:preferences.size,jeansSize:preferences.jeansSize,budgetPaise:preferences.budgetPaise}:undefined,taste,style,styling?.confirmedVisualStyle);
+ return {ready,key,profile,taste:learnedTaste,style,photoStyle:styling?.confirmedVisualStyle,saved:saved.map(row=>row.option),passed:passed.map(row=>row.option)};
 }
 
 export const current=query({args:{},returns:v.object({enabled:v.boolean(),nextAt:v.optional(v.number()),needReady:v.boolean(),changed:v.boolean(),feed:v.union(v.null(),feedValidator)}),handler:async ctx=>{return currentFeedForOwner(ctx,await requireOwner(ctx));
@@ -49,8 +52,18 @@ export const plan=internalQuery({args:{id:v.id('dailyFeeds')},returns:v.union(v.
  const c=await context(ctx,feed.owner);if(!c.ready||feed.needKey!==c.key)return null;
  const picks=dailyRequirementsFor(feed.day,c.profile?.preferences,c.taste,c.style,c.photoStyle);
  const previous=await ctx.db.query('dailyFeeds').withIndex('by_owner_day',q=>q.eq('owner',feed.owner)).order('desc').take(7);
- const saved=await ctx.db.query('savedProducts').withIndex('by_owner',q=>q.eq('owner',feed.owner)).order('desc').take(50);
- return {owner:feed.owner,needKey:c.key,picks,excludeUrls:[...new Set([...previous.flatMap(f=>f.options.map(o=>o.url)),...saved.map(s=>s.option.url)])]};
+ return {owner:feed.owner,needKey:c.key,picks,excludeUrls:[...new Set([...previous.flatMap(f=>f.options.map(o=>o.url)),...c.saved.map(o=>o.url),...c.passed.map(o=>o.url)])]};
+}});
+
+export const recordPass=mutation({args:{feedId:v.id('dailyFeeds'),url:v.string()},returns:v.null(),handler:async(ctx,{feedId,url})=>{
+ const owner=await requireOwner(ctx),feed=await ctx.db.get(feedId),option=feed?.options.find(item=>item.url===url);
+ if(!feed||feed.owner!==owner||feed.state!=='ready'||!option)throw new Error('Choose a product from your own daily edit.');
+ const saved=await ctx.db.query('savedProducts').withIndex('by_owner_url',q=>q.eq('owner',owner).eq('option.url',url)).unique();if(saved)return null;
+ const existing=await ctx.db.query('dailyPickFeedback').withIndex('by_owner_created',q=>q.eq('owner',owner)).order('desc').take(100);
+ if(existing.some(row=>row.kind==='pass'&&row.option.url===url))return null;
+ await ctx.db.insert('dailyPickFeedback',{owner,option,kind:'pass',createdAt:Date.now()});
+ for(const row of existing.slice(49))await ctx.db.delete(row._id);
+ return null;
 }});
 
 export const finish=internalMutation({args:{id:v.id('dailyFeeds'),options:v.array(optionValidator),drops:v.array(priceDropValidator),stores:v.array(storeResultValidator),failed:v.boolean(),note:v.string()},returns:v.null(),handler:async(ctx,args)=>{

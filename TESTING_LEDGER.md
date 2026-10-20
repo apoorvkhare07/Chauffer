@@ -615,3 +615,106 @@ Added 24 synthetic discovery/wardrobe/stylist scenarios, three real Gemini repea
 - Full native parity is not claimed: settings/deletion/history/account management retain web handoffs; WhatsApp Flows, outside-window notifications, reply audio, location sharing and translated setup remain pending.
 - Final checks for this release: 4 frontend/demo tests + 212 backend tests passed; backend type-check and Vite build passed. Deployed with `npm run deploy` to `rare-chameleon-828` (static deployment `9d01168b-dd0f-4337-9bf5-d81c14d40618`). Production GET webhook challenge returned the expected value. Signed-in For You rendered in the browser after backend publication. This does not verify WhatsApp UI or delivery.
 - Last configuration check: `META_APP_SECRET` and `WHATSAPP_TEST_RECIPIENTS` still absent. Incoming WhatsApp POST processing therefore remains disabled with a configuration response. No proactive WhatsApp messages were sent.
+
+### 17 October — One-time Pro checkout
+
+- Replaced new Pro checkouts with fixed ₹99 Razorpay orders. Convex verifies the order/payment signature and confirms the exact INR amount and captured state with Razorpay before granting access. Each captured payment grants 30 days; an early manual renewal adds 30 days after the current expiry. Duplicate webhooks and repeated verification do not extend access twice.
+- Kept old subscription records and webhook handling compatible. New checkout does not create subscriptions or renew automatically. Updated settings, pricing, FAQ, product and setup documentation to say “₹99 for 30 days” and manual renewal.
+- Added backend tests for one-time activation, delayed capture webhook, duplicate event, extension on a second purchase, expiry, retained expiry date and wrong-amount rejection. `npm test`: 5 website/demo tests + 215 backend tests passed; backend typecheck and Vite build passed.
+- Local browser preview and production `/pricing/index.html` both show the one-time 30-day offer. Production deploy completed to `https://rare-chameleon-828.convex.site` (final static deployment `9bf9667a-e7f3-47dc-b247-93e39059f39e`). The production browser session was signed out, so the signed-in checkout and expiry reminder were not tested in a live account.
+- No payment was made. The test secret pasted in chat must be rotated; configure fresh test credentials in Convex development and separate live credentials plus the webhook secret in production. Any subscriptions created while the former recurring flow was live must be cancelled in Razorpay Dashboard if they exist. I could not inspect the production subscription table because the saved browser permission blocks Convex Dashboard access.
+
+### 19 October — Phone homepage polish (local only)
+
+- Replaced banner text symbols with drawn six-spoke icons, constrained animated search hints with an ellipsis, and kept phone input text at 16px.
+- Phone search stays in the banner; the shopping illustration uses its own example field. The whole illustration sticks 16px from the top, with native proximity snapping between chapters and a short fade. Reduced-motion settings disable snapping/transitions. Desktop keeps its existing search handoff.
+- Chrome checks at 390×844: all five chapters, forward/backward snapping, pinned board position and no horizontal overflow. At 320×568: banner spacing, truncated hint and long typed request. Desktop banner also inspected. Real phone Safari/touch/keyboard behaviour remains unverified.
+- `npm test` passed (221 backend tests plus website/demo tests); production build and diff whitespace checks passed. No deployment.
+- Published on request with `npm run deploy` to `rare-chameleon-828`; static deployment `d8756cbd-5055-4efb-9885-5024579682fa`. Full tests and backend typecheck passed before release. Live Chrome phone-width check confirmed drawn banner icons, contained hint, forward/backward chapter snapping and the illustration pinned 16px from the top. Real-device touch/keyboard check remains pending.
+
+### 19 October — Follow-up phone viewport correction
+
+- Builder's iPhone screenshots showed the shopping card clipped at the browser edge and blank space below the final gradient. Phone chapters now use the visible viewport height and offset (updated when browser bars change), with a shared 20px sticky/snap gap. Focused inputs and pinch zoom do not resize the story. The finale follows that same visible height instead of a fixed small-viewport height.
+- Local Chrome phone check measured a 20px card top and 627px chapter inside a 667px visible screen. At the page end the finale bottom matched the viewport bottom within 0.04px. Tests (221 backend plus website/demo), backend typecheck, build and whitespace checks passed.
+- Published frontend via `npm run deploy -- --skip-convex`, deployment `b2782eb5-1145-4f62-b367-2f13510b2d79`. Live phone-width Chrome confirmed the new 20px top gap and chapter sizing. Actual iPhone collapsing-browser-bar behaviour remains for the builder to verify; desktop emulation does not prove it.
+- Follow-up: restored the finale container's original white background after the viewport correction accidentally made the preceding intro blue. Preserved the existing animated final gradient and viewport sizing. Tests/build passed; local and live phone-width screenshots confirmed the white intro. Frontend deployment `26a9e1d2-fbb9-4bfb-a61e-614556d327ee`.
+
+### 19 October — Phone-first horizontal product banner
+
+- Reviewed Relay Studio's phone banner as a layout reference. Kept Chauffer's blue/Inter identity and existing product photos. New order: kicker/headline, moving horizontal product cards, one search field, supporting copy. Desktop follows the same arrangement with a bounded card row. Added pause/play; motion stops offscreen and respects reduced-motion settings.
+- Removed the wardrobe inspiration caption and three requested tags; retained the animation and Explore your wardrobe button.
+- Local browser checked at 390×844 and 320×568, plus desktop. Pause/play, contained layout, and passing a typed request to `/app/?q=…` checked. Wardrobe screenshot verified removal. Tests (221 backend plus website/demo), build and whitespace checks passed.
+- Published frontend using `npm run deploy -- --skip-convex`, deployment `5a715638-6f6b-4391-9f8f-d62a9edde5e5`. Live phone-width check confirmed the new banner order, no horizontal page overflow and removed wardrobe caption/tags. Physical-phone keyboard and browser-bar behaviour are not newly verified.
+
+### 19 October — Centre-out product cards
+
+- Replaced the sideways banner strip with two perspective lanes: seven cards each, emerging small at the centre and growing/angling toward opposite edges. Inspected Relay Studio's visible phone animation and rendered transforms as the reference; this is an independently implemented approximation, not a pixel-identical certification. Removed the pause button on request. Offscreen pause and reduced-motion still apply.
+- Added four built-in ImageGen product illustrations (cherry bag, silver trainers, cobalt knit, charcoal barrel denim), optimized as 600px WebP files totaling about 199KB. Saved exact prompts and provenance in public/images/CREDITS.md. The 14 cards remain illustrative fashion, not live listings.
+- Browser checked at 320×568, 390×844 and 1440×900: centre-out depth/motion, removed control, image loading and no horizontal document overflow. Tests (221 backend plus website/demo), build and diff checks passed.
+- Frontend published with `npm run deploy -- --skip-convex`, deployment `76fb548f-1f63-4d6f-8748-e71b1fc224d7`. Live phone-width browser confirmed all 14 images loaded, no pause button and the two outward-moving lanes. Physical phone performance is still a builder check.
+
+### 19 October — Desktop closing-scene top spacing
+
+- Added a desktop-only 48–80px top inset to the white closing scene's animation, replacing the near-edge 1% placement in short desktop windows. Phone rules remain unchanged.
+- Inspected the scene in Chrome at 1440×740 (59.2px computed art inset) and confirmed the phone still uses its existing 7% inset. Tests, build and whitespace checks passed.
+- Published frontend deployment `cc54e804-6435-4fb3-80e7-9804e489fff9` with `npm run deploy -- --skip-convex`; live desktop screenshot and computed inset confirmed.
+
+### 2026-10-19 — Phone banner full screen height
+
+- Phone hero now fills the visible screen below the 62px header; content can grow on short screens. Scoped header height prevents production CSS ordering from adding 18px. Desktop unchanged.
+- npm test, npm run build and git diff --check passed. Published with npm run deploy -- --skip-convex (deployment 60208e59-e8b2-4114-bfd1-d0bd1011c82c).
+- Live Chrome at 390×844: header 62px, banner 782px, banner bottom exactly 844px; visually checked cards, search and subtext. Physical iPhone check remains with builder.
+
+### 19 October — Photo attachment control and Nike brand discovery
+
+- Moved photo/audio draft tools behind a labelled + control inside the left of the chat composer. Existing microphone, consent, file checks and draft review stay intact. Hide the opening assistant greeting after the first shopper message, including while sending.
+- Reproduced the latest Nike failure using men/white/sneakers/UK 8/₹7,000/walking: the store query included optional “walking”, and Tata CLiQ returned unrelated brands. Chosen-brand searches now omit optional occasion/style terms while preserving explicit must-haves. Occasion/style remain available to ranking; brand, colour and ceiling checks are unchanged. No extra store calls or browser retries were added.
+- Direct merchant reading after correction returned white Nike listings below ₹7,000. Full development chat returned three Nike options from Tata CLiQ at ₹5,198–₹5,649. This verifies retrieval, not UK 8 stock or long-walk comfort.
+- Two regression tests cover the actual merchant query/read path and retained hard constraints; updated the older soft-query expectation. Live-layout checkout: 223 backend + 5 website/demo tests, build and backend types passed. Worktree: 214 backend + 4 website/demo tests, build and backend types passed after installing the already-declared sharp dependency.
+- Browser checked real signed-in development chat, first-message greeting removal, + menu, and 390px photo panel. No personal photo/audio uploaded. UI fixes were also ported to the current main checkout because its already-published chat/voice layout is newer than agent-mds; unrelated edits were preserved.
+- Released backend and frontend with `npm run deploy` from the current live-layout checkout to `rare-chameleon-828`, deployment `669488fb-f467-4a69-90fc-150665ebca00`. First noninteractive command stopped at the CLI confirmation; reran in an interactive terminal and completed.
+- Production Chrome verified the + opens clothing-photo controls and the greeting is absent above the shopper’s first message. Retried the existing failed Nike chat, preserving white/men/UK 8/₹7,000/walking; the live result now contains three Nike products at ₹5,198 and ₹5,649. Earlier failed replies remain as history. UK 8 stock, comfort for long walks, actual-phone upload and real microphone recording were not verified.
+
+### 2026-10-19 — Natural phone journey scrolling
+
+- Replaced the shared pinned phone illustration with an illustration attached to each chapter. Removed forced phone scroll snapping and viewport-sized chapter gaps; desktop keeps the shared sticky board. Phone resize restores hero search visibility.
+- Banner perspective now lives on each animated card instead of nested 3D containers, avoiding dependence on inherited perspective. Full-width flow observed in Chrome; real iPhone rendering remains unverified.
+- npm test, npm run build and git diff --check passed. Browser checked forward/backward phone scrolling at 390×844, 320×568 without horizontal overflow, and desktop sticky layout at 1440×900.
+- Frontend published successfully after retrying a missing-build-file upload failure; live phone-width check confirmed five normal-flow boards and no scroll snapping.
+
+### 19 October — Photo entry on For you
+
+- Corrected the missed starting-screen entry: For you now has the same + attachment control on the left of its input, with a short visible hint. Photo/audio reading still creates an editable draft and requires consent; using the draft focuses the home input.
+- Reused ShoppingInput and scoped its home panel below the bar with scrollable height bounded by available screen space, preserving the existing in-chat control and microphone.
+- Tests/build passed in both checkouts (live-layout: 223 backend + 5 website/demo; worktree: 214 backend + 4 website/demo). Local signed-in browser confirmed + opens the photo controls on the small starting screen and the panel scrolls to consent/draft controls. No real upload or media processing performed.
+- Published frontend with `npm run deploy -- --skip-convex` (23.2s). Production browser on For you verified the visible + and opened the clothing-photo picker. Backend unchanged.
+
+### 2026-10-19 — Combined phone scroll panels
+
+- Restored a scroll-driven phone journey: each complete illustration and its copy now share one vertical transform within a pinned stage. Forward/backward scrolling moves both together, with a reading pause between transitions. No wheel/touch interception or forced browser snapping.
+- Measured panel heights keep CTAs available on short screens; travel distance remains stable during browser-bar height changes. Reduced-motion preference retains ordinary document flow. Desktop retains its existing shared board.
+- npm test, npm run build and git diff --check passed. Chrome checked 390×844 forward/reverse motion, 320×568 fit, and scrolling out into wardrobe. Physical iPhone remains unverified.
+
+### 2026-10-19 — Balanced phone journey panels
+
+- Centre each complete phone panel vertically, including its own height adjustment within the shared animation stage. Added a downward arrow with Scroll to explore (Keep scrolling on the final step). Combined image/text motion retained.
+- npm test, npm run build and git diff --check passed. Chrome at 390×844 measured first panel top/bottom spaces 82/82.46px and second 72.5/72.16px; visually checked both with scroll cues.
+
+### 2026-10-19 — Cleaner phone journey illustrations
+
+- Phone previews use spaced product cards without tiny captions, duplicate subtitles, progress bars or miniature disclaimers. Existing explanatory copy below each preview stays intact. Retained search/feedback/checklist text is 14px, with 17–19px card headings and a simple Style preview/count header.
+- Preserved paired image/text scroll motion and centred panels. Desktop illustration layout unchanged.
+- npm test, npm run build and git diff --check passed. Visually inspected all five previews at 390×844. At 320×568, verified no horizontal overflow, 14px checklist type and all five previews’ contents inside their 260px frames.
+
+### 19 October — Single Upload image menu
+
+- Simplified + on For you and chat to one Upload image dropdown item. Clicking it opens the native computer file chooser. Removed photo/audio type selection and voice recording from this menu; the existing separate microphone stays.
+- After image selection, a separate review dialog preserves file validation, explicit processing consent, error recovery and editable request drafts. Menu closes on selection, outside click and Escape.
+- Local browser verified the native Open dialog and selected the built-in mens-shirt.jpg fixture, reaching filename/consent review without sending it for AI processing. The browser extension's automated file-setting permission was unavailable, so selection was checked through the native chooser instead. No personal media used. Verified full-width menu target (166×44px).
+- Tests and builds passed in both checkouts: 223 backend + 5 frontend on current live layout, 214 backend + 4 frontend in worktree. Frontend-only publication; backend unchanged.
+- Published with `npm run deploy -- --skip-convex`; final release completed in 24.1s. Production For you shows only Upload image under +, with a 166×44px target and the separate microphone retained.
+
+### 2026-10-19 — Remove phone scroll cue
+
+- Removed the downward arrow and scroll label from all five phone slides. Kept the single pinned section, paired illustration/text transitions and centred spacing.
+- npm test, npm run build and git diff --check passed. Browser at 390×844 checked first/second slide transition, five slides in one sticky stage and no remaining scroll cues.

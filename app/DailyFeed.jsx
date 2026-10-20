@@ -6,12 +6,12 @@ import {api} from '../convex/_generated/api';
 import ProductPreview from './ProductPreview.jsx';
 
 export default function DailyFeed(){
- const data=useQuery(api.dailyFeed.current),setEnabled=useMutation(api.dailyFeed.setEnabled),save=useMutation(api.savedProducts.saveDaily),saved=useQuery(api.savedProducts.list);
+ const data=useQuery(api.dailyFeed.current),setEnabled=useMutation(api.dailyFeed.setEnabled),save=useMutation(api.savedProducts.saveDaily),recordPass=useMutation(api.dailyFeed.recordPass),saved=useQuery(api.savedProducts.list);
  const [busy,setBusy]=useState(false),[error,setError]=useState(''),[saving,setSaving]=useState(''),[index,setIndex]=useState(0),[dragX,setDragX]=useState(0);
  const start=useRef(null),feed=data?.feed,options=feed?.options?.slice(0,3)??[],active=options[index],savedActive=Boolean(active&&saved?.some(s=>s.option.url===active.url));
  useEffect(()=>{setIndex(0);setDragX(0);},[feed?.id]);
  async function toggle(enabled){setBusy(true);setError('');try{await setEnabled({enabled});}catch{setError('Could not update daily picks. Please try again.');}finally{setBusy(false);}}
- function pass(){setDragX(0);setIndex(current=>Math.min(options.length,current+1));}
+ async function pass(){if(!active||!feed)return;setDragX(0);setSaving(active.url);setError('');try{await recordPass({feedId:feed.id,url:active.url});setIndex(current=>Math.min(options.length,current+1));}catch{setError('Could not save your feedback. Please try again.');}finally{setSaving('');}}
  async function saveOption(option){if(savedActive){pass();return;}setSaving(option.url);setError('');try{await save({feedId:feed.id,url:option.url});pass();}catch{setError('Could not save this pick. Please try again.');}finally{setSaving('');}}
  function pointerDown(event){if(event.target.closest('button,a'))return;start.current=event.clientX;event.currentTarget.setPointerCapture?.(event.pointerId);}
  function pointerMove(event){if(start.current!==null)setDragX(Math.max(-150,Math.min(150,event.clientX-start.current)));}

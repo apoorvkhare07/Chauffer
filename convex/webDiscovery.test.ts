@@ -27,3 +27,10 @@ test('web searches are limited per user and store failures remain honest, with n
  expect(await t.mutation(internal.webDiscovery.claim,{owner:'bob'})).toBeDefined();
  await t.mutation(internal.webDiscovery.finish,{id:claim});
 });
+test('anonymous voice transcription has a shared short-term limit',async()=>{
+ const t=convexTest(schema,modules);
+ const runs=[];
+ for(let i=0;i<3;i++)runs.push(await t.mutation(internal.webDiscovery.claimGuestVoice,{}));
+ await expect(t.mutation(internal.webDiscovery.claimGuestVoice,{})).rejects.toThrow('wait a minute');
+ for(const id of runs)await t.mutation(internal.webDiscovery.finish,{id});
+});

@@ -10,6 +10,8 @@ import GuestTryOn from './GuestTryOn.jsx';
 import GuestWardrobe from './GuestWardrobe.jsx';
 import './guest-search.css';
 import {track,trackOnce} from '../analytics';
+import {isExpiredGuestSearch} from './guestSearchState.js';
+import VoiceComposer from './VoiceComposer.jsx';
 const tokenKey='chauffeur-guest-search';
 function guestToken(){try{let token=localStorage.getItem(tokenKey);if(!token){token=crypto.randomUUID()+crypto.randomUUID();localStorage.setItem(tokenKey,token);}return token;}catch{return crypto.randomUUID()+crypto.randomUUID();}}
 function resetGuestToken(){try{localStorage.removeItem(tokenKey);}catch{}return guestToken();}
@@ -17,12 +19,12 @@ export default function GuestSearch(){
  const initial=new URLSearchParams(window.location.search).get('q')?.trim().slice(0,1000);
  const [now,setNow]=useState(Date.now());
  useEffect(()=>{const timer=setInterval(()=>setNow(Date.now()),1000);return()=>clearInterval(timer);},[]);
- const [token]=useState(guestToken),[draft,setDraft]=useState(initial??''),[error,setError]=useState(''),[busy,setBusy]=useState(false),[login,setLogin]=useState(window.location.hash==='#/signin'),[view,setView]=useState(guestView());
+ const [token,setToken]=useState(guestToken),[draft,setDraft]=useState(initial??''),[error,setError]=useState(''),[busy,setBusy]=useState(false),[login,setLogin]=useState(window.location.hash==='#/signin'),[view,setView]=useState(guestView());
  const current=useQuery(api.guestSearch.current,{token}),start=useMutation(api.guestSearch.start),answerAudience=useMutation(api.guestSearch.answerAudience),auto=useRef(false),expiredRotated=useRef(false);
  function signIn(text,combineCurrent=true){if(text){const url=new URL(location.href);url.searchParams.set('q',combineCurrent&&current?.text?`${current.text}\nRefine this request: ${text}`.slice(0,1000):text);history.replaceState(null,'',url);}setLogin(true);}
  async function send(text,preserveForHandoff=false){text=text.trim();if(!text||busy)return;if(current){signIn(text);return;}setBusy(true);setError('');if(preserveForHandoff)window.setTimeout(()=>setDraft(''),680);try{const created=await start({token,text});if(created)track('guest_search_accepted');if(!preserveForHandoff)setDraft('');}catch(e){setDraft(text);setError(typeof e?.data==='string'?e.data:'Could not start your search. Please try again.');}finally{setBusy(false);}}
  async function chooseAudience(audience){if(busy)return;setBusy(true);setError('');try{await answerAudience({token,audience});}catch(e){setError(typeof e?.data==='string'?e.data:'Could not continue this search. Please reload and try again.');}finally{setBusy(false);}}
- useEffect(()=>{if(current===undefined||login)return;if(current.state==='ready'&&!current.text&&/guest preview has expired/i.test(current.reply??'')){if(!expiredRotated.current){expiredRotated.current=true;auto.current=false;setToken(resetGuestToken());}return;}if(auto.current)return;auto.current=true;if(current){if(initial&&initial!==current.text)signIn(initial,false);}else if(initial)send(initial,true);},[current,login,initial,token]);
+ useEffect(()=>{if(current===undefined||login)return;if(isExpiredGuestSearch(current)){if(!expiredRotated.current){expiredRotated.current=true;auto.current=false;setToken(resetGuestToken());}return;}if(auto.current)return;auto.current=true;if(current){if(initial&&initial!==current.text)signIn(initial,false);}else if(initial)send(initial,true);},[current,login,initial,token]);
  useEffect(()=>{if(!current||!['ready','clarifying','failed'].includes(current.state))return;trackOnce(`guest_search_${current.state}`,String(current.createdAt),{state:current.state});},[current?.createdAt,current?.state]);
  useEffect(()=>{const change=()=>{if(location.hash==='#/signin')setLogin(true);else {setLogin(false);setView(guestView());}};addEventListener('hashchange',change);return()=>removeEventListener('hashchange',change);},[]);
  const pending=busy||(current?.state==='pending'&&now-current.createdAt<120000);
@@ -37,7 +39,7 @@ export default function GuestSearch(){
  {current?.result&&<p className="discovery-disclosure">Live store results. Prices, size availability, delivery and offers need checking on the store.</p>}
  {current?.state==='clarifying'&&<div className="guest-audience-choices" role="group" aria-label="Who are you shopping for?">{[['men','Men'],['women','Women'],['unisex','Unisex']].map(([value,label])=><button key={value} type="button" disabled={busy} onClick={()=>chooseAudience(value)}>{label}</button>)}</div>}
  {current&&current.state!=='clarifying'&&!pending&&<p className="account-note">Your first conversation is ready. Try a look or add one wardrobe piece, then sign in to save your preferences and keep going.</p>}
- {current?.state!=='clarifying'&&<form data-analytics="guest_search" className="guest-composer search-handoff-target" onSubmit={e=>{e.preventDefault();send(draft);}}><label className="sr-only" htmlFor="guest-message">Your shopping request</label><input id="guest-message" value={draft} onChange={e=>setDraft(e.target.value)} placeholder={current?'What would you like to change?':'Try “men’s linen shirts under ₹2,000”'} maxLength={1000} disabled={pending||current===undefined} required/><button disabled={!draft.trim()||pending||current===undefined} aria-label={current?'Sign in to continue':'Search fashion'}><ArrowUp size={20}/></button></form>}
+ {current?.state!=='clarifying'&&<form data-analytics="guest_search" className="guest-composer search-handoff-target" onSubmit={e=>{e.preventDefault();send(draft);}}><label className="sr-only" htmlFor="guest-message">Your shopping request</label><input id="guest-message" value={draft} onChange={e=>setDraft(e.target.value)} placeholder={current?'What would you like to change?':'Try “men’s linen shirts under ₹2,000”'} maxLength={1000} disabled={pending||current===undefined} required/><VoiceComposer value={draft} onText={setDraft} disabled={pending||current===undefined} guestToken={token} label="Speak your shopping request"/><button disabled={!draft.trim()||pending||current===undefined} aria-label={current?'Sign in to continue':'Search fashion'}><ArrowUp size={20}/></button></form>}
  {error&&<p role="alert" className="account-error">{error}</p>}
  </>}
  </>}

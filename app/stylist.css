@@ -19,7 +19,8 @@
 .stylist-source-label{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#64708a}
 .stylist-source strong{font-size:12px;line-height:1.35;font-weight:600;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .stylist-source-check{position:absolute;right:10px;top:10px;width:22px;height:22px;display:grid;place-items:center;border-radius:50%;background:#2950B8;color:#fff}
-.stylist-form{padding:20px;border:1px solid #dfe4ef;border-radius:18px;box-shadow:0 8px 28px #1c2e5510;display:grid;gap:14px}
+.stylist-form{position:relative;padding:20px;border:1px solid #dfe4ef;border-radius:18px;box-shadow:0 8px 28px #1c2e5510;display:grid;gap:14px}
+.stylist-form .voice-composer-button{justify-self:end;margin-top:-8px;margin-bottom:2px}
 .stylist-prompt-label{font-weight:650;color:#242a38}
 .stylist-form textarea{min-height:98px;border:1px solid #dfe4ef;border-radius:13px;padding:14px;font:inherit;line-height:1.5}
 .stylist-prompts{margin:0;gap:7px}.stylist-prompts button{background:#fff;border-color:#dfe4ef;color:#4c5d84;font-size:12px;padding:8px 12px;min-height:38px;border-radius:22px}

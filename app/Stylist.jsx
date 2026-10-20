@@ -5,6 +5,7 @@ import {api} from '../convex/_generated/api';
 import PhotoStyling from './PhotoStyling';
 import PlanLimitNotice from './PlanLimitNotice.jsx';
 import FashionLoader from '../FashionLoader.jsx';
+import VoiceComposer from './VoiceComposer.jsx';
 import './stylist.css';
 function today(){return new Intl.DateTimeFormat('en-CA',{year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());}
 export default function Stylist(){
@@ -22,7 +23,7 @@ export default function Stylist(){
 
  {!!refCards.length&&<section className="stylist-source-panel" aria-label="Your styling references"><div className="stylist-source-heading"><div><h2>Your pieces & finds</h2><p>Choose what to build your look around.</p></div><span>{selected.length?`${selected.length} selected`:'Optional'}</span></div><div className="stylist-source-list">{refCards.slice(0,10).map(sourceCard)}</div></section>}
  {!latest?.visualSources?.wardrobe?.length&&!latest?.visualSources?.products?.length&&<nav className="stylist-source-empty" aria-label="Add styling references"><a href="#/wardrobe">Add wardrobe pieces <ArrowUpRight size={15}/></a><a href="#/search">Browse fashion <ArrowUpRight size={15}/></a></nav>}
- <form className="stylist-form" onSubmit={e=>{e.preventDefault();ask();}}><label className="account-field"><span className="stylist-prompt-label">What’s the occasion or mood?</span><textarea value={text} onChange={e=>setText(e.target.value)} rows={3} maxLength={1200} placeholder="A dinner date in Pune. Style my navy shirt with something relaxed…"/></label>
+ <form className="stylist-form" onSubmit={e=>{e.preventDefault();ask();}}><label className="account-field"><span className="stylist-prompt-label">What’s the occasion or mood?</span><textarea value={text} onChange={e=>setText(e.target.value)} rows={3} maxLength={1200} placeholder="A dinner date in Pune. Style my navy shirt with something relaxed…"/></label><VoiceComposer value={text} onText={setText} disabled={pending} label="Speak your styling request"/>
  <div className="stylist-prompts">{['Build an office look','Plan a wedding guest outfit','Make it more casual'].map(p=><button key={p} type="button" onClick={()=>{setText(p);setRefine(false);}} disabled={pending}>{p}</button>)}</div>
  <details className="app-optional"><summary>Date, time and setting</summary><div className="stylist-event"><label className="account-field">Date<input type="date" value={date} onChange={e=>setDate(e.target.value)}/></label><label className="account-field">Time<select value={period} onChange={e=>setPeriod(e.target.value)}>{['auto','morning','afternoon','evening','night'].map(p=><option key={p} value={p}>{p==='auto'?'Current time':p}</option>)}</select></label><label className="account-field">Setting<select value={setting} onChange={e=>setSetting(e.target.value)}><option value="unspecified">Describe in my question</option><option value="indoors">Indoors</option><option value="outdoors">Outdoors</option><option value="mixed">Both / commuting</option></select></label></div>
  </details>

@@ -53,8 +53,9 @@ export function nextRequest(text: string, previous: Requirements = {}): {require
 }
 export function searchTerms(r:Requirements,includeSoft=true): string {
  const hard=positiveStyleTerms(r.mustHave??[]);
- // Broad search keeps every hard constraint. Style words only guide candidate retrieval.
- const soft=includeSoft?positiveStyleTerms([occasionTerms(r)[0],r.pattern,r.fit,r.sleeve,r.length,r.style]).filter(term=>!hard.includes(term)).slice(0,2):[];
+ // A chosen brand takes priority over optional style/use words in merchant queries.
+ // Keep explicit must-haves; occasion/style still guide ranking after retrieval.
+ const soft=includeSoft&&(!r.brand||r.brand==='any')?positiveStyleTerms([occasionTerms(r)[0],r.pattern,r.fit,r.sleeve,r.length,r.style]).filter(term=>!hard.includes(term)).slice(0,2):[];
  return [...new Set([r.brand&&r.brand!=='any'?r.brand:undefined,r.colour,r.fabric,...hard,...soft,r.category,r.audience].filter(Boolean))].join(' ');
 }
 export function allowedProductUrl(raw:string): boolean {return Boolean(productStore(raw));}

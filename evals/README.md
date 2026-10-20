@@ -2,6 +2,8 @@
 
 Real Gemini calls through the application's existing Convex actions, with isolated in-memory accounts. No production accounts or private photos. These calls spend Gemini quota; they are deliberately separate from normal tests. No merchant/browser search calls occur here: discovery is evaluated through planning, state updates and its final reply, not live product retrieval.
 
+Daily-pick personalization is deterministic rather than AI-generated. Its offline regressions (saved-item signals, repeated pass signals, audience constraints and repeat exclusion) live in `convex/dailyFeed.test.ts` and run with `npm test`; they do not spend Gemini quota.
+
 Based on GrowthX [Eval 101](https://growthx.club/learn/build-sprint#/eval-101), [Define good](https://growthx.club/learn/build-sprint#/eval-define), and the improve/advanced chapters. Twenty-four synthetic cases, three repeats each, three scoring dimensions. A case passes only if every repeat passes requirements=3, evidence=3 and usefulness>=2, with no deterministic failure or scorer abstention.
 
 ## Run

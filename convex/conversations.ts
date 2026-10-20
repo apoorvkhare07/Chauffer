@@ -52,6 +52,16 @@ export const post=mutation({args:{text:v.string(),newSearch:v.optional(v.boolean
  }
  return null;
 }});
+export const newChat=mutation({args:{},returns:v.null(),handler:async(ctx):Promise<null>=>{
+ const owner=await getAuthUserId(ctx);if(!owner)throw new Error('Please sign in.');
+ let conversation=await ctx.db.query('conversations').withIndex('by_key',q=>q.eq('key',`web:${owner}`)).unique();
+ const profile=await ctx.db.query('profiles').withIndex('by_owner',q=>q.eq('owner',owner)).unique();
+ const defaults=profileDefaults(profile?.preferences);
+ if(!conversation)conversation=await getConversation(ctx,`web:${owner}`,defaults);
+ if(conversation.pending&&conversation.updatedAt>Date.now()-120000)throw new Error('Wait for the current search to finish before starting a new chat.');
+ await beginTurn(ctx,conversation,'start',defaults);
+ return null;
+}});
 export const cancel=mutation({args:{},returns:v.null(),handler:async(ctx)=>{
  const owner=await getAuthUserId(ctx);if(!owner)throw new Error('Please sign in.');
  const c=await ctx.db.query('conversations').withIndex('by_key',q=>q.eq('key',`web:${owner}`)).unique();

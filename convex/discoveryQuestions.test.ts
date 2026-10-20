@@ -15,7 +15,7 @@ test('question changes with the item and already confirmed information, without 
 });
 test('answers alter retrieval and ranking while keeping the spending ceiling',()=>{
  const r={category:'sneakers',budget:5000,brand:'Nike',occasion:'workout',style:'chunky'};
- expect(searchTerms(r)).toContain('training');expect(searchTerms(r)).toContain('chunky');
+ expect(searchTerms({...r,brand:'any'})).toContain('training');expect(searchTerms({...r,brand:'any'})).toContain('chunky');expect(searchTerms(r)).toBe('Nike sneakers');
  const base={store:'Amazon' as const,brand:'Nike',url:'https://www.amazon.in/dp/B000000001',title:'Men Classic Sneakers',price:4000,colour:'',fabric:'',observedAt:1};
  expect(rankOptions([base,{...base,url:'https://www.amazon.in/dp/B000000002',title:'Men Training Sneakers',price:4200}],r)[0].title).toContain('Training');
  expect(rankOptions([{...base,price:6000}],r)).toEqual([]);

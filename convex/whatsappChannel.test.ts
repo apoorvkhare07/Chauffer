@@ -40,6 +40,7 @@ test('consent, minimal setup, stale buttons and same-account preferences',async(
  const profile=await t.run(ctx=>ctx.db.query('profiles').withIndex('by_owner',q=>q.eq('owner',owner)).unique());expect(profile?.preferences).toMatchObject({name:'Aarav',age:28,audience:'men',language:'en'});
 });
 test('owner isolation, shared web conversation and monthly limits',async()=>{
+ vi.stubEnv('PLAN_LIMITS_ENABLED','true');
  const {t,owner,send}=await fixture();await send('consent:yes');
  const row=await send('blue shirt');
  const shared=await t.run(ctx=>ctx.db.query('conversations').withIndex('by_key',q=>q.eq('key',`web:${owner}`)).unique());expect(shared?.requirements.audience).toBe('men');expect(row.sharedRevision).toBe(shared?.revision);
@@ -87,6 +88,7 @@ test('confirmed wardrobe photo uses existing capacity checks and cannot confirm 
 });
 
 test('photo → AI draft → corrected tags → confirmed wardrobe item shares web storage and quota',async()=>{
+ vi.stubEnv('PLAN_LIMITS_ENABLED','true');
  const {t,owner,send}=await fixture();await send('consent:yes');vi.stubEnv('GEMINI_API_KEY','test');
  const jpeg=await sharp({create:{width:8,height:8,channels:3,background:'#2950b8'}}).jpeg().toBuffer();
  vi.spyOn(globalThis,'fetch').mockResolvedValueOnce(new Response(JSON.stringify({url:'https://lookaside.fbsbx.com/image',mime_type:'image/jpeg',file_size:jpeg.length}))).mockResolvedValueOnce(new Response(jpeg));
