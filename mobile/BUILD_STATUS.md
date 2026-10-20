@@ -74,3 +74,28 @@ No shared API changes are proposed for the foundation. If native MSG91 proof pro
 M0 implementation and an installable iOS simulator build are verified, including a connected guest search. M1/M2 are implemented against current contracts, with authenticated integration acceptance open. M3 run notes are provided; physical-device and Android rehearsals remain open.
 
 Next milestone: connect the installed app to an approved-IP development backend containing the integrated functions, then complete sign-in → discovery/refinement → save → corrected wardrobe photo on a physical phone.
+
+
+## iOS affiliate follow-up — 21 October 2026
+
+Working checkout: `/Users/apoorvkhare/build-sprint-app/chauffeur`. Preserve the other uncommitted work; no new commit or App Store submission was made in this follow-up.
+
+- Existing local daily-pick, search, guest and saved-card links use the shared merchant button with stored-product references. Added other-store comparison cards with `comparison` references and `price-comparison` source. The wardrobe-review store button now appears beside the completed, current review instead of the general price-tools heading.
+- Settings now respects the shared `PRO_VISIBLE` switch, hiding the old plan card and pricing link while preserving their implementation.
+- Added native merchant-button tests for signed URLs, plain setup/loading fallback, rejected references, unknown/other-deployment hosts, disclosure, and the browser promise completing. Added a saved-screen integration test proving comparison and wardrobe-review references and source labels. These use invented fixtures and mocked boundaries.
+- Checks passed: mobile TypeScript, lint, 20 core tests, 24 component/adapter tests and iOS JavaScript/Hermes export. This export is not an installable release IPA.
+- Updated only the development Convex deployment `mellow-spaniel-636` using `npx convex dev --once`; it previously lacked the affiliate functions. No production settings or deployment changed in this follow-up. Provider/signing setup remains disabled; live simulator openings used plain merchant fallback.
+- Simulator: existing native Expo 57 development app on iPhone 17 / iOS 27 loaded the current checkout from port 8085 (IPv4 localhost binding). Existing development sign-in restored. Search product opened an actual Tata CLiQ product page in the native browser sheet. Settings showed no Pro/plan card. Saved-product and expanded price/wardrobe controls rendered, with review correctly disabled for an empty wardrobe.
+- The simulator control tool did not expose the merchant sheet's close button and coordinate actions failed. The simulator was restarted without clearing its data; sign-in and saved items restored. Normal browser dismissal/return is not claimed as simulator-verified. No SMS, new search, photo upload, purchase, or real-phone verification was performed. The test account had no comparison report or wardrobe review, so those output paths are covered by component tests, not a connected simulator result.
+
+### Public release remains blocked
+
+The builder confirmed Apple Developer enrollment has not started. EAS CLI reports not logged in, and App Store Connect requires sign-in. No developer agreement, membership payment, signing credential, cloud build, or store submission was initiated.
+
+Before submission:
+
+1. Builder completes [Apple Developer enrollment](https://developer.apple.com/programs/enroll/) and chooses individual versus organization seller identity; Apple explains the seller-name consequences on that page.
+2. Sign in to Expo, link the intended project, configure production public backend address, and confirm the registered bundle identifier and signing account. Use the existing Convex backend; EAS is only the native build/submission service.
+3. Implement and verify account deletion across account data, stored photos and authentication. The current backend lacks this; Apple [requires in-app deletion for apps with account creation](https://developer.apple.com/app-store/review/guidelines/#account-sign-in).
+4. Complete truthful privacy/support materials, AI-sharing consent/release checks and the project's planned content-reporting flow. Verify SMS, merchant return, photos and account deletion on a real iPhone before calling the release tested.
+5. Produce a signed production build, upload to TestFlight, complete listing/privacy/reviewer-access details, then submit for Apple's review. [EAS submission](https://docs.expo.dev/submit/ios/) uploads a build; it does not itself make the app publicly available.

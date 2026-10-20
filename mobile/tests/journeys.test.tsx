@@ -8,16 +8,19 @@ import {
 } from "@testing-library/react-native";
 import { getFunctionName } from "convex/server";
 import { api } from "../../convex/_generated/api";
+import Saved from "../src/app/(tabs)/saved";
 import Discover from "../src/app/(tabs)/index";
 import WardrobeEdit from "../src/app/wardrobe-edit";
 import SignIn from "../src/app/sign-in";
 import Outfits from "../src/app/outfits";
 import Stylist from "../src/app/stylist";
 import StylingPhoto from "../src/app/styling-photo";
+import { DailyPicks } from "../src/components/DailyPicks";
 import { createStorage } from "../src/platform/storage";
 import type { Conversation } from "../src/core/contracts";
 
 let mockAuthenticated = true;
+const mockReads = jest.fn();
 const mockCalls = jest.fn(),
   mockSignIn = jest.fn(),
   mockRoute = jest.fn(),
@@ -25,15 +28,23 @@ const mockCalls = jest.fn(),
 const mockVerifyOtp = jest.fn(),
   mockQueries: Record<string, unknown> = {};
 const mockStorage = new Map<string, string>();
+jest.mock("expo-audio", () => ({
+  AudioModule: { requestRecordingPermissionsAsync: jest.fn(async () => ({ granted: false })) },
+  RecordingPresets: { HIGH_QUALITY: {} },
+  setAudioModeAsync: jest.fn(async () => undefined),
+  useAudioRecorder: () => ({ prepareToRecordAsync: jest.fn(), record: jest.fn(), stop: jest.fn(), uri: null }),
+  useAudioRecorderState: () => ({ isRecording: false }),
+}));
 jest.mock("convex/react", () => ({
   useConvexAuth: () => ({
     isAuthenticated: mockAuthenticated,
     isLoading: false,
   }),
-  useQuery: (fn: Parameters<typeof getFunctionName>[0], args: unknown) =>
-    args === "skip"
-      ? undefined
-      : mockQueries[require("convex/server").getFunctionName(fn)],
+  useQuery: (fn: Parameters<typeof getFunctionName>[0], args: unknown) => {
+    const name = require("convex/server").getFunctionName(fn);
+    mockReads(name, args);
+    return args === "skip" ? undefined : mockQueries[name];
+  },
   useMutation: (fn: Parameters<typeof getFunctionName>[0]) => (args: unknown) =>
     mockCalls(require("convex/server").getFunctionName(fn), args),
   useAction: (fn: Parameters<typeof getFunctionName>[0]) => (args: unknown) =>
@@ -571,4 +582,49 @@ test("failed photo analysis retries deliberately and removal needs confirmation"
   await waitFor(() =>
     expect(mockCalls).toHaveBeenCalledWith("styling:removePhoto", {}),
   );
+});
+test("daily pick skips are recorded as preference feedback", async () => {
+  mockQueries["dailyFeed:current"] = {
+    enabled: true,
+    needReady: true,
+    changed: false,
+    feed: {
+      id: "invented-daily-feed",
+      day: "2026-10-17",
+      state: "ready",
+      requirements: { category: "shirt", budget: 2000 },
+      options: [
+        { ...product, category: "shirt" },
+        { ...product, url: "https://www.myntra.com/shirt/second", category: "shirt" },
+      ],
+      drops: [],
+      stores: [],
+      note: "Fictional test picks",
+      startedAt: 1000,
+    },
+  };
+  await render(<DailyPicks />);
+  await fireEvent.press(screen.getByRole("button", { name: "Skip this pick" }));
+  await waitFor(() =>
+    expect(mockCalls).toHaveBeenCalledWith("dailyFeed:recordPass", {
+      feedId: "invented-daily-feed",
+      url: product.url,
+    }),
+  );
+});
+
+
+test("comparison and wardrobe exits use the saved evidence and correct source", async () => {
+  const id = "invented-saved";
+  const alternative = { ...product, url: "https://www.amazon.in/dp/B012345678" };
+  mockQueries["savedProducts:list"] = [{ _id: id, option: product }];
+  mockQueries["wardrobe:list"] = [{ id: "owned", details: { name: "Blue shirt" }, available: true }];
+  mockQueries["priceIntelligence:get"] = { note: "Observed prices only", checkedAt: 1000, offers: [], matches: [{ option: alternative, identity: "similar" }], gaps: [] };
+  await render(<Saved />);
+  await fireEvent.press(screen.getByText("Details, price checks & wardrobe fit"));
+  expect(mockReads).toHaveBeenCalledWith("affiliate:link", { reference: { kind: "comparison", id, url: alternative.url }, source: "price-comparison" });
+  expect(mockReads).not.toHaveBeenCalledWith("affiliate:link", { reference: { kind: "saved", id }, source: "wardrobe-review" });
+  mockCalls.mockResolvedValue({ summary: "Pairs with your blue shirt", pairs: [], similar: [], gaps: [] });
+  await fireEvent.press(screen.getByText("Review this purchase"));
+  await waitFor(() => expect(mockReads).toHaveBeenCalledWith("affiliate:link", { reference: { kind: "saved", id }, source: "wardrobe-review" }));
 });

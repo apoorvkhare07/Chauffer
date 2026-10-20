@@ -63,7 +63,6 @@ const config: ExpoConfig = {
       ? process.env.MOBILE_ANDROID_IDENTIFIER
       : `in.chauffer.app.${suffix}`,
     blockedPermissions: [
-      "android.permission.RECORD_AUDIO",
       "android.permission.ACCESS_FINE_LOCATION",
       "android.permission.ACCESS_COARSE_LOCATION",
       "android.permission.READ_CONTACTS",
@@ -75,6 +74,15 @@ const config: ExpoConfig = {
     "expo-router",
     "expo-dev-client",
     "expo-font",
+    "expo-sharing",
+    [
+      "expo-audio",
+      {
+        microphonePermission: "Allow Chauffer to record a short shopping request when you choose voice input.",
+        enableBackgroundRecording: false,
+        enableBackgroundPlayback: false,
+      },
+    ],
     ["expo-secure-store", { faceIDPermission: false }],
     "expo-web-browser",
     [

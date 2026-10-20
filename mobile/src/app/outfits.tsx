@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Image } from "react-native";
-import { useMutation, useQuery } from "convex/react";
+import { useAction, useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { wardrobeTitle } from "../../../shared/wardrobeTags";
 import type { FunctionArgs } from "convex/server";
@@ -42,10 +42,16 @@ function OutfitBuilder() {
     context = useQuery(api.wardrobeContext.get, {});
   const request = useMutation(api.wardrobe.request),
     wear = useMutation(api.wardrobe.wear),
+    saveLocation = useMutation(api.wardrobeContext.setLocation),
+    previewWeather = useAction(api.wardrobeWeather.preview),
     task = useTask();
   const [text, setText] = useState(""),
     [event, setEvent] = useState(today),
-    [showContext, setShowContext] = useState(false);
+    [showContext, setShowContext] = useState(false),
+    [cityDraft, setCityDraft] = useState<string | undefined>(undefined),
+    [weather, setWeather] = useState<Awaited<ReturnType<typeof previewWeather>> | null>(null),
+    [weatherNotice, setWeatherNotice] = useState("");
+  const city = cityDraft ?? (context?.location?.source === "city" ? context.location.city : "");
   const pending = latest?.state === "building" && !latest.changed;
   return (
     <Screen>
@@ -104,6 +110,57 @@ function OutfitBuilder() {
           No location permission is requested. You can describe the weather in
           your request.
         </Muted>
+        <Heading>Optional weather context</Heading>
+        <Field
+          label="City and country"
+          value={city}
+          onChangeText={(value) => { setCityDraft(value); setWeather(null); }}
+          placeholder="Pune, India"
+          maxLength={100}
+        />
+        <Muted>Enter a city to save it for weather-aware outfit ideas. You can clear it at any time.</Muted>
+        <Row>
+          <Button
+            secondary
+            label="Save city"
+            disabled={!city.trim() || task.busy}
+            onPress={() => void task.run(async () => {
+              await saveLocation({ location: { source: "city", city } });
+              setWeatherNotice("City saved for weather context.");
+            })}
+          />
+          {context?.location && <Button
+            secondary
+            label="Remove saved city"
+            disabled={task.busy}
+            onPress={() => void task.run(async () => {
+              await saveLocation({ location: null });
+              setCityDraft("");
+              setWeather(null);
+              setWeatherNotice("Saved city removed.");
+            })}
+          />}
+        </Row>
+        <Button
+          secondary
+          label={context?.weatherEnabled ? "Check weather for this outfit" : "Weather service is not configured"}
+          disabled={!context?.weatherEnabled || !context.location || task.busy}
+          onPress={() => void task.run(async () => {
+            setWeather(await previewWeather({ event }));
+            setWeatherNotice("");
+          })}
+        />
+        {!!weatherNotice && <Notice>{weatherNotice}</Notice>}
+        {weather && <Card>
+          <Copy>{weather.status === "ready"
+            ? [weather.location, weather.temperatureC === undefined ? "" : `${Math.round(weather.temperatureC)}°C`, weather.condition].filter(Boolean).join(" · ")
+            : weather.note}</Copy>
+          {weather.status === "ready" && <Muted>
+            {weather.feelsLikeC === undefined ? "" : `Feels like ${Math.round(weather.feelsLikeC)}°C`}
+            {weather.rainChance === undefined ? "" : ` · Rain chance ${weather.rainChance}%`}
+            {` · ${weather.kind === "forecast" ? `Forecast for ${weather.date}` : "Current conditions"} (${weather.timeZone})`}
+          </Muted>}
+        </Card>}
         <Button
           label="Suggest outfits"
           busy={task.busy}

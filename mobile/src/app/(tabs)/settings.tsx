@@ -1,8 +1,12 @@
 import { useState } from "react";
+import { PRO_VISIBLE } from "../../../../shared/features";
 import { Platform } from "react-native";
 import { router } from "expo-router";
 import { useAuthActions } from "@convex-dev/auth/react";
-import { useConvexAuth, useMutation } from "convex/react";
+import { useAction, useConvex, useConvexAuth, useMutation, useQuery } from "convex/react";
+import * as FileSystem from "expo-file-system/legacy";
+import * as Sharing from "expo-sharing";
+import * as WebBrowser from "expo-web-browser";
 import { api } from "../../../../convex/_generated/api";
 import {
   useBackend,
@@ -87,12 +91,17 @@ function AccountSettings() {
 function AccountActions() {
   const { signOut } = useAuthActions(),
     forget = useMutation(api.profiles.forgetTaste),
+    exportData = useConvex(),
+    signOutEverywhere = useAction(api.accountSupport.signOutEverywhere),
     task = useTask();
   const [confirmForget, setConfirmForget] = useState(false),
-    [forgot, setForgot] = useState(false);
+    [forgot, setForgot] = useState(false),
+    [confirmAll, setConfirmAll] = useState(false),
+    [exported, setExported] = useState(false);
   return (
     <>
       <Card>
+        {PRO_VISIBLE && <PlanSummary />}
         <Button
           secondary
           label="Edit preferences & styling"
@@ -151,9 +160,93 @@ function AccountActions() {
             )
           }
         />
+        <Button
+          secondary
+          label="Download my shopping data"
+          busy={task.busy}
+          onPress={() =>
+            void task.run(async () => {
+              const json = await exportData.query(api.accountSupport.download, {});
+              const uri = `${FileSystem.cacheDirectory}chauffer-shopping-data.json`;
+              await FileSystem.writeAsStringAsync(uri, json);
+              if (!(await Sharing.isAvailableAsync()))
+                throw new Error("File sharing is unavailable on this device.");
+              await Sharing.shareAsync(uri, {
+                mimeType: "application/json",
+                UTI: "public.json",
+                dialogTitle: "Save your Chauffer data",
+              });
+              setExported(true);
+            })
+          }
+        />
+        {exported && (
+          <Muted>
+            The snapshot includes recent chats and account details. Photos and older history are excluded.
+          </Muted>
+        )}
+        {!confirmAll ? (
+          <Button
+            secondary
+            label="Sign out on all devices"
+            onPress={() => setConfirmAll(true)}
+          />
+        ) : (
+          <>
+            <Copy>
+              This ends saved sign-in sessions across your devices. Your account data stays saved.
+            </Copy>
+            <Button
+              danger
+              label="Confirm sign out everywhere"
+              busy={task.busy}
+              onPress={() =>
+                void task.run(async () => {
+                  await signOutEverywhere({ confirmation: "SIGN OUT" });
+                  await deviceStorage.removeItem("pending-request");
+                  await cleanupPhotos();
+                  await signOut();
+                }, () => router.replace("/"))
+              }
+            />
+            <Button
+              secondary
+              label="Keep me signed in"
+              onPress={() => setConfirmAll(false)}
+            />
+          </>
+        )}
+        <Muted>
+          Account deletion is not available yet. You can remove individual wardrobe pieces, photos and saved products.
+        </Muted>
+        {!!task.error && <Notice error>{task.error}</Notice>}
       </Card>
       {forgot && <Notice>Remembered taste cleared.</Notice>}
       {!!task.error && <Notice error>{task.error}</Notice>}
+    </>
+  );
+}
+function PlanSummary() {
+  const plan = useQuery(api.planAccess.current, {});
+  if (!plan) return <Loading label="Loading your plan…" />;
+  const remaining = (key: "wardrobeItems" | "conversations" | "stylistSessions") => {
+    const limit = plan.limits[key];
+    return limit === null ? "Unlimited" : `${Math.max(0, limit - plan.usage[key])} left`;
+  };
+  return (
+    <>
+      <Heading>{plan.plan === "pro" ? "Chauffer Pro" : "Free plan"}</Heading>
+      <Muted>
+        {plan.plan === "pro"
+          ? "Unlimited plan access is active."
+          : `${remaining("wardrobeItems")} wardrobe additions · ${remaining("conversations")} conversations · ${remaining("stylistSessions")} stylist sessions this month.`}
+      </Muted>
+      <Muted>Plan payments and upgrades are not connected in this app yet.</Muted>
+      <Button
+        secondary
+        label="Compare plan details"
+        onPress={() => void WebBrowser.openBrowserAsync("https://rare-chameleon-828.convex.site/pricing/")}
+      />
     </>
   );
 }

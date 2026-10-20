@@ -31,6 +31,7 @@ function WardrobeList() {
   const items = useQuery(api.wardrobe.list, {}),
     available = useMutation(api.wardrobe.setAvailable),
     remove = useMutation(api.wardrobe.remove),
+    cleanPhoto = useMutation(api.wardrobeImages.request),
     task = useTask();
   const [removing, setRemoving] = useState<Id<"wardrobeItems"> | null>(null),
     [original, setOriginal] = useState<string>();
@@ -56,6 +57,11 @@ function WardrobeList() {
         secondary
         label="Explore personal styling ideas"
         onPress={() => router.push("/stylist")}
+      />
+      <Button
+        secondary
+        label="Preview clothing on your photo"
+        onPress={() => router.push("/try-on")}
       />
       {!items ? (
         <Loading label="Opening your wardrobe…" />
@@ -103,6 +109,14 @@ function WardrobeList() {
               {item.cleanPhotoNote ||
                 "The clean photo could not finish. Your original is still available."}
             </Muted>
+          )}
+          {!!item.photoUrl && item.cleanPhotoState !== "building" && !item.cleanPhotoUrl && (
+            <Button
+              secondary
+              label={item.cleanPhotoState === "failed" ? "Retry clean display photo" : "Create clean display photo"}
+              busy={task.busy}
+              onPress={() => void task.run(() => cleanPhoto({ id: item.id }))}
+            />
           )}
           {!!item.cleanPhotoUrl && !!item.photoUrl && (
             <Button

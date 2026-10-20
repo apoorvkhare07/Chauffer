@@ -55,6 +55,8 @@ export default function RootLayout() {
               options={{ title: "Wear what you own" }}
             />
             <Stack.Screen name="history" options={{ title: "Past chats" }} />
+            <Stack.Screen name="guest-preview" options={{ title: "Photo preview" }} />
+            <Stack.Screen name="try-on" options={{ title: "Visual try-on" }} />
             <Stack.Screen
               name="styling-photo"
               options={{ title: "Optional styling photo" }}

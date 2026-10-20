@@ -27,6 +27,8 @@ import {
   Title,
 } from "../../components/ui";
 import { ProductCard } from "../../components/ProductCard";
+import { DailyPicks } from "../../components/DailyPicks";
+import { ShoppingDraft } from "../../components/ShoppingDraft";
 import { StoreStates } from "../../components/StoreStates";
 import { discoveryView, requestText } from "../../core/discovery";
 import { useTask } from "../../hooks/useTask";
@@ -91,6 +93,7 @@ function GuestDiscovery() {
     [storageError, setStorageError] = useState("");
   const current = useQuery(api.guestSearch.current, token ? { token } : "skip");
   const start = useMutation(api.guestSearch.start),
+    answerAudience = useMutation(api.guestSearch.answerAudience),
     task = useTask();
   const [previewTimedOut, setPreviewTimedOut] = useState(false);
   useEffect(() => {
@@ -146,6 +149,18 @@ function GuestDiscovery() {
         Try one search before signing in. Gemini interprets your request;
         products come from supported stores.
       </Muted>
+      <Row>
+        <Button
+          secondary
+          label="Preview a wardrobe photo"
+          onPress={() => router.push({ pathname: "/guest-preview", params: { mode: "wardrobe" } })}
+        />
+        <Button
+          secondary
+          label="Try on a clothing item"
+          onPress={() => router.push({ pathname: "/guest-preview", params: { mode: "tryon" } })}
+        />
+      </Row>
       {current && (
         <Card>
           <Copy>{current.text}</Copy>
@@ -163,6 +178,24 @@ function GuestDiscovery() {
         <ProductCard key={product.url} product={product} affiliate={token?{reference:{kind:"guest",token,url:product.url},source:"guest-search"}:undefined}/>
       ))}
       {current?.result && <StoreStates result={current.result} />}
+      {current?.state === "clarifying" && (
+        <Card>
+          <Heading>Who are you shopping for?</Heading>
+          <Row>
+            {(["men", "women", "unisex"] as const).map((audience) => (
+              <Button
+                key={audience}
+                secondary
+                label={audience[0].toUpperCase() + audience.slice(1)}
+                busy={task.busy}
+                onPress={() =>
+                  void task.run(() => answerAudience({ token: token!, audience }))
+                }
+              />
+            ))}
+          </Row>
+        </Card>
+      )}
       <Card>
         <Field
           label={
@@ -265,6 +298,7 @@ function SignedDiscovery() {
   return (
     <Screen>
       <Title>Your next find.</Title>
+      <DailyPicks />
       <Button
         secondary
         label="Ask my personal stylist"
@@ -422,6 +456,13 @@ function SignedDiscovery() {
           onPress={() => void send("These work for me")}
         />
       )}
+      <ShoppingDraft
+        disabled={disabled}
+        onDraft={(value) => {
+          edited.current = true;
+          setDraft(value);
+        }}
+      />
       <Card>
         <Field
           label={

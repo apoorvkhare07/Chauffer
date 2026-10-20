@@ -71,6 +71,7 @@ function PreferenceForm({
 }) {
   const save = useMutation(api.styling.saveSetup),
     mark = useMutation(api.styling.markOnboarding),
+    clear = useMutation(api.profiles.clear),
     task = useTask();
   const [name, setName] = useState(initial?.name || ""),
     [age, setAge] = useState(initial?.age?.toString() || ""),
@@ -88,7 +89,9 @@ function PreferenceForm({
       initial?.budgetPaise ? String(initial.budgetPaise / 100) : "",
     );
   const [style, setStyle] = useState(initialStyle),
-    [saved, setSaved] = useState(false);
+    [saved, setSaved] = useState(false),
+    [confirmClear, setConfirmClear] = useState(false),
+    [cleared, setCleared] = useState(false);
   return (
     <Screen>
       <Title>Your style. Your say.</Title>
@@ -295,6 +298,19 @@ function PreferenceForm({
         </Notice>
       )}
       {!!task.error && <Notice error>{task.error}</Notice>}
+      {confirmClear ? (
+        <Card>
+          <Copy>Clear saved size, budget, language and remembered taste? Your clothes, saved products and past chats remain.</Copy>
+          <Button danger label="Clear saved preferences" busy={task.busy} onPress={() => void task.run(
+            () => clear({}),
+            () => { setConfirmClear(false); setCleared(true); },
+          )} />
+          <Button secondary label="Keep my preferences" onPress={() => setConfirmClear(false)} />
+        </Card>
+      ) : (
+        <Button secondary label="Clear saved preferences" onPress={() => setConfirmClear(true)} />
+      )}
+      {cleared && <Notice>Saved size, budget, language and remembered taste cleared. Start a new chat to use the defaults.</Notice>}
       <Button
         secondary
         label="Go to Discover"

@@ -16,7 +16,11 @@
     },
     "production": {
       "environment": "production",
-      "env": { "EXPO_PUBLIC_APP_ENV": "production" }
+      "env": {
+        "EXPO_PUBLIC_APP_ENV": "production",
+        "MOBILE_IOS_IDENTIFIER": "app.ai.chauffer.ios",
+        "MOBILE_ANDROID_IDENTIFIER": "app.ai.chauffer.ios"
+      }
     }
   }
 }
