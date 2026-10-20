@@ -1,3 +1,4 @@
+import {go} from './affiliate';
 import { httpRouter } from 'convex/server';
 import { auth } from './auth';
 import { registerStaticRoutes } from '@convex-dev/static-hosting';
@@ -6,6 +7,7 @@ import { httpAction } from './_generated/server';
 import { internal } from './_generated/api';
 import { validSignature,parsePayload } from './whatsappProtocol';
 const http = httpRouter();
+http.route({path:'/go',method:'GET',handler:go});
 auth.addHttpRoutes(http);
 http.route({path:'/whatsapp',method:'GET',handler:httpAction(async(_ctx,request)=>{
  const p=new URL(request.url).searchParams;

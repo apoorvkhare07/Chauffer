@@ -17,6 +17,8 @@ import {offerValidator} from './offerValidators';
 export const preferences = v.object({name:v.optional(v.string()),gender:v.optional(v.union(v.literal('male'),v.literal('female'),v.literal('nonbinary'),v.literal('undisclosed'))),jeansSize:v.optional(v.string()),heightCm:v.optional(v.number()),audience:v.optional(v.union(v.literal('men'),v.literal('women'),v.literal('unisex'))),age:v.optional(v.number()),language: v.union(v.literal('en'), v.literal('hi'), v.literal('hinglish')), size: v.optional(v.string()), budgetPaise: v.optional(v.number())});
 export const quote = v.object({store: v.string(), productUrl: v.string(), title: v.string(), variant: v.string(), quantity: v.number(), itemPaise: v.number(), shippingPaise: v.number(), totalPaise: v.number(), currency: v.literal('INR'), addressReference: v.string(), returnTerms: v.string(), observedAt: v.number(), expiresAt: v.number()});
 export default defineSchema({
+ affiliateClicks: defineTable({createdAt:v.number(),store:v.string(),productUrl:v.string(),linkType:v.union(v.literal('amazon-tag'),v.literal('cuelinks'),v.literal('plain')),source:v.string(),owner:v.optional(v.string()),campaign:v.optional(v.string())}).index('by_createdAt',['createdAt']).index('by_store',['store']),
+ affiliateLinkCache: defineTable({productUrl:v.string(),source:v.string(),config:v.string(),trackingUrl:v.optional(v.string()),expiresAt:v.number(),leaseUntil:v.number()}).index('by_product_source',['productUrl','source']).index('by_expiry',['expiresAt']),
  ...authTables,
   otpChallenges: defineTable({
     phone:v.string(), createdAt:v.number(), expiresAt:v.number(),

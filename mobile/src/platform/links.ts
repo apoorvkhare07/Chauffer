@@ -1,5 +1,5 @@
 import * as WebBrowser from "expo-web-browser";
-import { trustedMerchantUrl } from "../core/links";
+import { trustedMerchantUrl, trustedProductLink } from "../core/links";
 export async function openMerchant(url: string) {
   await WebBrowser.openBrowserAsync(trustedMerchantUrl(url));
 }
@@ -15,4 +15,8 @@ export async function openEditorial(value: string) {
   )
     throw new Error("This editorial link is unavailable.");
   await WebBrowser.openBrowserAsync(url.href);
+}
+
+export async function openProductLink(url:string,backendUrl?:string){
+ await WebBrowser.openBrowserAsync(trustedProductLink(url,backendUrl));
 }

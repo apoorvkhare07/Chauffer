@@ -44,7 +44,7 @@ function SavedItems() {
       ) : (
         rows.map((row) => (
           <Card key={row._id}>
-            <ProductCard product={row.option} />
+            <ProductCard product={row.option} affiliate={{reference:{kind:"saved",id:row._id},source:"saved"}}/>
             {removing === row._id ? (
               <>
                 <Copy>

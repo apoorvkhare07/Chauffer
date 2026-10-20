@@ -1,17 +1,19 @@
 import { useState } from "react";
 import { Image, View } from "react-native";
 import type { Product } from "../core/contracts";
-import { openMerchant } from "../platform/links";
+import {MerchantButton,type AffiliateReference} from "./MerchantButton";
 import { useTask } from "../hooks/useTask";
 import { Button, Card, Copy, Heading, Muted, Notice, Row, colors } from "./ui";
 export function ProductCard({
   product,
+  affiliate,
   save,
   saved,
   feedback,
   pairing,
 }: {
   product: Product;
+  affiliate?: AffiliateReference;
   save?: () => Promise<unknown>;
   saved?: boolean;
   feedback?: (text: string) => void;
@@ -60,10 +62,7 @@ export function ProductCard({
         {!!product.reasons?.length && <Copy>{product.reasons.join(" ")}</Copy>}
         {!!pairing && <Notice>{pairing}</Notice>}
         <Row>
-          <Button
-            label="Open on store"
-            onPress={() => void task.run(() => openMerchant(product.url))}
-          />
+          <MerchantButton url={product.url} affiliate={affiliate}/>
           {save && (
             <Button
               secondary

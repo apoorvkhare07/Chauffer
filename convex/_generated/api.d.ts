@@ -8,6 +8,10 @@
  * @module
  */
 
+import type * as affiliate from "../affiliate.js";
+import type * as affiliateCore from "../affiliateCore.js";
+import type * as affiliateRules from "../affiliateRules.js";
+import type * as affiliateProviders from "../affiliateProviders.js";
 import type * as accountSupport from "../accountSupport.js";
 import type * as aiConversations from "../aiConversations.js";
 import type * as aiDecision from "../aiDecision.js";
@@ -108,6 +112,10 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  affiliate: typeof affiliate;
+  affiliateCore: typeof affiliateCore;
+  affiliateRules: typeof affiliateRules;
+  affiliateProviders: typeof affiliateProviders;
   accountSupport: typeof accountSupport;
   aiConversations: typeof aiConversations;
   aiDecision: typeof aiDecision;

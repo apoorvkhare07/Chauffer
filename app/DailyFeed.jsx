@@ -1,3 +1,4 @@
+import AffiliateLink,{AffiliateDisclosure} from './AffiliateLink.jsx';
 import React,{useEffect,useRef,useState} from 'react';
 import {useMutation,useQuery} from 'convex/react';
 import {Sparkles,Pause,CalendarDays,ArrowRight,ArrowLeft,Heart,X,RotateCcw} from 'lucide-react';
@@ -18,7 +19,7 @@ export default function DailyFeed(){
  if(!data)return <section className="daily-feed daily-feed-home" aria-label="Daily style picks"><p>Preparing your style edit…</p></section>;
  const show=data.enabled&&!data.changed&&feed?.state==='ready'&&options.length>0;
  const complete=show&&index>=options.length;
- return <section className="daily-feed daily-feed-home daily-feed-agent" aria-labelledby="daily-feed-title">
+ return <section className="daily-feed daily-feed-home daily-feed-agent" aria-labelledby="daily-feed-title"><AffiliateDisclosure/>
   <header className="daily-feed-header"><div><span className="daily-kicker"><Sparkles size={15}/> A FRESH EDIT, EACH DAY</span><h2 id="daily-feed-title">Picked for you</h2><p>{data.enabled?'A few finds, shaped around your style.':'A small, personal edit when you want it.'}</p></div><button className="chat-chip daily-toggle" type="button" disabled={busy||(!data.enabled&&!data.needReady)} onClick={()=>toggle(data.changed?true:!data.enabled)}>{data.changed?<><Sparkles size={14}/> Refresh edit</>:data.enabled?<><Pause size={14}/> Pause</>:<><CalendarDays size={14}/> {feed?'Resume':'Make my edit'}</>}</button></header>
   {!data.enabled&&<div className="daily-agent-empty"><div className="daily-agent-orbit"><Sparkles size={25}/></div><div><strong>Your daily edit is ready when you are</strong><span>Three pieces, chosen for your taste and fit.</span></div><button type="button" disabled={!data.needReady||busy} onClick={()=>toggle(true)}>{data.needReady?'Build my edit':'Finish style setup'} <ArrowRight size={16}/></button></div>}
   {!data.needReady&&<p className="daily-notice">Complete your style setup to get personal picks.</p>}
@@ -32,7 +33,7 @@ export default function DailyFeed(){
     <div className="daily-swipe-count">{String(index+1).padStart(2,'0')} <i/> {String(options.length).padStart(2,'0')}</div>
     <article className="daily-swipe-card" style={{'--swipe-x':`${dragX}px`}} onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerUp} onPointerCancel={()=>{start.current=null;setDragX(0);}} onMouseDown={pointerDown} onMouseMove={pointerMove} onMouseUp={pointerUp}>
      <div aria-hidden="true" className={`daily-swipe-stamp ${Math.abs(dragX)>8?'is-active':''} ${dragX>=0?'stamp-save':'stamp-skip'}`}>{dragX>=0?'SAVE':'PASS'}</div>
-     <ProductPreview option={active}/><div className="daily-swipe-copy"><div><span className="daily-swipe-type">{active.category||active.store}</span><strong>{active.title}</strong><span className="daily-swipe-price">{active.priceFrom?'From ':''}₹{active.price.toLocaleString('en-IN')}</span></div><a href={active.url} target="_blank" rel="noopener noreferrer" aria-label={`View ${active.title} on ${active.store}`}>View find <ArrowRight size={15}/></a></div>
+     <ProductPreview reference={{kind:'daily',id:feed.id,url:active.url}} source="daily" option={active}/><div className="daily-swipe-copy"><div><span className="daily-swipe-type">{active.category||active.store}</span><strong>{active.title}</strong><span className="daily-swipe-price">{active.priceFrom?'From ':''}₹{active.price.toLocaleString('en-IN')}</span></div><AffiliateLink reference={{kind:'daily',id:feed.id,url:active.url}} source="daily" href={active.url} target="_blank" rel="noopener noreferrer" aria-label={`View ${active.title} on ${active.store}`}>View find <ArrowRight size={15}/></AffiliateLink></div>
     </article>
     <div className="daily-swipe-actions"><button type="button" className="daily-pass" aria-label="Skip this pick" disabled={Boolean(saving)} onClick={pass}><X size={22}/></button><span>Swipe to choose</span><button type="button" className="daily-like" aria-label={savedActive?'Already saved, skip to next':'Save this pick'} disabled={Boolean(saving)||saved===undefined} onClick={()=>saveOption(active)}>{saving===active.url?'…':savedActive?<ArrowRight size={21}/>:<Heart size={21}/>}</button></div>
    </>}

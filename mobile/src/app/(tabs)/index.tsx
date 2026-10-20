@@ -160,7 +160,7 @@ function GuestDiscovery() {
         </Card>
       )}
       {current?.result?.options.map((product) => (
-        <ProductCard key={product.url} product={product} />
+        <ProductCard key={product.url} product={product} affiliate={token?{reference:{kind:"guest",token,url:product.url},source:"guest-search"}:undefined}/>
       ))}
       {current?.result && <StoreStates result={current.result} />}
       <Card>
@@ -373,6 +373,7 @@ function SignedDiscovery() {
             <ProductCard
               key={product.url}
               product={product}
+              affiliate={{reference:{kind:"message",id:view.latest!.id as Id<"messages">,url:product.url},source:"search"}}
               saved={saved?.some((row) => row.option.url === product.url)}
               save={() =>
                 save({
