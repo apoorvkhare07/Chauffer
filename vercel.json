@@ -1,0 +1,76 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "vite",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "rewrites": [
+    {
+      "source": "/edits/:slug",
+      "destination": "/edits/:slug/index.html"
+    },
+    {
+      "source": "/edits/:slug/",
+      "destination": "/edits/:slug/index.html"
+    },
+    {
+      "source": "/app",
+      "destination": "/app/index.html"
+    },
+    {
+      "source": "/demo",
+      "destination": "/demo/index.html"
+    },
+    {
+      "source": "/pricing",
+      "destination": "/pricing/index.html"
+    },
+    {
+      "source": "/faq",
+      "destination": "/faq/index.html"
+    },
+    {
+      "source": "/roadmap",
+      "destination": "/roadmap/index.html"
+    },
+    {
+      "source": "/app/",
+      "destination": "/app/index.html"
+    },
+    {
+      "source": "/demo/",
+      "destination": "/demo/index.html"
+    },
+    {
+      "source": "/pricing/",
+      "destination": "/pricing/index.html"
+    },
+    {
+      "source": "/faq/",
+      "destination": "/faq/index.html"
+    },
+    {
+      "source": "/roadmap/",
+      "destination": "/roadmap/index.html"
+    }
+  ],
+  "git": {
+    "deploymentEnabled": false
+  },
+  "redirects": [
+    {
+      "source": "/edits/diwali",
+      "destination": "/edits/diwali-post-1/",
+      "permanent": true
+    },
+    {
+      "source": "/edits/diwali/",
+      "destination": "/edits/diwali-post-1/",
+      "permanent": true
+    },
+    {
+      "source": "/edits/diwali/index.html",
+      "destination": "/edits/diwali-post-1/",
+      "permanent": true
+    }
+  ]
+}

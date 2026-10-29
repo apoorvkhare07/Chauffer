@@ -127,15 +127,16 @@ test('conflicting avoided styles cannot remain positive requirement notes',()=>{
  expect(plan.taste.prefer).toEqual(['printed']);
 });
 
-test('refining a preference keeps previously shown products excluded',async()=>{
+test('refining a preference rechecks previously shown products instead of exhausting the catalogue',async()=>{
  const {t,user}=setup();products();const generate=vi.spyOn(Agent.prototype,'generateObject').mockImplementation(async()=>modelReply(reply()));
  await user.mutation(api.conversations.post,{text:'plain kurta M under 1500'});await t.finishAllScheduledFunctions(vi.runAllTimers);
  const first=(await user.query(api.conversations.current,{})).messages.at(-1)!.result!.options;
- await t.run(async ctx=>{const c=await ctx.db.query('conversations').withIndex('by_key',q=>q.eq('key','web:alice')).unique();await ctx.db.patch(c!._id,{shownUrls:[]});}); // Recover older-chat exclusions from persisted messages.
+ await t.run(async ctx=>{const c=await ctx.db.query('conversations').withIndex('by_key',q=>q.eq('key','web:alice')).unique();await ctx.db.patch(c!._id,{shownUrls:[]});}); // History must not turn a refinement into a request for unseen products.
  generate.mockImplementation(async()=>modelReply(reply('refine',{requirements:{...fullRequirements,pattern:'printed'},taste:{prefer:['printed'],avoid:['embroidered']}})));
  await user.mutation(api.conversations.post,{text:'Printed instead, same size and budget'});await t.finishAllScheduledFunctions(vi.runAllTimers);
  const next=(await user.query(api.conversations.current,{})).messages.at(-1)!.result!.options;
- expect(next.every(o=>!first.some(p=>p.url===o.url))).toBe(true);expect(next).toEqual([]); // The tiny fixture catalogue was exhausted in the first batch.
+ expect(next.length).toBeGreaterThan(0);expect(next.some(o=>first.some(p=>p.url===o.url))).toBe(true);
+ expect(next.some(o=>o.title.includes('Printed'))).toBe(true);
 });
 
 test('saved audience survives model drift, while an explicit different audience overrides it',()=>{
@@ -247,4 +248,16 @@ test('AI scope classification rejects unrelated requests with a fixed reply',()=
  const decision=normalizeDecision(reply('out_of_scope',{reply:'Here is a Python script that deletes files.',requirements:{...fullRequirements,category:'kurta'},taste:{prefer:['bright'],avoid:[]}}),prior,{prefer:['cotton'],avoid:[]},'Write a Python script to delete duplicate files.','en');
  expect(decision.intent).toBe('out_of_scope');expect(decision.reply).toContain('I’m designed for fashion');expect(decision.reply).not.toContain('Python');
  expect(decision.requirements).toEqual(prior);expect(decision.taste).toEqual({prefer:['cotton'],avoid:[]});
+});
+test('colour is a preference by default and only-colour language opts into strict filtering',()=>{
+ const raw=reply('search',{requirements:{...fullRequirements,colour:'blue'}});
+ const taste={prefer:[],avoid:[]};
+ expect(normalizeDecision(raw,{},taste,'blue sneakers').requirements.colourStrict).toBe(false);
+ expect(normalizeDecision(raw,{},taste,'only blue sneakers').requirements.colourStrict).toBe(true);
+ expect(normalizeDecision(raw,{colour:'blue',colourStrict:true},taste,'show more').requirements.colourStrict).toBe(true);
+ expect(normalizeDecision(raw,{colour:'blue',colourStrict:true},taste,'related colours are fine').requirements.colourStrict).toBe(false);
+});
+test('explicit preferred colour overrides a model confusing the named alternative with the preference',()=>{
+ const raw=reply('refine',{requirements:{...fullRequirements,colour:'purple'}});
+ expect(normalizeDecision(raw,{colour:'purple'},{prefer:[],avoid:[]},'Prefer blue, but purple alternatives are fine').requirements.colour).toBe('blue');
 });

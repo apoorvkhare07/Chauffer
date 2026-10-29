@@ -10,6 +10,7 @@ import '../brand-fonts.css';
 import '../brand-header.css';
 import './brand-theme.css';
 import './shopping-experience.css';
+import './app-refresh.css';
 import './ui.css';
 const url = import.meta.env.VITE_CONVEX_URL;
 initAnalytics();

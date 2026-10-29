@@ -30,9 +30,9 @@
 
 ## 3. Shipping and checks
 
-- Fixed stack: Codex for code, GitHub for source, Convex for database/backend, Convex Auth and static hosting. Never introduce or suggest another host, database or auth service. Ask first if a requested feature appears to require one.
-- Live site: `https://rare-chameleon-828.convex.site`. Repository: `https://github.com/apoorvkhare07/Chauffer`. Do not change repo visibility during routine work.
-- Deploy: `npm run deploy` from the active Chauffeur checkout. Git push does not deploy. Follow `../.agents/skills/convex-dev-static-hosting/SKILL.md`; verify the selected target without printing secrets.
+- Stack update approved 22 October 2026: Codex for code, GitHub for source, Vercel for the frontend; Convex remains database/backend/storage and Convex Auth. Do not move backend or auth to Vercel. The intended public domain is chauffer.studio; verify migration status in TESTING_LEDGER.md.
+- Public frontend: `https://chauffer.studio` (see TESTING_LEDGER.md for DNS verification). Legacy frontend and backend HTTP origin: `https://rare-chameleon-828.convex.site`. Repository: `https://github.com/apoorvkhare07/Chauffer`. Do not change repo visibility during routine work.
+- Deploy: `npm run deploy` publishes the Convex backend, then Vercel frontend from the active Chauffeur checkout. `npm run deploy:frontend` and `npm run deploy:backend` publish separately. Git push does not deploy. Legacy static hosting is available only through `npm run deploy:convex-hosting`; use its skill only for that rollback workflow. Verify selected targets without printing secrets.
 - Development and production databases/settings are separate. Do not rotate auth keys during normal releases. Keep data/function changes compatible with saved records and older open pages.
 - Keys live in Convex deployment settings for dev/prod, never source, browser storage, committed files, chat or `VITE_` variables. `VITE_CONVEX_URL` is a public address, not a key. `.gitignore` excludes `.env*` except `.env.example`.
 - Settings include `GEMINI_API_KEY`, optional `GEMINI_MODEL`, and auth `JWT_PRIVATE_KEY`, `JWKS`, `SITE_URL`. Never print values, request secrets in chat or copy another app’s keys.

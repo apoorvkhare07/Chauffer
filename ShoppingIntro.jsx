@@ -3,9 +3,13 @@ import FashionHero from './FashionHero.jsx';
 import './shopping-intro.css';
 import ShoppingFlow from './ShoppingFlow.jsx';
 
-export default function ShoppingIntro({ liveLink }) {
+export default function ShoppingIntro({ liveLink, showJourney = false }) {
   const root = useRef(null), source = useRef(null), search = useRef(null), dock = useRef(null);
   useEffect(() => {
+    if (!showJourney) {
+      document.documentElement.classList.add('shopping-scroll-page');
+      return () => document.documentElement.classList.remove('shopping-scroll-page');
+    }
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
     const phone = window.matchMedia('(max-width: 760px)');
     const page = document.documentElement;
@@ -107,9 +111,9 @@ export default function ShoppingIntro({ liveLink }) {
       window.removeEventListener('scroll', schedule); window.removeEventListener('resize', measure);
       reduced.removeEventListener('change', measure);
     };
-  }, []);
+  }, [showJourney]);
   return <div className="shopping-intro" ref={root}>
     <FashionHero liveLink={liveLink} sourceRef={source} searchRef={search}/>
-    <ShoppingFlow dock={dock} liveLink={liveLink} search={search}/>
+    {showJourney && <ShoppingFlow dock={dock} liveLink={liveLink} search={search}/>}
   </div>;
 }

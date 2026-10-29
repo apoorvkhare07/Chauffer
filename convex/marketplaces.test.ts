@@ -54,3 +54,17 @@ test('Amazon broad fallback recovers style candidates while preserving price and
  expect(requests).toHaveLength(2);expect(requests.every(u=>u.searchParams.get('rh')==='p_36:-100000')).toBe(true);
  expect(requests.every(u=>u.searchParams.get('k')?.includes('solid'))).toBe(true);
 });
+
+test('single-page stores search core requirements broadly and still enforce price and colour',async()=>{
+ const fetch=vi.spyOn(globalThis,'fetch').mockImplementation(async input=>{
+  const url=new URL(String(input));if(url.hostname!=='www.bonkerscorner.com')return new Response('Unavailable',{status:503});
+  if(url.searchParams.get('q')!=='blue cotton kurta')return new Response(JSON.stringify({resources:{results:{products:[]}}}));
+  const item={title:'Women Blue Cotton Kurta',url:'/products/blue-kurta',available:true,price:'650.00'};
+  return new Response(JSON.stringify({resources:{results:{products:[item,{...item,url:'/products/expensive',price:'1400.00'},{...item,url:'/products/red',title:'Women Red Cotton Kurta'}]}}}));
+ });
+ const result=await discoverAcrossStores({...r,occasion:'work',fit:'relaxed',pattern:'solid'});
+ expect(result.options).toHaveLength(1);expect(result.options[0]).toMatchObject({price:650,store:'Bonkers Corner'});
+ const requests=fetch.mock.calls.map(([u])=>new URL(String(u))).filter(u=>u.hostname==='www.bonkerscorner.com');
+ expect(requests).toHaveLength(1);expect(requests[0].searchParams.get('q')).toBe('blue cotton kurta');
+ expect(result.options[0].unknownPreferences).toContain('relaxed');
+});

@@ -1,0 +1,33 @@
+.tryon-directions{--tryon-blue:#2950b8;--tryon-ink:#242a38;position:relative;isolation:isolate}
+.tryon-lookbook{padding:82px 0 68px;scroll-margin-top:80px;overflow:hidden}
+.tryon-section-heading{text-align:center;margin-bottom:40px}
+.tryon-kicker{display:block;font-size:11px;font-weight:600;letter-spacing:.17em;color:#73809b;margin-bottom:20px}
+.tryon-section-heading h2{font-family:inherit;font-size:clamp(40px,4.7vw,66px);line-height:1.05;letter-spacing:-.055em;font-weight:650;margin:0 0 22px;color:var(--tryon-ink)}
+.tryon-section-heading h2 span{color:var(--tryon-blue)}
+.tryon-section-heading>p{font-size:16px;line-height:1.65;color:#72798a;margin:0 0 25px}
+.tryon-primary{display:inline-flex;align-items:center;justify-content:center;gap:16px;padding:16px 23px;min-height:52px;border-radius:30px;background:var(--tryon-blue);color:white;font-size:14px;font-weight:550;text-decoration:none;transition:background .2s,transform .2s}
+.tryon-primary:hover{background:#203f95;transform:translateY(-2px)}
+.tryon-carousel{--offset:-1632px;--portrait-width:256px;--portrait-gap:16px;position:relative;height:416px;max-width:1280px;margin:58px auto 0}
+.tryon-carousel-mask{position:absolute;inset:0;overflow:hidden;mask-image:linear-gradient(to right,transparent,#000 8%,#000 92%,transparent)}
+.tryon-carousel-layer{position:absolute;inset:0;overflow:hidden}
+.tryon-after-layer{clip-path:inset(0 0 0 50%)}
+.tryon-portrait-track{display:flex;width:max-content;height:100%;transform:translateX(var(--offset));will-change:transform}
+.tryon-portrait-group{display:flex;gap:var(--portrait-gap);padding-right:var(--portrait-gap);height:100%;flex-shrink:0}
+.tryon-portrait{position:relative;flex:0 0 var(--portrait-width);width:var(--portrait-width);height:100%;border-radius:24px;overflow:hidden;border:1px solid #242a3820;background:#e8e4df}
+.tryon-portrait-photo{display:block;width:100%;height:100%;object-fit:cover;transform:scale(1.04)}
+.tryon-garment-thumb{position:absolute;right:8px;bottom:8px;width:84px;height:112px;border:1px solid #e7e7e2;border-radius:11px;overflow:hidden;background:#faf9f6;box-shadow:0 2px 8px #00000008}
+.tryon-garment-thumb img{display:block;width:100%;height:100%;object-fit:contain}
+.tryon-garment-thumb.is-detail img{object-fit:cover;transform:scale(2.3);object-position:50% 38%}
+.tryon-carousel-divider{position:absolute;z-index:2;top:-11px;bottom:-11px;left:50%;width:7px;transform:translateX(-50%);background:#fffffff5;border:1px solid #a5a9a0;border-radius:9px;box-shadow:0 0 0 2px #ffffff80;pointer-events:none}
+.tryon-carousel-footer{max-width:1280px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:24px;margin-top:28px;padding-inline:20px}
+.tryon-carousel-footer>p{text-align:center;font-size:10px;letter-spacing:.11em;color:#727b8b;margin:0;line-height:1.8}
+.tryon-carousel-footer>p>span{display:inline-block;margin:0 8px;color:#a3abba}
+.tryon-carousel-footer small{display:block;font-size:10px;letter-spacing:0;color:#9a9fab;margin-top:3px}
+.tryon-directions button:focus-visible,.tryon-directions a:focus-visible{outline:3px solid #9cbaff;outline-offset:4px}
+@media(max-width:760px){.tryon-lookbook{padding:60px 0 40px}.tryon-section-heading{margin-bottom:0}.tryon-kicker{font-size:9px;margin-bottom:17px}.tryon-section-heading h2{font-size:43px}.tryon-section-heading>p{font-size:14px;padding:0 9px}.tryon-desktop-break{display:none}.tryon-primary{font-size:13px;min-height:48px;padding:13px 20px}.tryon-carousel{--offset:-1368px;--portrait-width:216px;--portrait-gap:12px;height:350px;margin-top:40px}.tryon-portrait{border-radius:20px}.tryon-garment-thumb{width:70px;height:94px;right:6px;bottom:6px;border-radius:9px}.tryon-carousel-footer{margin-top:22px;padding-inline:20px;gap:8px}.tryon-carousel-footer>p{font-size:8px;letter-spacing:.06em}.tryon-carousel-footer>p>span{margin:0 4px}.tryon-carousel-footer small{font-size:9px}}
+@media(prefers-reduced-motion:reduce){.tryon-portrait-track{will-change:auto}.tryon-primary:hover{transform:none}}
+
+/* Keep the complete try-on headline on one line at every screen width. */
+.chauffeur-site .tryon-section-heading h2{white-space:nowrap;font-size:clamp(18px,4.35vw,66px);letter-spacing:-.055em}
+@media(max-width:760px){.chauffeur-site .tryon-section-heading h2{font-size:clamp(17px,4.55vw,34px)}}
+.tryon-piece-label{position:absolute;right:10px;bottom:12px;left:10px;width:fit-content;margin:auto;background:#ffffffed;border:1px solid #ffffffc7;border-radius:20px;color:#35465d;padding:7px 12px;font-size:10px;line-height:1.3;box-shadow:0 3px 14px #18223412}

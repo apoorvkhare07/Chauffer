@@ -8,6 +8,7 @@ import "./assistant-shopping-banner.css";
 import "./brand-fonts.css";
 import "./marketing-typography.css";
 import "./brand-header.css";
+import "./homepage-finishing.css";
 
 initAnalytics();
 createRoot(document.getElementById("app")).render(

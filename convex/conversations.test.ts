@@ -36,9 +36,9 @@ test('saved profile seeds discovery; shared workflow saves results privately and
  expect((await alice.query(api.conversations.current,{})).messages.at(-1)?.text).toContain('What should I change');
  await alice.mutation(api.conversations.post,{text:'Show more options'});await t.finishAllScheduledFunctions(vi.runAllTimers);
  const second=(await alice.query(api.conversations.current,{})).messages.at(-1)!.result!.options;expect(second).toHaveLength(3);expect(second.every(o=>!first.messages.at(-1)!.result!.options.some(p=>p.url===o.url))).toBe(true);
- // Refining keeps all previously seen options excluded.
+ // Refining can reuse matching picks but must still exclude explicitly rejected ones.
  await alice.mutation(api.conversations.post,{text:'blue size M under 1000'});await t.finishAllScheduledFunctions(vi.runAllTimers);
- const refined=await alice.query(api.conversations.current,{});expect(refined.requirements).toMatchObject({size:'M',budget:1000,colour:'blue'});expect(refined.messages.at(-1)!.result!.options.some(o=>o.url===rejected)).toBe(false);
+ const refined=await alice.query(api.conversations.current,{});expect(refined.requirements).toMatchObject({size:'M',budget:1000,colour:'blue'});expect(refined.messages.at(-1)!.result!.options).toHaveLength(3);expect(refined.messages.at(-1)!.result!.options.some(o=>o.url===rejected)).toBe(false);
  await expect(bob.mutation(api.conversations.post,{text:'Not this one',rejectUrl:rejected})).rejects.toThrow('Choose a product');
  await alice.mutation(api.conversations.post,{text:'reset'});const reset=await alice.query(api.conversations.current,{});expect(reset.messages).toHaveLength(1);expect(reset.requirements).toEqual({size:'L',budget:2000});
 });
@@ -99,3 +99,19 @@ test('starting a new chat archives the current session without adding a blank us
  const current=await user.query(api.conversations.current,{});expect(current.messages).toHaveLength(1);expect(current.messages[0].role).toBe('assistant');expect(current.messages[0].text).toContain('Tell me what you\'re looking for');
  const history=await user.query(api.conversations.history,{});expect(history.sessions).toHaveLength(1);expect(history.sessions[0].preview).toBe('blue shirts');expect(history.messages).toEqual([]);
 });
+
+ test('answering an occasion question rechecks the same catalogue; more still excludes seen picks',async()=>{
+ vi.useFakeTimers();mockStores();const t=convexTest(schema,modules);workflow.register(t);
+ const user=t.withIdentity({subject:'occasion-fixture',issuer:'https://test.chauffeur'});
+ await user.mutation(api.conversations.post,{text:'blue cotton kurta M under 1200'});await t.finishAllScheduledFunctions(vi.runAllTimers);
+ const first=await user.query(api.conversations.current,{});expect(first.discoveryQuestion?.field).toBe('occasion');
+ const picks=first.messages.at(-1)!.result!.options;expect(picks.length).toBeGreaterThan(0);
+ await user.mutation(api.conversations.post,{text:'For everyday wear'});await t.finishAllScheduledFunctions(vi.runAllTimers);
+ const refined=await user.query(api.conversations.current,{});
+ const {askedDiscoveryFields,...confirmed}=first.requirements;
+ expect(refined.requirements).toMatchObject({...confirmed,occasion:'everyday'});
+ expect(refined.messages.at(-1)!.result!.options.map(o=>o.url)).toEqual(picks.map(o=>o.url));
+ await user.mutation(api.conversations.post,{text:'show more options'});await t.finishAllScheduledFunctions(vi.runAllTimers);
+ const more=await user.query(api.conversations.current,{});
+ expect(more.messages.at(-1)!.result!.options.every(o=>!picks.some(p=>p.url===o.url))).toBe(true);
+ });

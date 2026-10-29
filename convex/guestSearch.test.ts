@@ -6,7 +6,7 @@ import {hashSecret} from './lib/otp';
 import {needsAudience} from './fashionRules';
 const modules=import.meta.glob('./**/*.ts');
 const token=()=>crypto.randomUUID()+crypto.randomUUID();
-afterEach(()=>vi.unstubAllEnvs());
+afterEach(()=>{vi.unstubAllEnvs();vi.restoreAllMocks();});
 describe('Guest preview boundaries',()=>{
  it('allows one request, deduplicates reloads, rejects another turn and isolates results',async()=>{
   const t=convexTest(schema,modules),key=token();
@@ -38,6 +38,8 @@ describe('Guest preview boundaries',()=>{
   const t=convexTest(schema,modules);
   await expect(t.query(api.conversations.current,{})).rejects.toThrow('sign in');
   await expect(t.query(api.savedProducts.list,{})).rejects.toThrow('sign in');
+  await expect(t.action(api.guestTrialsAI.wardrobe,{token:token(),jpegBase64:'not-an-image'})).rejects.toThrow('Sign in to add clothes');
+  expect(await t.run(ctx=>ctx.db.query('guestTrials').take(1))).toEqual([]);
   await expect(t.action(api.auth.signIn,{provider:'password',params:{email:'sample@example.com',password:'not-a-real-password',flow:'signIn'}})).rejects.toThrow();
  });
  it('rejects invalid capability tokens and limits newly created guest sessions globally',async()=>{
@@ -46,7 +48,7 @@ describe('Guest preview boundaries',()=>{
   await t.run(async ctx=>{for(let i=0;i<30;i++)await ctx.db.insert('guestSearches',{tokenHash:String(i),text:'',state:'ready',createdAt:Date.now()});});
   await expect(t.mutation(api.guestSearch.start,{token:token(),text:'shirt'})).rejects.toThrow('busy');
  });
- it('gives a guest one successful try-on and one reviewed wardrobe analysis, then gates more',async()=>{
+ it('retains internal trial limits for try-on and legacy wardrobe records',async()=>{
   const t=convexTest(schema,modules),key=token();await t.mutation(api.guestSearch.start,{token:key,text:'A blue shirt'});
   let row=await t.run(ctx=>ctx.db.query('guestTrials').first());expect(row?.chatUsed).toBe(true);
   await t.mutation(internal.guestTrials.claim,{tokenHash:row!.tokenHash,kind:'tryon'});
@@ -62,4 +64,27 @@ describe('Guest preview boundaries',()=>{
   await t.mutation(internal.guestTrials.finishWardrobe,{id:row!._id,analysis});
   await expect(t.mutation(internal.guestTrials.claim,{tokenHash:row!.tokenHash,kind:'wardrobe'})).rejects.toThrow('first wardrobe piece is ready');
  });
+});
+
+it('guest search stores a larger ranked pool from one retrieval for Show more',async()=>{
+ vi.stubEnv('GEMINI_API_KEY','');
+ const discovery=await import('./liveDiscovery');
+ const options=['Amazon','Myntra','Flipkart'].flatMap((store,s)=>Array.from({length:8},(_,i)=>({store:store as 'Amazon'|'Myntra'|'Flipkart',title:`Women Printed Kurta Design ${s}-${i}`,url:`https://www.flipkart.com/design/p/${s}${i}`,price:700+i,colour:'blue',fabric:'cotton',observedAt:Date.now()})));
+ const retrieve=vi.spyOn(discovery,'discoverAcrossStores').mockResolvedValue({options,stores:[],failed:false});
+ const t=convexTest(schema,modules),key=token();
+ const id=await t.run(async ctx=>ctx.db.insert('guestSearches',{tokenHash:await hashSecret(key),text:'Women kurtas under 1000',requirements:{category:'kurta',audience:'women',budget:1000},state:'pending',createdAt:Date.now()}));
+ await t.action(internal.guestSearchWorker.run,{id});
+ expect((await t.query(api.guestSearch.current,{token:key}))?.result?.options).toHaveLength(24);
+ await t.query(api.guestSearch.current,{token:key});
+ expect(retrieve).toHaveBeenCalledTimes(1);expect(retrieve.mock.calls[0][4]?.candidatePool).toBe(true);
+});
+it('a failed or empty preview allows one retry, keeps its request and rejects late earlier results',async()=>{
+ const t=convexTest(schema,modules),key=token();const requirements={category:'shirt',audience:'men' as const,colour:'blue',fabric:'linen',budget:1000};
+ const id=await t.run(async ctx=>ctx.db.insert('guestSearches',{tokenHash:await hashSecret(key),text:'A fictional blue linen shirt request',requirements,state:'ready',result:{options:[],stores:[],failed:false},createdAt:Date.now()-180000,updatedAt:Date.now()}));
+ expect((await t.query(api.guestSearch.current,{token:key}))?.canRetry).toBe(true);
+ await t.mutation(api.guestSearch.retry,{token:key});const current=await t.query(api.guestSearch.current,{token:key});expect(current?.state).toBe('pending');expect(current?.updatedAt).toBeGreaterThan(current!.createdAt);expect(current?.canRetry).toBe(false);
+ await expect(t.mutation(api.guestSearch.retry,{token:key})).rejects.toThrow('Sign in');
+ expect((await t.run(ctx=>ctx.db.get(id)))?.requirements).toEqual(requirements);
+ await t.mutation(internal.guestSearch.finish,{id,attempt:1,state:'ready',reply:'Old response'});expect((await t.query(api.guestSearch.current,{token:key}))?.state).toBe('pending');
+ await t.mutation(internal.guestSearch.finish,{id,attempt:2,state:'failed',reply:'Unavailable'});expect((await t.query(api.guestSearch.current,{token:key}))?.canRetry).toBe(false);
 });

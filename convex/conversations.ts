@@ -1,3 +1,4 @@
+import {architectureEnabled} from './recommendationRules';
 import {buildDiscoveryHandoff,discoveryHandoffValidator,discoveryStylingValidator,staleStyling} from './discoveryHandoff';
 import {loadShoppingContext} from './shoppingContext';
 import {nextDiscoveryQuestion,discoveryQuestionValidator,discoveryStatusValidator} from './discoveryQuestions';
@@ -81,14 +82,14 @@ export const history=query({args:{session:v.optional(v.number())},returns:v.obje
  const rows=session===undefined||!sessions.some(s=>s.session===session)?[]:await ctx.db.query('messages').withIndex('by_conversation_session',q=>q.eq('conversationId',c._id).eq('session',session)).order('desc').take(80);
  return {sessions,messages:rows.reverse().map(m=>({id:m._id,role:m.role,text:m.text,...(m.result?{result:m.result}:{})}))};
 }});
-export const plan=internalQuery({args:{conversationId:v.id('conversations'),revision:v.number()},returns:v.union(v.null(),v.object({requirements:requirementsValidator,excludeUrls:v.array(v.string()),session:v.number(),taste:tasteValidator,aiTurn:v.boolean()})),handler:async(ctx,{conversationId,revision})=>{
- const c=await ctx.db.get(conversationId);return !c||c.revision!==revision?null:{requirements:c.requirements,taste:c.taste??emptyTaste,aiTurn:c.aiTurn??false,excludeUrls:[...new Set([...c.shownUrls,...c.rejectedUrls])],session:c.session};
+export const plan=internalQuery({args:{conversationId:v.id('conversations'),revision:v.number()},returns:v.union(v.null(),v.object({architecture:v.optional(v.literal(2)),requirements:requirementsValidator,excludeUrls:v.array(v.string()),session:v.number(),taste:tasteValidator,aiTurn:v.boolean()})),handler:async(ctx,{conversationId,revision})=>{
+ const c=await ctx.db.get(conversationId);return !c||c.revision!==revision?null:{...(c.key.startsWith('web:')&&architectureEnabled(c.key.slice(4))?{architecture:2 as const}:{}),requirements:c.requirements,taste:c.taste??emptyTaste,aiTurn:c.aiTurn??false,excludeUrls:[...new Set([...(c.excludeShown?c.shownUrls:[]),...c.rejectedUrls])],session:c.session};
 }});
 export const complete=internalMutation({args:{conversationId:v.id('conversations'),revision:v.number(),result:v.optional(discoveryResultValidator),error:v.optional(v.string()),styling:v.optional(discoveryStylingValidator),stylingSourceKey:v.optional(v.string()),claimId:v.optional(v.id('webSearchRuns'))},returns:v.union(v.null(),v.string()),handler:async(ctx,{conversationId,revision,result,error,styling,stylingSourceKey,claimId})=>{
  if(claimId)await ctx.db.patch(claimId,{finishedAt:Date.now()});
  const c=await ctx.db.get(conversationId);if(!c||c.revision!==revision)return null;
  const question=!error&&!result?.failed&&result?.options.length?nextDiscoveryQuestion(c.requirements,result.options,c.taste??emptyTaste):null;
- const text=error?(error==='AI_UNAVAILABLE'?'AI could not respond just now. Please try again in a moment.':'The search could not finish. Please try again.'):result?.failed?'I couldn’t reach the stores just now. Try again later, or open their searches below.':result?.options.length?discoverySummary(result.options,c.requirements)+(question?' '+question.question:' Tell me what you would change.'):'No new verified matches in the results I could read. Try a different colour, fabric or budget; I haven’t repeated the same products.';
+ const text=error?(error==='AI_UNAVAILABLE'?'AI could not respond just now. Please try again in a moment.':'The search could not finish. Please try again.'):result?.failed?'I couldn’t reach the stores just now. Try again later, or open their searches below.':result?.options.length?discoverySummary(result.options,c.requirements)+(question?' '+question.question:' Tell me what you would change.'):(c.excludeShown?'No new verified matches in the results I could read. Previously shown picks are still in this chat.':'No verified matches in the results I could read. Your requirements are unchanged; you can retry or open the store searches below.');
  const fresh=stylingSourceKey?await loadShoppingContext(ctx,c):null;
  const checkedStyling=stylingSourceKey&&stylingSourceKey!==fresh?.sourceKey?staleStyling():styling;
  const handoff=buildDiscoveryHandoff({conversationId,session:c.session,revision,text:c.inputText,requirements:c.requirements,taste:c.taste??emptyTaste,result,question:question??undefined,styling:checkedStyling,status:error?'unavailable':undefined});

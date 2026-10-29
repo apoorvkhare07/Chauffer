@@ -1,0 +1,3 @@
+.tryon-pair-photo{position:relative;display:block;width:100%;height:100%;overflow:hidden}
+.tryon-pair-photo>img{position:absolute!important;top:0!important;left:50%!important;width:auto!important;max-width:none!important;height:100%!important;object-fit:initial!important;transform:translateX(-25%)!important}
+.tryon-pair-photo.is-after>img{transform:translateX(-75%)!important}

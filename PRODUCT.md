@@ -164,3 +164,9 @@ Method: [GrowthX Product thinking](https://growthx.club/learn/build-sprint#/prod
 ### WhatsApp implementation update — 16 October 2026
 
 The builder has now requested a WhatsApp interface alongside web. An account-bound v0 is implemented and deployed with discovery, reviewed photo/voice shopping input, stylist, wardrobe photo drafts/outfits, try-on and requested daily picks. This reuses the existing account and feature limits. Meta setup and real-phone acceptance are still pending; do not describe WhatsApp as an established working customer channel yet. Full settings/history/editing retain web handoffs. See `docs/WHATSAPP_CHANNEL.md` for exact scope and gaps.
+
+## Current app addition — 25 October 2026
+Builder-requested Creator Lounge extends the earlier V1 scope: product-to-model photos with scene and pose direction, generated or self-referenced reusable adult models, and short image-to-video clips with downloads. The navigation order is Discover, Try-on, Wardrobe, Creator Lounge. Personal stylist and Past chats are hidden for now; data and backend capabilities are preserved. This section describes the new implementation, not a production release claim; see TESTING_LEDGER.md.
+
+## Guest try-on access — 26 October 2026
+The existing preview page, reached from the homepage’s Try it on link, accepts a portrait plus a product link (or clothing image) and shows one successful preview without login. After that result, phone OTP is required for another try-on, original-image export/download and saving to Wardrobe → Saved looks. Keep the result through sign-in; do not require styling onboarding before these actions. The homepage itself retains its existing design and discovery search. See [guest access rules](docs/GUEST_ACCESS.md) for storage, failure retries and verification limits.

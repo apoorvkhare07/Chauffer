@@ -1,3 +1,4 @@
+import {validBrowseOptions} from './browseRules';
 import {query,httpAction} from './_generated/server';
 import {getAuthUserId} from '@convex-dev/auth/server';
 import {internal} from './_generated/api';
@@ -18,7 +19,13 @@ export const link=query({args:{reference:referenceValidator,source:sourceValidat
   if(row?.state==='ready')option=row.result?.options.find(o=>o.url===r.url);
  }else{
   const owner=await getAuthUserId(ctx);if(!owner)return null;
-  if(r.kind==='message'){
+  if(r.kind==='basket'){
+   if(source!=='basket')return null;
+   const row=await ctx.db.get(r.id);if(row?.owner===owner)option=row.option;
+  }else if(r.kind==='catalog'){
+   if(source!=='catalog')return null;
+   const row=await ctx.db.get(r.id);if(row)option=validBrowseOptions(row.options,row.store).find(o=>o.url===r.url);
+  }else if(r.kind==='message'){
    if(!['search','history'].includes(source))return null;
    const row=await ctx.db.get(r.id),conversation=row?await ctx.db.get(row.conversationId):null;
    if(row?.role==='assistant'&&conversation?.key===`web:${owner}`)option=row.result?.options.find(o=>o.url===r.url);

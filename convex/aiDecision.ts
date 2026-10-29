@@ -61,6 +61,17 @@ export function normalizeDecision(raw:unknown,previous:Requirements,taste:Taste,
  if(onlyCotton&&!notOnlyCotton)requirements.fabric='pure cotton';
  requirements.mustHave=positiveStyleTerms(requirements.mustHave??[]).filter(term=>explicitMust||positiveStyleTerms(previous.mustHave??[]).includes(term));
  for(const field of ['style','pattern','fit','sleeve','length'] as const){const term=requirements[field];if(term){if(negativeStyle(term))delete requirements[field];else requirements[field]=canonicalStyle(term);}}
+ // Strict colour needs an explicit instruction; a new colour resets the old strictness.
+ const preferredColour=text.match(/\bprefer(?:red colou?r is|red colou?r:|ably)?\s+(blue|purple|pink|red|orange|yellow|green|teal|black|grey|gray|white|beige|brown)\b/i)?.[1];
+ if(preferredColour)requirements.colour=preferredColour.toLowerCase();
+ const colour=requirements.colour;
+ const colourMentioned=Boolean(colour&&text.toLowerCase().includes(colour.toLowerCase()));
+ requirements.colourStrict=colour===previous.colour?previous.colourStrict??false:false;
+ if(colourMentioned){
+  const escaped=colour!.replace(/[^a-z -]/gi,'');
+  requirements.colourStrict=new RegExp(`(?:only|strictly|sirf|सिर्फ|केवल)\\s+(?:in\\s+)?${escaped}|${escaped}\\s+only`,'i').test(text);
+ }
+ if(/related colou?rs?|similar colou?rs?|other colou?rs? (?:are )?(?:okay|ok|fine)/i.test(text))requirements.colourStrict=false;
  const nextTaste={prefer:cleanTerms(positiveStyleTerms([...value.taste.prefer,...inherited.prefer]).filter(term=>!avoid.includes(term))),avoid};
  // An explicit broad request for prints is not permission to pick a new print subtype.
  const broadPrint=/(?:show|prefer|want)\s+(?:me\s+)?printed\b|printed\s+(?:kurtas?|tops?|dresses|instead)/i.test(text);

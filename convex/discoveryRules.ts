@@ -9,7 +9,7 @@ export const requirementsValidator = v.object({
  askedDiscoveryFields:v.optional(v.array(v.string())),
  brand:v.optional(v.string()),pricePreference:v.optional(v.union(v.literal('best_within_budget'),v.literal('lowest_price'))),
  audience:v.optional(v.union(v.literal('men'),v.literal('women'),v.literal('unisex'))), category: v.optional(v.string()), budget: v.optional(v.number()), size: v.optional(v.string()),
- colour: v.optional(v.string()), fabric: v.optional(v.string()),
+ colour: v.optional(v.string()), colourStrict:v.optional(v.boolean()), fabric: v.optional(v.string()),
  occasion:v.optional(v.string()),style:v.optional(v.string()),fit:v.optional(v.string()),pattern:v.optional(v.string()),sleeve:v.optional(v.string()),length:v.optional(v.string()),mustHave:v.optional(v.array(v.string())),
 });
 export type Requirements = import('convex/values').Infer<typeof requirementsValidator>;
@@ -59,6 +59,21 @@ export function searchTerms(r:Requirements,includeSoft=true): string {
  return [...new Set([r.brand&&r.brand!=='any'?r.brand:undefined,r.colour,r.fabric,...hard,...soft,r.category,r.audience].filter(Boolean))].join(' ');
 }
 export function allowedProductUrl(raw:string): boolean {return Boolean(productStore(raw));}
+export function colourMatches(actual:string,wanted:string):boolean {
+ const normalize=(s:string)=>s.toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+ const a=` ${normalize(actual)} `,w=normalize(wanted);
+ if(!w)return true;
+ // Broad families include common shades; a specific shade remains specific.
+ const families:Record<string,string[]>={blue:['blue','navy','cobalt','azure','indigo'],purple:['purple','lavender','lilac','violet','mauve','plum']};
+ const shades=w==='navy blue'?['navy']:families[w]??[w];
+ return shades.some(shade=>a.includes(` ${shade} `));
+}
+// Zero is an exact colour-family match; one is a disclosed nearby alternative.
+export function colourTier(actual:string,wanted?:string):number {
+ if(!wanted||colourMatches(actual,wanted))return 0;
+ const related:Record<string,string[]>={blue:['purple','teal'],purple:['blue','pink'],pink:['purple','red'],red:['pink','orange'],orange:['red','yellow'],yellow:['orange','green'],green:['teal','yellow'],teal:['blue','green'],black:['grey'],grey:['black','white'],white:['cream','beige'],beige:['cream','white','brown'],brown:['beige']};
+ return (related[wanted.toLowerCase()]??[]).some(c=>colourMatches(actual,c))?1:2;
+}
 export function matchesOption(o:Option,r:Requirements): boolean {
  if(!brandMatches(o,r.brand))return false;
  if (!allowedProductUrl(o.url)||!Number.isFinite(o.price)||o.price<=0||o.price>(r.budget??0)) return false;
@@ -73,10 +88,12 @@ export function matchesOption(o:Option,r:Requirements): boolean {
  if(r.audience&&audience&&audience!==r.audience&&audience!=='unisex')return false;
  const evidence=[o.title,o.colour,o.fabric,...(o.attributes??[])].join(' ');
  if(r.mustHave?.some(term=>{const negative=negativeStyle(term);return negative?styleEvidence(evidence,negative):!styleEvidence(evidence,term);} ))return false;
- if(r.colour&&!o.colour.toLowerCase().includes(r.colour))return false;
+ if(r.colour&&(r.colourStrict?!colourMatches(o.colour,r.colour):colourTier(o.colour,r.colour)>1))return false;
  if(r.fabric){const wanted=r.fabric.toLowerCase();const actual=o.fabric.toLowerCase();if(wanted==='pure cotton'||wanted==='100% cotton'){if(!/pure cotton|100% cotton/.test(actual))return false;}else if(!actual.includes(wanted))return false;}
  return true;
 }
+// Missing colour may be resolved by image inspection; a known mismatch stays rejected.
+export function matchesCandidate(o:Option,r:Requirements){return matchesOption(o,r.colour&&!o.colour&&o.imageUrl?{...r,colour:undefined}:r);}
 export function optionsReply(options:Option[],r:Requirements): string {
  if (!options.length)return "I couldn't verify matching options just now. I haven't substituted sample products. Try another colour, material or budget, or say reset to start again.";
  const entries:string[]=[];let length=0;

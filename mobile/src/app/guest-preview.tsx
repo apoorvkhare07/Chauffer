@@ -92,7 +92,7 @@ export default function GuestPreview() {
       if (!token) throw new Error("Guest session is still loading.");
       if (mode === "tryon") {
         if (!portrait || !garment || !consent) throw new Error("Choose both photos and agree before creating a preview.");
-        await runTryOn({ token, portraitJpeg: portrait.jpegBase64, garmentJpeg: garment.jpegBase64 });
+        await runTryOn({ token, portraitJpeg: portrait.jpegBase64, garmentJpeg: garment.jpegBase64, consent: true });
       } else {
         if (!garment) throw new Error("Choose a clothing photo first.");
         setConfirmed(false);

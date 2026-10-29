@@ -5,3 +5,9 @@ tmp/
 .env*
 !.env.example
 .DS_Store
+
+.vercel/
+.vercel
+
+# Generated from the product-edit registry and shared HTML template.
+/edits/*/index.html

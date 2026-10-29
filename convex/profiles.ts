@@ -1,3 +1,4 @@
+import {bumpMemory} from './shopperMemory';
 import {savePreferences} from './profilePreferences';
 import { query, mutation } from './_generated/server';
 import { v } from 'convex/values';
@@ -14,6 +15,7 @@ export const forgetTaste=mutation({args:{},returns:v.null(),handler:async ctx=>{
  if(row)await ctx.db.patch(row._id,{taste:emptyTaste,updatedAt:Date.now()});
  const c=await ctx.db.query('conversations').withIndex('by_key',q=>q.eq('key',`web:${owner}`)).unique();
  if(c){if(c.pending&&c.updatedAt>Date.now()-120000)throw new Error('Wait for the current search to finish.');await ctx.db.patch(c._id,{taste:emptyTaste});}
+ await bumpMemory(ctx,owner);
  return null;
 }});
 export const get = query({args: {}, returns: v.union(preferences, v.null()), handler: async ctx => {
@@ -32,5 +34,6 @@ export const clear = mutation({args: {}, returns: v.null(), handler: async ctx =
  if(conversation?.pending&&conversation.updatedAt>Date.now()-120000)throw new Error('Wait for the current request to finish before clearing preferences.');
  const row = await ctx.db.query('profiles').withIndex('by_owner', q => q.eq('owner', owner)).unique();
  if (row) await ctx.db.delete(row._id);
+ await bumpMemory(ctx,owner);
  return null;
 }});

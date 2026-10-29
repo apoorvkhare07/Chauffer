@@ -2,7 +2,7 @@ import {v} from 'convex/values';
 import {productStore, type Store} from './storeConfig';
 export type LinkType = 'amazon-tag' | 'cuelinks' | 'plain';
 export const linkTypeValidator=v.union(v.literal('amazon-tag'),v.literal('cuelinks'),v.literal('plain'));
-export const sources=['search','saved','wardrobe-review','history','daily','guest-search','price-comparison'] as const;
+export const sources=['search','saved','wardrobe-review','history','daily','guest-search','price-comparison','catalog','basket'] as const;
 export type AffiliateSource=typeof sources[number];
 export const sourceValidator=v.union(...sources.map(s=>v.literal(s)));
 // Opt-in routing is separate from discovery/ranking. Deep-link restrictions win.
@@ -24,6 +24,8 @@ export function validProduct(url:string,store:string){
  return detected!==undefined && url.length<=4096 && !/[\r\n\\]/.test(url) && detected===store;
 }
 export const referenceValidator=v.union(
+ v.object({kind:v.literal('basket'),id:v.id('tryOnBasket')}),
+ v.object({kind:v.literal('catalog'),id:v.id('browseCatalog'),url:v.string()}),
  v.object({kind:v.literal('message'),id:v.id('messages'),url:v.string()}),
  v.object({kind:v.literal('saved'),id:v.id('savedProducts')}),
  v.object({kind:v.literal('daily'),id:v.id('dailyFeeds'),url:v.string()}),

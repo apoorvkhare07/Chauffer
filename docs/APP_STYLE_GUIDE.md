@@ -57,3 +57,11 @@ Photo processing and retention consent stays visible at the decision point. Phot
 `app/ui.css` is the final shared styling layer imported in `app/main.jsx`. Component styles still define their structure; shared rules own typography, controls, spacing and surface treatment. Keep future changes here instead of adding another conflicting theme file.
 
 Browser checks and remaining release checks are recorded in `TESTING_LEDGER.md`. This guide does not certify live service behaviour.
+
+## 29 October: unified app workspace
+
+Try-on uses one bordered workspace for inputs, preview and action, shared by signed-in and guest flows. The photo and product sit together; product source and the item to replace stay visible. Desktop places the preview beside the controls. Phone places a compact preview between inputs and the primary action, with no horizontal page overflow at 320px. Results, comparison and downloads replace the preview in place.
+
+Use short feature names for page headings: Discover, Try-on, Wardrobe, Creator Lounge. Keep a single short supporting sentence. Preserve the blue/Inter palette. Instructions belong in an actionable control or an optional disclosure. Photo-processing consent remains visible, along with real errors and sign-in gates. Creator scene, pose, directions and format are under “Style & details”; required model description remains visible. Future planning promotion is removed from the working wardrobe view.
+
+`app/ui.css` is imported after `app-refresh.css` and owns the final shared presentation. `TryOnWorkspace.jsx` owns shared photo, consent and preview presentation. Do not move generation, ownership, limits or analytics rules into these visual components.

@@ -1,3 +1,4 @@
+import {runRecommendation} from './recommendationWorkflow';
 import {buildDiscoveryHandoff,noStyling,type DiscoveryStyling} from './discoveryHandoff';
 import {WorkflowManager} from '@convex-dev/workflow';
 import {components,internal} from './_generated/api';
@@ -6,6 +7,7 @@ const workflow=new WorkflowManager(components.workflow);
 export const respond=workflow.define({args:{conversationId:v.id('conversations'),revision:v.number(),inboxId:v.optional(v.id('waInbox')),claimId:v.optional(v.id('webSearchRuns'))},returns:v.null()}).handler(async(step,{conversationId,revision,inboxId,claimId}):Promise<null>=>{
  let plan=await step.runQuery(internal.conversations.plan,{conversationId,revision});
  if(!plan){if(claimId)await step.runMutation(internal.webDiscovery.finish,{id:claimId});return null;}
+ if(plan.architecture===2){const taskId=await step.runMutation(internal.recommendationTasks.start,{conversationId,revision});if(taskId){await runRecommendation(step,{taskId,...(claimId?{claimId}:{})});return null;}}
  if(plan.aiTurn){
   try{
    const decision=await step.runAction(internal.shoppingAI.interpret,{conversationId,revision},{retry:false});

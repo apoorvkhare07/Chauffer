@@ -21,11 +21,11 @@ The demo contains eight fictional clothing items. No real purchases, live AI, st
 
 The site uses original generated brand art (`public/images/style-gallery.jpg`). It is not product photography. Art direction and exact prompt live under `design/`. Fonts are self-hosted with their licenses under `public/fonts/`.
 
-Hosting must use the project's Convex static hosting workflow. The website and backend are deployed to production at https://rare-chameleon-828.convex.site. Accounts and saved preferences use the production database. Development uses a separate deployment.
+The builder selected Vercel for frontend hosting on 22 October 2026, with https://chauffer.studio as the intended public address. The working Vercel address is https://chauffer-pi.vercel.app; custom-domain DNS and certificate acceptance are recorded in TESTING_LEDGER.md. Convex remains the backend, database, storage and phone authentication service at rare-chameleon-828. Development uses a separate Convex deployment. See TESTING_LEDGER.md for migration verification.
 
 ## Production hosting
 
-Run `npm run deploy` to build against the production backend, push Convex functions and upload the website. Pushing to GitHub does not deploy. The homepage is `/`, accounts are `/app/` and the fictional demo is `/demo/`; the latter two redirect to their own `index.html` files while preserving query strings. Unknown paths return 404. Convex Auth routes stay at their original root paths.
+Run `npm run deploy` to deploy the Convex backend, then the Vercel frontend. Use `npm run deploy:frontend` for frontend-only releases and `npm run deploy:backend` for backend-only releases. Vercel CLI login and a linked Chauffeur project are required. The frontend script sends only the production public Convex URL and configured public PostHog settings; `.env*` files are excluded from uploads. Git auto-deployment is disabled. Vercel preserves the separate `/`, `/app/`, `/demo/`, `/pricing/`, `/faq/` and `/roadmap/` entry points; unknown paths return 404. Auth HTTP routes, affiliate redirects and webhooks remain on the Convex `.site` origin. `npm run deploy:convex-hosting` retains the old hosting workflow for explicit rollback only.
 
 Production sign-in keys are separate from development and live only in Convex deployment environment settings. For a fresh production deployment, configure `JWT_PRIVATE_KEY`, `JWKS` and `SITE_URL` before deploying. Do not rotate existing keys during routine releases.
 
@@ -274,3 +274,29 @@ The web app starts Pro checkout from **App → Settings → Your plan**. Convex 
 | `RAZORPAY_WEBHOOK_SECRET` | Secret configured for that deployment's webhook in Razorpay |
 
 Use fresh test keys in development and live keys in production. No Razorpay plan is needed. The webhook endpoint is `/razorpay/webhook`; subscribe to `payment.captured` and `payment.failed`. Development URL: `https://mellow-spaniel-636.convex.site/razorpay/webhook`. Production URL: `https://rare-chameleon-828.convex.site/razorpay/webhook`. Checkout completion alone does not grant Pro: Convex verifies the signature and checks the captured amount, currency and associated order with Razorpay.
+
+### Local test sign-in
+
+On a Vite development server at `localhost` or `127.0.0.1` connected to `mellow-spaniel-636`, use **0000000000** with code **123456**. The form skips MSG91, SMS and CAPTCHA. This is one shared synthetic development account; do not put private data in it.
+
+The Convex setting `LOCAL_TEST_AUTH_ENABLED=true` enables the provider only on the exact development cloud URL. Set it to `false` to disable new test logins. Existing sessions are ordinary Convex Auth sessions and can be signed out normally. The provider never uses a real phone identity or links to MSG91 accounts. Production rejects these credentials even if the flag is accidentally set there. The localhost UI check is presentation only: the development API can also authenticate this public test account directly. Production builds always show normal MSG91 login.
+
+
+Try-on product links use the shared `zyteClient.ts` product extractor when the server has `ZYTE_API_KEY`. The development deployment is configured; production is not. Only public store URLs go to Zyte; shopper photos still use the existing Gemini path. Calls use India location, a 55-second timeout, a 2 MB response limit and no automatic retries. Existing owner checks and import limits remain in place. Without the setting, the previous direct reader remains available.
+
+`zyteProbe:run` is an internal trial for product/image downloads or fixed-query listing extraction. Listing extraction is not yet connected to shopper discovery: records still require constraint checks, colour verification, deduplication and ranking. See TESTING_LEDGER.md for actual coverage and failures.
+
+### Discovery → try-on (22 October 2026, development)
+Configured `ZYTE_API_KEY` now selects the shared bounded Zyte listing reader for discovery as well as product-link imports. Existing product constraints, image checks and ranking remain. Results expose Try on without saving: the server reads the selected product from the shopper's own message, and Gemini edits their consented photo. The fitting room keeps the photo while switching recommended products. See DISCOVERY.md and TESTING_LEDGER.md for limits and actual checks; production has not been updated.
+
+Production update, 22 October 2026: Zyte discovery and direct result try-on are now deployed to rare-chameleon-828. See the production release entry in TESTING_LEDGER.md for checks and their limits.
+
+First-search speed update, 22 October 2026: HTTP extraction now supplies initial candidates without waiting for browser-rendered stores; bounded background workers fill the same thirty-minute pool. Store planning no longer adds a model call. A successful first shortlist skips the second blocking retrieval, and image downloads run four at a time. See DISCOVERY.md for exact bounds and TESTING_LEDGER.md for full-response measurements.
+
+## Creator Lounge (25 October 2026)
+Implemented locally as the fourth app tab; see TESTING_LEDGER.md for release status. Creator photo/model generation uses the existing server-only GEMINI_API_KEY and GEMINI_TRYON_MODEL (default gemini-3.1-flash-image). Motion video uses GEMINI_CREATOR_VIDEO_MODEL, default gemini-omni-1.1-flash, via Google's Interactions API. No new provider account is required; deployment-specific access/quota can still fail visibly.
+Inputs are compressed and sent only with consent, never saved as creator input files. Generated drafts are stored in Convex for 30 minutes; download to retain them. Save model explicitly keeps that generated photo, up to 12 per account. Models can be removed. One active creator generation per owner, at most three starts in a minute, no automatic paid generation retries. Image/video requests have 120/240-second provider deadlines. Stale jobs release their slot after 150/300 seconds; temporary output cleanup is scheduled transactionally. Public queries and source references check ownership. Settings exports model metadata, not image files.
+
+## Shoppable post pages
+
+Curated posts live in `shared/productEdits.js`. Add a record with a unique lowercase `slug`, title, kicker, heading/accent, description, and its own products (unique IDs within that post, exact merchant URLs, checked images and post prices). Vite generates each `/edits/{slug}/index.html` from `edits/template.html`, including the correct social preview and canonical URL. Generated HTML is ignored by Git; restarting dev or building regenerates it. The first post is `/edits/diwali-post-1/`; the earlier `/edits/diwali/` redirects there on Vercel. Unknown slugs do not show another post. Try-on handoffs and return links carry the post slug and product ID. Adding a post requires a normal deployment; this is not a browser-based publishing dashboard.

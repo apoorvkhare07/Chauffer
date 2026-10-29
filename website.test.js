@@ -32,7 +32,7 @@ test("the separate homepage renders its full content without crashing", async ()
       pathToFileURL(resolve(output, "App.js")).href
     );
     const html = renderToString(React.createElement(Homepage));
-    assert.match(html, /More options/);
+    assert.match(html, /Your personal assistant for/);
     assert.doesNotMatch(html, /Sample demo|href="\/demo\//);
     assert.match(html, /href="\/faq\/"/);
     assert.doesNotMatch(html, /Can I actually buy something here/);

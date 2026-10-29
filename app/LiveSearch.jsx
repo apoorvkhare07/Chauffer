@@ -1,3 +1,5 @@
+import {AddToTryOn,useTryOnBasket} from './TryOnBasket.jsx';
+import ProductOutcome from './ProductOutcome.jsx';
 import AffiliateLink,{AffiliateDisclosure} from './AffiliateLink.jsx';
 import BrandIcon from '../brand/BrandIcon.jsx';
 import React,{useEffect,useRef,useState} from 'react';
@@ -22,6 +24,8 @@ export default function LiveSearch({active=true,showHome=false,onExplore,onHome}
  const firstUserIndex=storedMessages.findIndex(m=>m.role==='user');
  const requirements=conversation?.requirements??{};
  const [draft,setDraft]=useState(()=>new URLSearchParams(window.location.search).get('q')?.trim()??''),[submitting,setSubmitting]=useState(false),[error,setError]=useState(''),[saving,setSaving]=useState(''),[notice,setNotice]=useState(''),[selected,setSelected]=useState(null),[optimistic,setOptimistic]=useState('');
+ const basket=useTryOnBasket();
+ function tryProduct(message,option){closeProduct();basket.add({kind:'discovery',messageId:message.id,url:option.url},true);}
  const messages=firstUserIndex>=0?storedMessages.slice(firstUserIndex):optimistic?[]:storedMessages;
  const input=useRef(null),busy=useRef(false),initialHandled=useRef(false),dialog=useRef(null),opener=useRef(null),submittedFrom=useRef(null);
  const pending=submitting||!conversation||conversation.pending;
@@ -62,11 +66,11 @@ export default function LiveSearch({active=true,showHome=false,onExplore,onHome}
   <button className={`discovery-save ${isSaved(option)?'is-saved':''}`} aria-label={`${isSaved(option)?'Saved':'Save'} ${option.title}`} disabled={Boolean(saving)||savedProducts===undefined||isSaved(option)} onClick={()=>save(message,option)}><Heart size={19} fill={isSaved(option)?'currentColor':'none'}/></button>
   {message.handoff?.styling?.state==='ready'&&message.handoff.styling.matches.filter(m=>m.productId===option.url).map((m,i)=><p className="discovery-wardrobe-pair" key={i}><strong>Wear with {m.items.map(item=>item.name).join(', ')}</strong>{m.reason}</p>)}
   {usefulReason(option)&&<p className="discovery-reason"><Sparkles size={13}/>{usefulReason(option)}</p>}
-  <div className="discovery-card-actions"><button disabled={pending||!conversation?.aiEnabled} onClick={()=>send('More like this product, keeping my budget and size.',undefined,{messageId:message.id,url:option.url})}><Sparkles size={14}/> More like this</button><AffiliateLink reference={{kind:'message',id:message.id,url:option.url}} source="search" href={option.url} target="_blank" rel="noopener noreferrer" aria-label={`View ${option.title} on ${option.store}`}><ArrowUpRight size={18}/></AffiliateLink></div>
+  <div className="discovery-card-actions">{option.imageUrl&&<AddToTryOn source={{kind:'discovery',messageId:message.id,url:option.url}} title={option.title}/>}<button disabled={pending||!conversation?.aiEnabled} onClick={()=>send('More like this product, keeping my budget and size.',undefined,{messageId:message.id,url:option.url})}><Sparkles size={14}/> More like this</button><AffiliateLink reference={{kind:'message',id:message.id,url:option.url}} source="search" href={option.url} target="_blank" rel="noopener noreferrer" aria-label={`View ${option.title} on ${option.store}`}><ArrowUpRight size={18}/></AffiliateLink></div>
  </article>;
- if(showHome)return <div><PersonalHome onAsk={text=>send(text,undefined,undefined,true)} busy={pending}/>{error==='conversation-limit'?<PlanLimitNotice feature="conversations" plan={plan}/>:error&&<p role="alert">{error}</p>}</div>;
- return <section className="shopping-discovery" aria-label="Shopping conversation"><AffiliateDisclosure/>
-  <header className="discovery-heading"><button className="discovery-back" onClick={startNewChat} disabled={pending}><MessageSquarePlus size={17}/> New chat</button><a href="#/history"><History size={16}/> Past chats</a></header>
+ if(showHome)return <div><PersonalHome hasConversation={messages.some(m=>m.role==='user')} onAsk={text=>send(text,undefined,undefined,true)} busy={pending}/>{error==='conversation-limit'?<PlanLimitNotice feature="conversations" plan={plan}/>:error&&<p role="alert">{error}</p>}</div>;
+ return <><section className="shopping-discovery" aria-label="Shopping conversation"><AffiliateDisclosure/>
+  <header className="discovery-heading"><button className="discovery-back" onClick={startNewChat} disabled={pending}><MessageSquarePlus size={17}/> New chat</button></header>
   {notice&&<p className="discovery-notice" role="status">{notice} <a href="#/saved">View saved items</a></p>}
   <div className="discovery-thread" aria-label="Conversation messages">
    {messages.map(message=>{
@@ -78,9 +82,9 @@ export default function LiveSearch({active=true,showHome=false,onExplore,onHome}
       {isLatestResult&&styling&&styling.state!=='not_requested'&&<aside className="discovery-wardrobe-note"><strong>From your wardrobe</strong><p>{styling.summary}</p>{styling.state==='needs_wardrobe'&&<a href="#/wardrobe">Open wardrobe</a>}{styling.limitations.map(t=><small key={t}>{t}</small>)}</aside>}
       <div className="discovery-grid" aria-label="Product recommendations">{messageOptions.map(option=>card(message,option))}</div>
      </section>}
-     {message.result&&!messageOptions.length&&<div className="discovery-empty"><Sparkles size={26}/><h3>No verified matches this time.</h3><p>Try a different style, colour or budget. Your assistant can help find another direction.</p></div>}
+     {message.result&&!messageOptions.length&&<div className="discovery-empty"><Sparkles size={26}/><h3>No verified matches this time.</h3><p>Your requirements are kept. You can retry or tell your assistant what to change.</p></div>}
      <div className="discovery-chat-assistant" aria-live={isLatest?'polite':undefined}><BrandIcon size={29}/><div>{reply&&<p>{reply}</p>}{isLatestResult&&conversation?.discoveryQuestion&&<p className="discovery-question">{conversation.discoveryQuestion.question}</p>}</div></div>
-     {isLatest&&!pending&&<div className="discovery-refinements" aria-label="Choose a next step">{latestResult&&options.length>0&&conversation?.discoveryStatus!=='satisfied'&&<button type="button" onClick={()=>send('These work for me')}>These work for me</button>}{suggestions(requirements,conversation?.discoveryQuestion).slice(0,latestResult&&options.length>0&&conversation?.discoveryStatus!=='satisfied'?2:3).map(text=><button key={text} onClick={()=>refine(text)}>{text}</button>)}</div>}
+     {isLatest&&!pending&&<div className="discovery-refinements" aria-label="Choose a next step">{latestResult&&options.length>0&&conversation?.discoveryStatus!=='satisfied'&&<button type="button" onClick={()=>send('These work for me')}>These work for me</button>}{(message.result&&!messageOptions.length?['Try again']:suggestions(requirements,conversation?.discoveryQuestion)).slice(0,latestResult&&options.length>0&&conversation?.discoveryStatus!=='satisfied'?2:3).map(text=><button key={text} onClick={()=>refine(text)}>{text}</button>)}</div>}
     </React.Fragment>;
    })}
    {showStagedText&&<div className="discovery-chat-user"><div className="discovery-user-message">{showStagedText}</div></div>}
@@ -94,8 +98,8 @@ export default function LiveSearch({active=true,showHome=false,onExplore,onHome}
    <ProductPreview reference={{kind:'message',id:selected.message.id,url:selected.option.url}} source="search" option={selected.option}/><div className="discovery-dialog-copy"><span className="discovery-store">{selected.option.store}</span><h2>{selected.option.title}</h2><strong className="discovery-price">{price(selected.option)}</strong><p>{[selected.option.colour,selected.option.fabric].filter(Boolean).join(' · ')}</p>
    {!!selected.option.reasons?.length&&<div className="discovery-match"><h3>Why it’s in your edit</h3><ul>{selected.option.reasons.map(reason=><li key={reason}>{reason}</li>)}</ul></div>}
    {!!selected.option.unknownPreferences?.length&&<p>Not confirmed by the store: {selected.option.unknownPreferences.join(', ')}.</p>}
-   <p className="discovery-disclosure">Checked {new Date(selected.option.observedAt).toLocaleString('en-IN')}. {selected.option.priceFrom?'Starting price; variants may cost more. ':''}Confirm size, delivery, final price and returns on the store.</p>
-   <AffiliateLink reference={{kind:'message',id:selected.message.id,url:selected.option.url}} source="search" className="discovery-merchant" href={selected.option.url} target="_blank" rel="noopener noreferrer">View on {selected.option.store} <ArrowUpRight size={18}/></AffiliateLink><div className="discovery-dialog-actions"><button disabled={Boolean(saving)||savedProducts===undefined||isSaved(selected.option)} onClick={()=>save(selected.message,selected.option)}><Heart size={16}/>{isSaved(selected.option)?'Saved':saving?'Saving…':'Save for later'}</button><button disabled={pending||!conversation?.aiEnabled} onClick={()=>send('More like this product, keeping my budget and size.',undefined,{messageId:selected.message.id,url:selected.option.url})}>More like this</button><button disabled={pending} onClick={()=>send(`Not this one: ${selected.option.title}`,selected.option.url)}>Not for me</button></div>{notice&&<p role="status">{notice}</p>}</div>
+   <ProductOutcome key={selected.option.url} messageId={selected.message.id} url={selected.option.url}/><p className="discovery-disclosure">Checked {new Date(selected.option.observedAt).toLocaleString('en-IN')}. {selected.option.priceFrom?'Starting price; variants may cost more. ':''}Confirm size, delivery, final price and returns on the store.</p>
+   <AffiliateLink reference={{kind:'message',id:selected.message.id,url:selected.option.url}} source="search" className="discovery-merchant" href={selected.option.url} target="_blank" rel="noopener noreferrer">View on {selected.option.store} <ArrowUpRight size={18}/></AffiliateLink><div className="discovery-dialog-actions">{selected.option.imageUrl&&<button onClick={()=>tryProduct(selected.message,selected.option)}>Add & try on</button>}<button disabled={Boolean(saving)||savedProducts===undefined||isSaved(selected.option)} onClick={()=>save(selected.message,selected.option)}><Heart size={16}/>{isSaved(selected.option)?'Saved':saving?'Saving…':'Save for later'}</button><button disabled={pending||!conversation?.aiEnabled} onClick={()=>send('More like this product, keeping my budget and size.',undefined,{messageId:selected.message.id,url:selected.option.url})}>More like this</button><button disabled={pending} onClick={()=>send(`Not this one: ${selected.option.title}`,selected.option.url)}>Not for me</button></div>{notice&&<p role="status">{notice}</p>}</div>
   </>}</dialog>
- </section>;
+ </section></>;
 }

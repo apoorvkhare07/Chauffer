@@ -1,9 +1,11 @@
 "use node";
+import {discoverWithZyte,type ListingCache} from './zyteDiscovery';
 import {addedStores,shopifySearchStores,storeConfig} from './storeConfig';
 import {expandedRetailOptions} from './expandedRetail';
 import {comparePrices} from './discoveryPolicy';
 import {fashionCategories} from './fashionRules';
 import {stores,storeSearchUrl,storeResultValidator,type StoreResult} from './marketplaces';
+import {evidencePool} from './recommendationRules';
 import {chooseBatch} from './ranking';
 import {tasteValidator,emptyTaste,type Taste} from './taste';
 import {amazonOptions,meeshoOptions} from './storeExtractors';
@@ -57,7 +59,7 @@ export async function expandedStoreBody(store:import('./storeConfig').Store,r:Re
  }
  if(store==='Tata CLiQ'){
   const url=new URL('https://searchbff.tatacliq.com/products/mpl/search');
-  const values={searchText:searchTerms(r)+':relevance',page:'0',pageSize:'40',isKeywordRedirect:'false',isKeywordRedirectEnabled:'false',channel:'WEB',isMDE:'true',isTextSearch:'false',isFilter:'false',qc:'false',isFilterDataRequired:'true',isPwa:'true',typeID:'all'};
+  const values={searchText:searchTerms(r,false)+':relevance',page:'0',pageSize:'40',isKeywordRedirect:'false',isKeywordRedirectEnabled:'false',channel:'WEB',isMDE:'true',isTextSearch:'false',isFilter:'false',qc:'false',isFilterDataRequired:'true',isPwa:'true',typeID:'all'};
   for(const [key,value] of Object.entries(values))url.searchParams.set(key,value);return page(url.href);
  }
  if(store==='Westside'){
@@ -65,7 +67,7 @@ export async function expandedStoreBody(store:import('./storeConfig').Store,r:Re
   // Credentials stay in this call; never log or return them or persist them.
   const config=JSON.parse(await page('https://www.westside.com/api/wizzy-config'))?.config;
   const c=config?.credentials;if(!c||!['apiKey','storeId','storeSecret'].every(key=>typeof c[key]==='string'&&c[key].length>0&&c[key].length<1000))throw new Error('Westside public search unavailable');
-  return page('https://westside-api.wizsearch.in/v1/products/search',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':c.apiKey,'x-store-id':c.storeId,'x-store-secret':c.storeSecret},body:JSON.stringify({q:searchTerms(r),currency:'INR',includeOutOfStock:'false',getAllVariants:'false',productsCount:24,showOOSProductsInOrder:'false'})});
+  return page('https://westside-api.wizsearch.in/v1/products/search',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':c.apiKey,'x-store-id':c.storeId,'x-store-secret':c.storeSecret},body:JSON.stringify({q:searchTerms(r,false),currency:'INR',includeOutOfStock:'false',getAllVariants:'false',productsCount:24,showOOSProductsInOrder:'false'})});
  }
  return page(searchUrl);
 }
@@ -97,22 +99,24 @@ export async function discover(requirements:Requirements,excludeUrls:string[]=[]
  if(urls.length&&!readableProducts)throw new Error('Flipkart product details unavailable');
  return matches.sort((a,b)=>comparePrices(a.price,b.price,requirements)).slice(0,limit);
 }
-export async function discoverAcrossStores(requirements:Requirements,excludeUrls:string[]=[],taste:Taste=emptyTaste,perStoreLimit=3):Promise<{options:Option[];failed:boolean;stores:StoreResult[]}>{
- const browserDeadline=Date.now()+90000;
- const results=await Promise.all(stores.map(async store=>{
-  const searchUrl=storeSearchUrl(store,requirements);
+export async function discoverAcrossStores(requirements:Requirements,excludeUrls:string[]=[],taste:Taste=emptyTaste,perStoreLimit=3,controls?:{candidatePool?:boolean;selectedStores?:string[];deadlineAt?:number;listingCache?:ListingCache}):Promise<{options:Option[];failed:boolean;stores:StoreResult[]}>{
+ const browserDeadline=Math.min(Date.now()+90000,controls?.deadlineAt??Infinity);
+ if(process.env.ZYTE_API_KEY){const found=await discoverWithZyte(requirements,excludeUrls,controls?.selectedStores,browserDeadline,controls?.listingCache);return {...found,options:controls?.candidatePool?evidencePool(found.options,requirements).map(p=>p.option):chooseBatch(found.options,requirements,taste,perStoreLimit)};}
+ const results=await Promise.all(stores.filter(store=>!controls?.selectedStores||controls.selectedStores.includes(store)).map(async store=>{
+  // Single-page readers and browser recovery search broadly; preferences rank the evidence.
+  const searchUrl=storeSearchUrl(store,requirements,false);
   try{
    let options:Option[];
    if(addedStores.includes(store)){const found=expandedRetailOptions(store,await expandedStoreBody(store,requirements,searchUrl),requirements,Date.now(),excludeUrls);if(!found.readable)throw new Error('No readable public product catalogue');options=found.options;}
    else if(store==='Flipkart')options=(await discover(requirements,excludeUrls,12)).map(o=>({...o,store,source:'product' as const}));
    else if(store==='Meesho'){
-    const body={query:searchTerms(requirements),type:'text_search',page:1,offset:0,limit:20,sort_option:null,selected_filters:[],selectedFilterIds:[],cursor:null,isDevicePhone:false};
+    const body={query:searchTerms(requirements,false),type:'text_search',page:1,offset:0,limit:20,sort_option:null,selected_filters:[],selectedFilterIds:[],cursor:null,isDevicePhone:false};
     const text=await page('https://www.meesho.com/api/v1/products/search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
     options=meeshoOptions(JSON.parse(text),requirements,Date.now(),excludeUrls,12);
    }
    else if(store==='Amazon'){
-    const broadUrl=storeSearchUrl(store,requirements,false);
-    const pages=await Promise.allSettled([page(searchUrl),...(broadUrl!==searchUrl?[page(broadUrl)]:[])]);
+    const focusedUrl=storeSearchUrl(store,requirements);
+    const pages=await Promise.allSettled([page(focusedUrl),...(focusedUrl!==searchUrl?[page(searchUrl)]:[])]);
     const readable=pages.filter((p):p is PromiseFulfilledResult<string>=>p.status==='fulfilled'&&load(p.value)('[data-component-type="s-search-result"]').length>0);
     if(!readable.length)throw new Error('Amazon search not readable');
     const pools=readable.map(p=>amazonOptions(p.value,requirements,Date.now(),excludeUrls,12));
@@ -124,13 +128,13 @@ export async function discoverAcrossStores(requirements:Requirements,excludeUrls
     if(store==='SNITCH'){
      const url=new URL('https://api.snitch.com/products/search');
      url.searchParams.set('page','1');url.searchParams.set('limit','25');url.searchParams.set('platform','web');
-     url.searchParams.set('keyword',searchTerms({...requirements,audience:undefined}));urls[0]=url.href;
+     url.searchParams.set('keyword',searchTerms({...requirements,audience:undefined},false));urls[0]=url.href;
     }
     if(store==='Bonkers Corner'){
      const url=new URL('https://www.bonkerscorner.com/search/suggest.json');
      // Brand-specific search need not repeat audience words; strict matching still
      // checks the requested audience and every hard constraint after retrieval.
-     url.searchParams.set('q',searchTerms({...requirements,audience:undefined}));
+     url.searchParams.set('q',searchTerms({...requirements,audience:undefined},false));
      url.searchParams.set('resources[type]','product');url.searchParams.set('resources[limit]','10');urls[0]=url.href;
     }
     const result=retailOptions(store,await page(urls[0]),requirements,Date.now(),excludeUrls);
@@ -156,7 +160,7 @@ export async function discoverAcrossStores(requirements:Requirements,excludeUrls
    console.info('Store browser recovery',entry.result.store,entry.result.status,found.options.length);
   }catch{/* Preserve the store's unavailable state; no raw provider URLs in logs. */}
  }));
- const options=chooseBatch(results.flatMap(x=>x.options),requirements,taste,perStoreLimit);
+ const options=controls?.candidatePool?evidencePool(results.flatMap(x=>x.options),requirements).map(p=>p.option):chooseBatch(results.flatMap(x=>x.options),requirements,taste,perStoreLimit);
  return {options,failed:results.every(x=>x.result.status==='unavailable'),stores:results.map(x=>x.result)};
 }
 const searchResultValidator=v.object({options:v.array(optionValidator),failed:v.boolean(),stores:v.array(storeResultValidator)});

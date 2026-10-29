@@ -8,10 +8,13 @@ import {internal} from './_generated/api';
 import {fashionCategories,needsAudience,requestedAudience} from './fashionRules';
 import {nextRequest,type Requirements} from './discoveryRules';
 import {explicitDiscovery} from './discoveryPolicy';
-import {discoverAcrossStores} from './liveDiscovery';
+import {discoverGuestProducts} from './guestDiscovery';
+import {chooseBatch} from './ranking';
+import {inspectGuestColours} from './guestProductColours';
 const schema=z.object({brand:z.string().max(60).nullable().optional(),pricePreference:z.enum(['best_within_budget','lowest_price']).nullable().optional(),category:z.enum(fashionCategories).nullable(),audience:z.enum(['men','women','unisex']).nullable(),budget:z.number().min(100).max(50000).nullable(),colour:z.string().max(40).nullable(),fabric:z.string().max(40).nullable(),style:z.string().max(40).nullable(),reply:z.string().max(400)});
-export const run=internalAction({args:{id:v.id('guestSearches')},handler:async(ctx,{id})=>{
- const job=await ctx.runQuery(internal.guestSearch.context,{id});if(!job||job.state!=='pending')return;
+export const run=internalAction({args:{id:v.id('guestSearches'),attempt:v.optional(v.number())},returns:v.null(),handler:async(ctx,{id,attempt:expectedAttempt})=>{
+ const job=await ctx.runQuery(internal.guestSearch.context,{id});if(!job||job.state!=='pending'||(expectedAttempt!==undefined&&expectedAttempt!==(job.attempts??1)))return null;
+ const attempt=job.attempts??1;
  try{
   let requirements:Requirements=job.requirements??nextRequest(job.text).requirements;
   let reply='Here is a first look. Sign in to refine these picks around your size, style and budget.';
@@ -22,14 +25,18 @@ export const run=internalAction({args:{id:v.id('guestSearches')},handler:async(c
   }
   if(!job.requirements){const audience=requestedAudience(job.text);if(audience)requirements.audience=audience;else delete requirements.audience;}
   const requested=explicitDiscovery(job.text,{},requirements);delete requirements.brand;delete requirements.pricePreference;Object.assign(requirements,requested);
-  if(!requirements.category){await ctx.runMutation(internal.guestSearch.finish,{id,state:'ready',reply});return;}
+  if(!requirements.category){await ctx.runMutation(internal.guestSearch.finish,{id,attempt,state:'ready',reply});return null;}
   if(needsAudience(requirements.category,requirements.audience)){
-   await ctx.runMutation(internal.guestSearch.finish,{id,state:'clarifying',requirements,reply:'Who are you shopping for? This helps me filter the results.'});return;
+   await ctx.runMutation(internal.guestSearch.finish,{id,attempt,state:'clarifying',requirements,reply:'Who are you shopping for? This helps me filter the results.'});return null;
   }
   const noBudget=!requirements.budget;
   // Broad preview only; never represent this ceiling as the shopper's budget.
-  const result=await discoverAcrossStores({...requirements,budget:requirements.budget??50000,...(noBudget?{pricePreference:'lowest_price' as const}:{})},[],undefined,3);
-  const note=result.options.length?`Found ${result.options.length} options to explore.${noBudget?' No budget filter was supplied.':''} Confirm sizes and final prices on the store.`:result.failed?'The stores could not be reached just now. No sample products have been substituted.':'No matching products could be verified just now.';
-  await ctx.runMutation(internal.guestSearch.finish,{id,state:'ready',reply:note,result});
- }catch(error){console.warn('Guest preview failure',error instanceof Error?error.name:'Unknown',String((error as any)?.statusCode??''));await ctx.runMutation(internal.guestSearch.finish,{id,state:'failed',reply:'This preview could not be completed. Sign in to try again.'});}
+  const searchRequirements={...requirements,budget:requirements.budget??50000,...(noBudget?{pricePreference:'lowest_price' as const}:{})};
+  // Retrieve once. Keep a bounded ranked pool so Show more needs no new store calls.
+  const found=await discoverGuestProducts(searchRequirements);
+  const result={...found,options:chooseBatch(await inspectGuestColours(found.options,searchRequirements),searchRequirements,{prefer:[],avoid:[]},10,[],36)};
+  const note=result.options.length?`Found ${result.options.length} options to explore.${noBudget?' No budget filter was supplied.':''} Confirm sizes and final prices on the store.`:result.failed?'The stores could not be reached just now.':result.stores.some(store=>store.status==='unavailable')?'Some stores couldn’t be reached, and the listings we could check didn’t confirm a match. Your filters are unchanged.':'No verified matches for these filters yet. Check the stores below or sign in to change your search.';
+  await ctx.runMutation(internal.guestSearch.finish,{id,attempt,state:'ready',reply:note,result,requirements});
+ }catch(error){console.warn('Guest preview failure',error instanceof Error?error.name:'Unknown',String((error as any)?.statusCode??''));await ctx.runMutation(internal.guestSearch.finish,{id,attempt,state:'failed',reply:'This search couldn’t finish. Try again; your request is still here.'});}
+ return null;
 }});

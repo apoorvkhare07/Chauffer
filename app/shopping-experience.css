@@ -33,7 +33,7 @@
 .discovery-save{position:absolute;right:10px;top:10px;border:1px solid #ffffffb3;background:#fffffff0;width:44px;height:44px;border-radius:50%;color:var(--accent);display:grid;place-items:center;cursor:pointer;box-shadow:0 2px 14px #132b4f12}
 .discovery-save.is-saved{background:#eaf0ff}
 .discovery-reason{display:flex;align-items:flex-start;gap:6px;color:#52678a;font-size:11px;line-height:1.5;margin:2px 14px 12px}.discovery-reason svg{flex-shrink:0;margin-top:2px}
-.discovery-card-actions{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:4px;padding:8px 10px;border-top:1px solid #eef0f5}
+.discovery-card-actions{margin-top:auto;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px;padding:8px 10px;border-top:1px solid #eef0f5}
 .discovery-card-actions button,.discovery-card-actions a{display:inline-flex;align-items:center;justify-content:center;gap:5px;color:var(--accent);border:0;background:none;font:inherit;font-size:11px;padding:6px;min-height:44px;cursor:pointer;text-decoration:none}
 .discovery-card-actions a{min-width:36px}.discovery-card-actions button:hover{text-decoration:underline}
 .discovery-store-note{display:flex;flex-wrap:wrap;gap:12px;margin:22px 0 10px;font-size:11px;line-height:1.6;color:var(--muted)}

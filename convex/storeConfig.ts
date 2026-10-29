@@ -6,7 +6,7 @@ export const storeValidator=v.union(...stores.map(store=>v.literal(store)));
 export const storeConfig:Record<Store,{origin:string;path:string;param:string;product:RegExp}>={
  Flipkart:{origin:'https://www.flipkart.com',path:'/search',param:'q',product:/\/p\/[\w-]+/},
  Amazon:{origin:'https://www.amazon.in',path:'/s',param:'k',product:/\/(?:dp|gp\/product)\/[A-Z0-9]{10}(?:\/|$)/},
- Myntra:{origin:'https://www.myntra.com',path:'/',param:'',product:/\/\d+\/buy\/?$/},
+ Myntra:{origin:'https://www.myntra.com',path:'/',param:'',product:/(?:^\/\d+|\/\d+\/buy)\/?$/},
  AJIO:{origin:'https://www.ajio.com',path:'/search/',param:'text',product:/\/p\/[\w-]+$/},
  'Bonkers Corner':{origin:'https://www.bonkerscorner.com',path:'/search',param:'q',product:/^\/products\/[a-z0-9-]+\/?$/},
  Bewakoof:{origin:'https://www.bewakoof.com',path:'/search',param:'q',product:/^\/p\/[a-z0-9-]+\/?$/},

@@ -18,3 +18,13 @@ test('a matching saved listing with a price drop gets a daily recommendation slo
  const batch=chooseBatch(options,{category:'kurta',budget:1000},{prefer:['floral'],avoid:[]},6,[base.url]);
  expect(batch).toHaveLength(6);expect(batch[0].url).toBe(base.url);
 });
+
+test('guest pages retain enough distinct matches for twelve at a time without relaxing the budget',()=>{
+ const stores=['Amazon','Myntra','Flipkart'] as const;
+ const options=stores.flatMap((store,s)=>Array.from({length:10},(_,i)=>({store,title:`Printed Kurta Design ${s}-${i}`,url:`https://www.flipkart.com/design/p/${s}${i}`,price:700+i,colour:'blue',fabric:'cotton',observedAt:1})));
+ const pool=chooseBatch([...options,{...options[0],url:'https://www.flipkart.com/design/p/expensive',title:'Expensive Kurta',price:2000}],{category:'kurta',budget:1000},{prefer:[],avoid:[]},10,[],36);
+ expect(pool).toHaveLength(30);expect(pool.every(p=>p.price<=1000)).toBe(true);
+ expect(new Set(pool.slice(0,12).map(p=>p.store)).size).toBe(3);
+ expect(new Set(pool.map(p=>p.url)).size).toBe(30);
+ expect(chooseBatch(options,{category:'kurta',budget:1000},{prefer:[],avoid:[]})).toHaveLength(6);
+});

@@ -35,6 +35,11 @@ export async function beginTurn(ctx:MutationCtx,conversation:Doc<'conversations'
   }
  }
  const reset=/^(reset|start)[!.\s]*$/i.test(text);
+ // Reset the temporary fitting basket atomically with this shopping session.
+ if(reset&&conversation.key.startsWith('web:')){
+  const items=await ctx.db.query('tryOnBasket').withIndex('by_owner',q=>q.eq('owner',conversation.key.slice(4))).take(8);
+  for(const item of items)await ctx.db.delete(item._id);
+ }
  const previous=reset?defaults:conversation.requirements;
  const answer=reset?null:questionAnswer(text,conversation.discoveryQuestion);
  const outOfScope=unsupportedFashionRequest(text);
@@ -53,8 +58,9 @@ export async function beginTurn(ctx:MutationCtx,conversation:Doc<'conversations'
  const revision=conversation.revision+1,session=conversation.session+(reset?1:0);
  const rejectedUrls=reset?[]:[...new Set([...conversation.rejectedUrls,...(rejectUrl?[rejectUrl]:[])])].slice(-120);
  let shownUrls=reset?[]:conversation.shownUrls;
- // Keep seen products excluded throughout this chat, including refinements.
- await ctx.db.patch(conversation._id,{wardrobeContextRequested:reset?false:wardrobeIntent(text,conversation.wardrobeContextRequested),discoveryStatus:reset?'exploring':plan.search?'refining':conversation.discoveryStatus??'exploring',discoveryQuestion:discoveryQuestion??(useAI?conversation.discoveryQuestion:undefined),requirements:plan.requirements,revision,session,pending:plan.search||useAI,aiTurn:useAI,inputText:text,updatedAt:Date.now(),shownUrls,rejectedUrls,...(reset?{taste:emptyTaste,agentThreadId:undefined}:{})});
+ // Refinements re-check seen products; only an explicit request for another batch hides them.
+ const excludeShown=sameSearchMore&&!answer&&!/^(try again|search again)[!.\s]*$/i.test(text);
+ await ctx.db.patch(conversation._id,{excludeShown,wardrobeContextRequested:reset?false:wardrobeIntent(text,conversation.wardrobeContextRequested),discoveryStatus:reset?'exploring':plan.search?'refining':conversation.discoveryStatus??'exploring',discoveryQuestion:discoveryQuestion??(useAI?conversation.discoveryQuestion:undefined),requirements:plan.requirements,revision,session,pending:plan.search||useAI,aiTurn:useAI,inputText:text,updatedAt:Date.now(),shownUrls,rejectedUrls,...(reset?{taste:emptyTaste,agentThreadId:undefined}:{})});
  if(reset)await ctx.db.insert('messages',{conversationId:conversation._id,session,role:'assistant',text:plan.reply});
  else{
   if(conversation.revision===0)await ctx.db.insert('messages',{conversationId:conversation._id,session,role:'assistant',text:welcome});
@@ -62,7 +68,7 @@ export async function beginTurn(ctx:MutationCtx,conversation:Doc<'conversations'
   if(!useAI)await ctx.db.insert('messages',{conversationId:conversation._id,session,role:'assistant',text:plan.reply});
  }
  if(useAI&&!conversation.agentThreadId){const threadId=await createThread(ctx,components.agent,{userId:conversation.key,title:'Chauffeur shopping'});await ctx.db.patch(conversation._id,{agentThreadId:threadId});}
- return {...plan,aiRequested:useAI,conversationId:conversation._id,revision,session,excludeUrls:[...new Set([...shownUrls,...rejectedUrls])]};
+ return {...plan,aiRequested:useAI,conversationId:conversation._id,revision,session,excludeUrls:[...new Set([...(excludeShown?shownUrls:[]),...rejectedUrls])]};
 }
 export async function searchClaim(ctx:MutationCtx,owner:string,kind:'ai'|'search'='search'):Promise<Id<'webSearchRuns'>>{
  const now=Date.now();const recent=await ctx.db.query('webSearchRuns').withIndex('by_owner',q=>q.eq('owner',owner).gte('_creationTime',now-90000)).order('desc').take(13);

@@ -13,3 +13,11 @@
 .info-page .roadmap-page h2{font-size:24px;line-height:1.3;letter-spacing:-.025em}
 .info-page h1 em{color:#2950B8;font-style:normal}
 @media(max-width:760px){.info-page .roadmap-page h2{font-size:21px}}
+
+/* The pricing preview now belongs to the coming-soon page. */
+.roadmap-page .pricing-intelligence{text-align:left;padding:64px 0 40px}
+.roadmap-page .future-feature-layout{width:100%;padding:0;gap:40px}
+.roadmap-page .future-feature-copy h2{font-size:40px;line-height:1.1;margin-bottom:20px}
+.roadmap-page .future-feature-copy h3{font-size:14px}
+.roadmap-page .future-feature-kicker{color:#2950b8;letter-spacing:.06em;font-size:11px}
+@media(max-width:760px){.roadmap-page .pricing-intelligence{padding-top:44px}.roadmap-page .future-feature-copy h2{font-size:36px}.roadmap-page .future-feature-layout{gap:28px}}

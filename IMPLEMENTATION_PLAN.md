@@ -1,5 +1,9 @@
 # Chauffeur implementation plan
 
+## Current architecture planning — 21 October 2026
+
+The released recommendation implementation is [the recommendation architecture and build specification](docs/RECOMMENDATION_ARCHITECTURE.md). It defines four shopper journeys, specialist handoffs, cross-chat memory, evidence-based recommendations, operating limits and phased acceptance checks. Core task coordination, specialists, memory controls and bounded evidence retrieval are implemented; measured checks and remaining release gates are recorded in TESTING_LEDGER.md. Production uses the new route for signed-in web requests; guest discovery retains its established route. The older roadmap below is historical where it conflicts with PRODUCT.md or this newer direction; purchasing remains outside V1.
+
 Chauffeur will purchase clothing on the shopper's behalf using a browser, after the shopper approves the exact checkout details. Merchant partnerships are not assumed to be a prerequisite. Browser purchasing must be proven separately for each store before it is offered to users.
 
 ## Discovery-first build plan — 8 October 2026
@@ -180,3 +184,11 @@ Next integration: route appropriate discovery-chat requests to standalone wardro
 ## WhatsApp interface — 16 October 2026
 
 Core account-bound channel is implemented, following Saathi's integration pattern with a separate Chauffeur Meta app. Reuses web discovery, wardrobe, stylist, try-on, daily feed and plan enforcement. Photo/voice shopping uses confirmation before search; wardrobe tags/body observations need review. See `docs/WHATSAPP_CHANNEL.md` for the capability map, remaining web handoffs and live acceptance steps. Meta credential setup and real-phone testing must complete before calling this a working delivery channel.
+
+## 22 October 2026 — discovery extraction and fitting-room handoff
+Use the shared Zyte listing reader when configured, retaining broad merchant queries, bounded retrieval and recommendation validation. Connect signed-in discovery cards directly to temporary Gemini try-on through owner-checked message references; no saved product or repeated extraction required. Development implementation; see TESTING_LEDGER.md for verification and pending photo checks.
+
+
+### 29 October 2026 — Specific try-on target, development implementation
+
+The shared renderer now identifies and validates the requested product before generating, and uses category-specific edit boundaries for Indian garments and footwear. The user can correct the target in guest, quick, basket and saved-photo flows. Ambiguous uploads and missing body regions stop with an actionable message. Clothing/shoes are supported; jewellery and glasses remain out of scope until close-up quality tests pass. Existing Gemini generation, ownership, consent and bounded media processing remain in place. See the 29 October TESTING_LEDGER entry for real sample results, limitations and development-only deployment status.
